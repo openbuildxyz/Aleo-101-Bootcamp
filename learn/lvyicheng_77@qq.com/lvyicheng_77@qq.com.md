@@ -1,0 +1,6 @@
+- 昵称：   吕亦晟
+- GitHub 用户名：   lvyicheng_77@qq.com
+- 微信： Power-one11
+- Aleo 钱包地址：  (不明白的可以学完基础知识后再填)  
+- 技术栈：  python，go
+- 自我介绍：   python+ai+Agent开发，go语言后端开发
