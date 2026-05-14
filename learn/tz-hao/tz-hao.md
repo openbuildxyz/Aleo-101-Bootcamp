@@ -1,0 +1,6 @@
+- 昵称：milli   
+- GitHub 用户名：tz-hao   
+- 微信： ZZHTt66
+- Aleo 钱包地址：aleo1hxrwn37uvt8jm5cks6wvxk44vx6vcgtmvwcsygqamuq6gr4ywuxs000q0w  (不明白的可以学完基础知识后再填)  
+- 技术栈：solidity  
+- 自我介绍：大二在读区块链学生   
