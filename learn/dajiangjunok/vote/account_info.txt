@@ -1,0 +1,8 @@
+Aleo Account Information
+========================
+
+Private Key: APrivateKey1zkpJNXPt8dTMsLNQ9G4ajfRDvL9174DHY7RPbsab1b7RKr9
+View Key: AViewKey1nidZrzAP7aZDGscqZtkjM8njq42GC9uUhng5ndLZ15vF
+Address: aleo195h4l752xphrk7k3x7rnvyrg2qyeukv4dnff67tcpep0apxe3ufqn86dez
+
+Network: testnet
