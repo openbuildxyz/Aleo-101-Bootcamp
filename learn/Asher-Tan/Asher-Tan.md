@@ -1,0 +1,6 @@
+- 昵称：   
+- GitHub 用户名：Asher-Tan
+- 微信：Asher_Tan
+- Aleo 钱包地址：aleo1veez9g7f6n2de55cxggtcq475sdfsf0dx2xwcf7rgxm3ze6stuyskl863w  
+- 技术栈：JavaScript/React/Vue/Node.js/Python/Golang/Rust
+- 自我介绍：搬砖老司机，web3新手

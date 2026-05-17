@@ -1,0 +1,6 @@
+- 昵称：Dusko
+- GitHub 用户名：DuskoLL
+- 微信：LL0xDusko
+- Aleo 钱包地址：aleo1u69mfdzk2kvrqduwpxwfn2ykk9wa35rw8fxwym3cddkjs2wu8c9s4hegm8
+- 技术栈：solidity、java
+- 自我介绍：就读于成都信息工程大学，本科区块链工程，研究生人工智能方向，epochChain学生团队创始人，目前团队成立已有四年共计五十余位队员，研究方向为AI+Web3.

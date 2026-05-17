@@ -1,0 +1,6 @@
+- 昵称：  宋兴可
+- GitHub 用户名：  jlusongxk 
+- 微信： He2227487438
+- Aleo 钱包地址：  aleo18v6cmfrq5dv7sdp24a4aq4jvegf2tp9px33rg7f3f9qply5wavysgp05m8 
+- 技术栈：  python
+- 自我介绍：  miner

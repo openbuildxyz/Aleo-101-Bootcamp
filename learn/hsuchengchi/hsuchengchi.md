@@ -1,0 +1,6 @@
+- 昵称：   HsuChengChi
+- GitHub 用户名：   xzc1017964340
+- 微信： xzc1017964340
+- Aleo 钱包地址：  (不明白的可以学完基础知识后再填)  
+- 技术栈：  Java/TypeScript/Rust
+- 自我介绍：   Web2 来的新人。了解些Web3 和 Solana 的基本知识。

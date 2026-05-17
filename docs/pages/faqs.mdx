@@ -1,0 +1,145 @@
+---
+title: 常见问题
+---
+
+# 常见问题
+
+## Aleo 上的应用和 ZK Rollup 是否类似？
+
+二者有相似之处，但并不相同。
+
+| 维度 | ZK Rollup | Aleo 应用 |
+| --- | --- | --- |
+| 信息可见性 | 所有信息默认公开 | 可利用 zkSNARK 的零知识特性将部分输入设为私有 |
+| 证明生成 | 由 Rollup 协调者生成证明并提交到 Rollup 交易中 | 由用户自行生成证明，并作为交易的一部分提交 |
+| 批处理 | 将多笔交易打包 | 可以将多个 transition 打包到同一笔交易中 |
+| zkSNARK 的用途 | 利用简洁性来证明一批交易执行正确 | 既可采用类似 Rollup 的架构，也可额外获得隐私能力 |
+
+和 ZK Rollup 中批量打包多笔交易类似，Aleo 也支持在同一笔交易中批量包含多个 transition。
+
+## 证明者网络是如何工作的？它的激励机制和共识关系是什么？
+
+Aleo 是一个基于 SNARK 的网络，使用 Marlin proving algorithm 来生成程序证明。底层密码学与证明生成由 SnarkVM 负责。当前 Aleo 程序证明既可以在本地生成，也可以委托给第三方证明者来完成，这两种方式在性能和隐私之间存在权衡。
+
+本地生成证明是最小化信任的方案，因为你不需要把私有输入分享给任何人，但性能会受到本机硬件限制。
+
+对于更复杂的证明，用户可以委托给拥有专用硬件的第三方证明者。这样通常能换来更好的性能，但代价是需要向对方披露一部分用于计算零知识证明的数据。
+
+在 Aleo 网络中，证明者使用专用硬件生成证明，并解决帮助保护网络的谜题。他们会针对某个区块生成证明，并根据自己提交的高于目标难度的证明数量，按比例分享 coinbase reward 的一部分。
+
+> 证明难度使用 Bitcoin Cash 团队提出的 ASERT 算法变体来设定。当证明超过当前难度阈值时，coinbase reward 会在所有参与贡献的证明者之间分配。证明者的计算工作主要包括 multi-scalar multiplication 和 fast Fourier transforms。
+
+## Aleo Credits 的作用是什么？
+
+Aleo Credits 主要有两类用途：
+
+1. 保护网络：验证者质押 Aleo Credits 来提议区块并维护网络安全，并因验证工作获得 Aleo Credits 奖励。这部分与常见的 PoS 链类似。
+2. 购买零知识计算能力：需要 zkSNARK 证明的应用，可以使用 Aleo Credits 向证明者支付生成证明的费用。
+
+## Aleo 中证明者的 PoSW 是如何运作的？
+
+Proof of Succinct Work（PoSW）是 Aleo 中用来推动零知识证明硬件加速的一种激励机制。其核心是一类加密谜题，也就是 Coinbase puzzle，它会引导证明者执行 zkSNARK 底层所依赖的重要计算，例如 multi-scalar multiplications 和 fast Fourier transforms。
+
+证明者本身不负责出块，但可以从每个区块的 coinbase reward 中分得一部分奖励。这不是赢家通吃的模型。对于同一块中所有提交了高于最低难度目标解答的证明者，奖励会按比例分配。
+
+随着 Coinbase puzzle 的难度逐渐增加，证明者需要持续升级硬件和优化证明技术，以应对越来越高的难度。这种机制既鼓励持续创新，也让所有参与者都能按贡献获得回报，而不是只奖励最快的那一个。
+
+从本质上说，PoSW 把证明过程变成了一个类似矿池的去中心化竞争生态，集体努力会同时推动性能提升和成本下降。
+
+由于奖励与能够真正提升 ZKP 生成效率的有效工作绑定，PoSW 会激励更多人投资专用硬件，例如 ASIC。这种激励一致性有助于维持一个稳健、抗审查、持续演进的去中心化证明者网络，这也是 Aleo 隐私优先愿景的重要组成部分。
+
+## Aleo 的 Record 模型是如何设计的？它和 Account 模型、UTXO 模型有什么关系？
+
+Aleo 同时支持类似 UTXO 的 Record 模型，以及带有 mappings 的类似 Account 模型。在 Record 模型中，去中心化账本会通过全局状态跟踪每一条 record。
+
+我们仍然有用户地址，但不是在应用里直接对一组输入发起全局交易，而是先在本地对一组 records 执行交易，再把这些 transitions 连同“这些 records 已被正确执行”的证明一起提交到交易中。这样一来，网络更新的就不再是一个全局加密状态仓库，而是对 records 的一种抽象，相当于把状态拆分成了更适合并发处理的形式。
+
+Record 模型与比特币的 UTXO 模型很相似。不同之处在于，UTXO 中承载的内容在 Aleo 里可以由程序自由定义，而不是被协议层写死；并且这些内容默认都是加密的。
+
+## 从区块链三难困境的角度看，Aleo 牺牲了哪一项？
+
+Aleo 的目标不是在三难困境中做取舍，而是借助其共识机制和 ZK Snarks 同时覆盖这三方面。
+
+Aleo 提供了账户隐私：去中心化账本基于 program IDs 来索引全局状态。
+
+它还支持高效状态更新：record abstraction 能帮助你把不同信息彼此隔离，predicates 只消费正在被更新的 program records。
+
+它也支持并发：程序状态可以通过 records 被并行更新，账本会确保这些 records 不会被重复花费。可以把这些 records 看成一棵 Merkle tree 上的叶子节点。
+
+并发之所以可行，是因为网络可以先收集所有人的 record updates，再一次性把这些 delta 和 diff 合并进 Merkle tree，随后线性化、补丁化后写入区块头。这样就能在 Record 模型里重新获得过去 Account 模型中部分熟悉的能力，同时保留并发优势。
+
+## Aleo 如何防止双花？这对交易终局性和手续费有什么影响？
+
+由于 Aleo 同时支持带 records 的 UTXO 模型和带 mappings 的 Account 模型，所以双花防护方式也有所不同。
+
+对于 UTXO 模型：
+
+每条 record 都有一个 serial number 和对应的 commitment。花费这条 record 时，需要公开创建一个 inclusion proof，证明它存在于 commitments 树中，同时用 serial number 来验证这条 record 没有被之前使用过。如果尝试再次花费同一条 record，就会失败。
+
+Commitments 是一种密码学机制，用来确保提交的信息真实且未被篡改。它既能保护敏感数据，也能让验证仍然成立。对 Aleo 智能合约来说，commitments 也很关键，因为它们可以在不暴露底层数据的前提下验证合约条件，并确保合约执行符合预期。
+
+生成一笔交易时，需要为新 records 创建 commitments，同时为被消费的 records 计算唯一 serial number。Commitments 既参与 transition 级别的证明生成，也参与 transaction 级别的证明生成。
+
+对于 Account 模型：
+
+账户状态保存在全局 mapping 中。每次转账时，发送方账户余额会减少，接收方余额会增加，这一点与 Ethereum 等公链类似。由于状态是全局的，你无法转出自己账户中并不存在的金额。对于会更新 mapping 的交易，仍然需要证明，而且该证明依赖于 stateRoot。如果在此之前 mapping 已经被其他交易更新，stateRoot 就会改变，原有证明会失效。
+
+## Aleo instructions 的作用是什么？
+
+Aleo instructions 是 Aleo programs 的中间表示。所有 Leo programs 都会先编译成 Aleo instructions，再进一步编译成 bytecode。最终这些 Aleo instructions 会被编译成可由 Aleo Virtual Machine 执行的 AVM opcodes。
+
+为了生成零知识证明，系统需要使用 arithmetic circuits。EVM 生态中的开发者往往会用 Circom、Zokrates 这类工具来描述电路，再基于它们生成 proving keys 和 verifying keys。Aleo instructions 就是 Aleo 生态中承载这类电路表达的方式。
+
+如果有一个 Leo 程序只是做两个 `u32` 变量相加，那么它对应的 Aleo instructions 看起来会有点像汇编语言。
+
+## 为什么 Leo 会被创建出来？它和 Solidity 这类智能合约语言有什么区别？
+
+生成零知识证明需要用到 arithmetic circuits，而直接编写 circuits 往往并不轻松。
+
+Leo 的作用就是把这部分复杂度抽象掉，让开发者可以使用更高层的 Leo 语言（`.leo` 文件），而不是直接编写 Aleo（`.aleo`）层面的电路逻辑。
+
+## Aleo 的链下计算方式与 ZK-Coprocessor 等方案有什么不同？把 proving 任务外包会带来什么隐私影响？
+
+整体思路比较接近。Aleo 中每个 transition 都可以附带一个额外的 finalize block。transition block 中的逻辑会通过 ZK proof 被验证，而 finalize block 中的逻辑则会被网络中所有节点重新执行，以更新保存在 mappings 里的状态。
+
+从这个角度看，transition 内部的逻辑很像发送给 ZK-processor 的计算任务，它拥有固定的交易成本，不会随着逻辑大小线性增长；而 finalize block 中的逻辑则更接近 Ethereum 这类公链上的链上执行。
+
+当前 Aleo 支持把 proof generation 委托给远程服务器。这会明显提升生成速度，但也意味着需要向一个可信服务器披露交易细节。对于某些应用和用户来说，这是可以接受的；而对隐私要求极高的场景，用户仍然可以自己生成证明。
+
+真正理想的状态是“私密证明委托”，但目前还没有完全实现。关于 proving tasks 外包的更多讨论，可以查看[这里](https://www.youtube.com/watch?v=bulEa85cptc)。
+
+## Aleo 与 Bitcoin、Ethereum 在核心设计和能力上如何比较？
+
+一张常被引用的总结是：
+
+- Bitcoin 是公开货币，不可编程，而且用户交易默认公开。
+- Ethereum 引入了可编程性，但没有提供原生隐私。
+- 一些项目提供了隐私，但没有完整的可编程能力。
+- Aleo 同时强调隐私与可编程性。
+
+## 在哪里可以看 Aleo 相关演讲和视频？
+
+- [Coinbase BUIDL - Learning LEO | Coding Private Application with ZK Cryptography](https://youtu.be/LJXjtthDl6I)
+- [DEVCON - Aleo Developer Workshop: Leo Coding & Examples](https://youtu.be/ABPCr2TwrgE)
+- [DEVCON - What are ZK Proofs Good For? Applications to Anonymous Identity, Sybil Prevention and Moderation](https://youtu.be/d2n0Al0P2Jc)
+- [DEVCON - Efficient Private Delegation of zkSNARK Provers](https://youtu.be/mFzwp8gGn-E)
+- [ICC - Web 3.0 for developers in TLV Howard Wu Aleo](https://youtu.be/-FrrylHITvg)
+- [ZK8 - Demystifying Zero-Knowledge Programming – Howard Wu - Aleo](https://youtu.be/e-1mPNEINRI)
+- [ETHCC - The Hitchhiker's Guide to ZK: An Aleo Developer Workshop](https://youtu.be/fjfj5kFcQe4)
+- [CoinGecko - Importance of Zero-knowledge Proofs w/ Alex Pruden](https://youtu.be/NvYddvVBjXY)
+- [Thinking Crypto - Alex Pruden Interview - Aleo's Privacy Solutions - Zero Knowledge Proofs - a16z - Bitcoin & Crypto](https://youtu.be/1y4jvyy8Nsk)
+- [The Interop - Zero-Knowledge Smart Contracts with Alex Pruden of Aleo](https://youtu.be/6BwefrwgN3w)
+- [Axelar - Tech Talks with Aleo](https://youtu.be/P7G2DKWZbVM)
+
+## Aleo 的社交账号有哪些？
+
+- Discord: [https://discord.gg/aleo](https://discord.gg/aleo)
+- X（Twitter）: [@AleoHQ](https://twitter.com/AleoHQ)
+- Community X（Twitter）: [@aleocommunity](https://twitter.com/aleocommunity)
+- GitHub: [https://github.com/AleoNet](https://github.com/AleoNet)
+- Community Blog: [https://medium.com/@aleohq](https://medium.com/@aleohq)
+
+## 还有哪些值得参考的资源？
+
+- [A curated list of Aleo & Leo code and resources](https://github.com/howardwu/awesome-aleo)
+- [A starter guide to build applications on Aleo](https://github.com/AleoNet/workshop)

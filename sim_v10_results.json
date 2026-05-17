@@ -1,0 +1,65 @@
+[
+  {
+    "bot": "Nova Scout",
+    "map": "classic",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 400: Bad Request"
+  },
+  {
+    "bot": "Nova Scout",
+    "map": "arena",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "bot": "Nova Scout",
+    "map": "random",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 400: Bad Request"
+  },
+  {
+    "bot": "Azure Hunter",
+    "map": "classic",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 400: Bad Request"
+  },
+  {
+    "bot": "Azure Hunter",
+    "map": "arena",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "bot": "Azure Hunter",
+    "map": "random",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 400: Bad Request"
+  },
+  {
+    "bot": "Crimson Bastion",
+    "map": "classic",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 429: Too Many Requests"
+  },
+  {
+    "bot": "Crimson Bastion",
+    "map": "arena",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 400: Bad Request"
+  },
+  {
+    "bot": "Crimson Bastion",
+    "map": "random",
+    "win": false,
+    "reason": "error",
+    "error": "HTTP Error 429: Too Many Requests"
+  }
+]

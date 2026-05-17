@@ -1,0 +1,6 @@
+- 昵称：  Yukon
+- GitHub 用户名：  yhcui
+- 微信：cuiyuhui123
+- Aleo 钱包地址：  aleo18tjg2nu8hvvyeuzj0qfx4j2xyfta4q2dnr5wnv8lgv4lq9rrmq8qnxr5h5  
+- 技术栈：  solidity ,java, go
+- 自我介绍： web2多年后端，转型web3，懂点前端。

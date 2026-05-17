@@ -1,0 +1,6 @@
+- 昵称：   悟_
+- GitHub 用户名：   pandajc
+- 微信：Aleo Bootcamp 1 群里搜昵称  悟_ 
+- Aleo 钱包地址：  (不明白的可以学完基础知识后再填)  
+- 技术栈：  go, java, rust, solidity
+- 自我介绍：   backend engineer, learning web3

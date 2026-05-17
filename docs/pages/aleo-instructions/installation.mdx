@@ -1,0 +1,94 @@
+---
+title: 安装
+---
+
+# 安装
+
+## 概览
+
+在本地使用 Aleo 开发时，常见方式有两种：
+
+- 如果你想从命令行编写、构建和运行 Aleo 程序，建议安装 Leo CLI。这适合大多数开发者。
+- 如果你想在 Rust 项目中集成 Aleo primitives，可以使用 snarkVM 作为 Rust 库，或从源码构建 snarkVM。
+
+## 安装 Leo CLI
+
+请按照官方 Leo CLI 安装指南操作：
+
+- [Installation | Welcome to the Leo Docs](https://docs.leo-lang.org/getting_started/installation)
+
+安装完成后，运行以下命令验证 Leo 是否可用：
+
+```bash
+leo --version
+```
+
+## 在 Rust 项目中安装和使用 snarkVM
+
+### 1. 安装前置依赖
+
+#### 1.1 安装 Git
+
+```text
+bit.ly/start-git
+```
+
+#### 1.2 安装 Rust
+
+建议使用 [rustup](https://rustup.rs/) 安装 Rust。
+
+macOS 或 Linux：
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Windows：
+
+下载 [Windows 64-bit executable](https://win.rustup.rs/x86_64) 或 [Windows 32-bit executable](https://win.rustup.rs/i686)，然后按照界面提示安装。
+
+#### 1.3 安装额外依赖（macOS）
+
+如果你要在 macOS 上从源码构建 Rust crates，可能还需要安装以下包：
+
+```bash
+brew install pkgconf
+brew install openssl
+```
+
+#### 1.4 检查前置依赖
+
+```bash
+git --version
+cargo --version
+```
+
+### 2. 将 snarkVM 添加到 Rust 项目
+
+在 `Cargo.toml` 中加入 snarkVM：
+
+```toml
+[dependencies]
+snarkvm = "<version>"
+```
+
+请把 `<version>` 替换为你希望使用的 [crates.io](https://crates.io/) 版本。
+
+### 3. 可选：从源码构建 snarkVM
+
+从源码构建 snarkVM 是可选步骤，主要适用于开发或审计 snarkVM 的场景。
+
+```bash
+# 获取仓库的 staging 分支
+git clone --branch staging --single-branch https://github.com/ProvableHQ/snarkVM.git
+cd snarkVM
+
+# 以 release 模式构建
+cargo build --release
+```
+
+## 下一步
+
+- 如果你想先使用高级语言开发，请继续学习 Leo。
+- 如果你需要理解底层执行表示，请继续阅读 [Aleo 程序](/aleo-instructions/aleo-programs) 和 [语言](/aleo-instructions/language)。
+- 如果你只是配置编辑器语法高亮，请阅读 [工具](/aleo-instructions/tooling)。

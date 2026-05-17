@@ -1,0 +1,6 @@
+- 昵称:   Violet
+- GitHub 用户名：  magiciosemv
+- 微信：aaaaaax_xiiiiiiiii
+- Aleo 钱包地址：    aleo1n6rppr6n48ms5jp0zahrfdlqmgwzy7pemnayh8mxkhglpkzjgqysgckgd7
+- 技术栈：  solidity , react , node , rust
+- 自我介绍：  热爱区块链的学习，了解以太坊，目前正在学习solana链，对zk方面很感兴趣，参见过zk方面的黑客松

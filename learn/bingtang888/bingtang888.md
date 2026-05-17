@@ -1,0 +1,6 @@
+- 昵称：bingtang888
+- GitHub 用户名：bingtang888
+- 微信：bingbingad
+- Aleo 钱包地址： (学完基础知识后再填)
+- 技术栈：java,solidity,Rust, JavaScript, React
+- 自我介绍：参加Aleo训练营，学习零知识证明与zk-SNARKs技术java,solidity，web2 java后端开发者，希望了解web3领域

@@ -1,0 +1,6 @@
+- 昵称： 大椿 
+- GitHub 用户：HirongVSuen
+- 微信：MyAnt91 
+- Aleo 钱包地址： aleo189r8wnj3tc2t9meap272hz72wtq6c2c8jpvhggrxnlzu022fkuqqdv3kla   
+- 技术栈：  java、rust、devops
+- 自我介绍：11年java开发，现在在转rust开发

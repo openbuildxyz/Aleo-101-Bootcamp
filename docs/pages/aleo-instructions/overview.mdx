@@ -1,0 +1,48 @@
+---
+title: 概览
+---
+
+import { Cards, Card } from 'nextra/components'
+
+# Aleo Instructions 概览
+
+Aleo Instructions 是 Aleo 程序在底层执行时使用的指令表示。开发者通常使用 Leo 编写程序，而 Leo 编译器会将高级语言代码编译成 Aleo Instructions，再由 snarkVM 执行和验证。
+
+理解 Aleo Instructions 可以帮助你：
+
+- 更清楚地知道 Leo 程序如何被编译和执行。
+- 分析 program、function、record、mapping 等结构在底层的表示方式。
+- 调试复杂程序时定位类型、操作码或语法问题。
+- 理解 snarkVM 如何处理状态转换和证明生成。
+
+## 学习路径
+
+如果你刚开始学习，建议先了解 Aleo 程序结构，再逐步阅读语言、操作码和语法细节。
+
+<Cards>
+  <Card title="安装" href="/aleo-instructions/installation" />
+  <Card title="Aleo 程序" href="/aleo-instructions/aleo-programs" />
+  <Card title="语言" href="/aleo-instructions/language" />
+  <Card title="操作码" href="/aleo-instructions/opcodes" />
+  <Card title="特殊操作数" href="/aleo-instructions/special-operands" />
+  <Card title="语法" href="/aleo-instructions/grammar" />
+  <Card title="工具" href="/aleo-instructions/tooling" />
+</Cards>
+
+## 与 Leo 的关系
+
+Leo 是面向开发者的高级语言，语法更接近常见应用开发语言。Aleo Instructions 更接近 Aleo 的执行层表示，适合需要理解底层行为、编译结果或 snarkVM 执行细节的开发者。
+
+在日常开发中，你可以先使用 Leo 完成大多数工作；当你需要检查编译输出、理解某个操作的底层含义，或阅读更底层的程序示例时，再回到 Aleo Instructions 文档。
+
+## 与 snarkVM 的关系
+
+snarkVM 是 Aleo 的虚拟机。它负责执行 Aleo 程序、处理状态转换，并为程序执行生成和验证零知识证明。
+
+Aleo Instructions 描述了 snarkVM 可以理解和执行的程序形式。因此，阅读本节内容有助于理解 Aleo 程序从源代码到链上执行之间的完整路径。
+
+## 下一步
+
+- 如果你需要本地工具，请先阅读 [安装](/aleo-instructions/installation)。
+- 如果你想理解程序文件结构，请阅读 [Aleo 程序](/aleo-instructions/aleo-programs)。
+- 如果你想查具体指令，请阅读 [操作码](/aleo-instructions/opcodes)。

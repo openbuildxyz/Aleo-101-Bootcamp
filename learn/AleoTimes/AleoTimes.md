@@ -1,0 +1,6 @@
+- 昵称：   AleoTimes
+- GitHub 用户名：   AleoTimes
+- 微信： qleo9900
+- Aleo 钱包地址：  aleo1j09wuh7s6jfkgfr6ervkyn7un2u0l0tqsmv82mdq3ycma87up5ysr2w6xs
+- 技术栈：  Rust、 Perry、 React + Vite + TailwindCSS
+- 自我介绍：   深耕 Aleo 生态开发，熟练 Rust、Perry 及 React+Vite+TailwindCSS 技术栈，专注零知识证明 DApp 与链上小游戏开发。

@@ -1,0 +1,6 @@
+- 昵称：海椰
+- GitHub 用户名：BareerahBenjamin
+- 微信：EMPTY_QYW
+- Aleo 钱包地址：aleo169ggxpafd2d8zg36tyytw82qkypmgz3cmswqpf4wkh63ph763szqm02zeh
+- 技术栈：Solidty, Python, JavaScript
+- 自我介绍：学生，Aleo 小白，希望可以学习更多隐私相关内容

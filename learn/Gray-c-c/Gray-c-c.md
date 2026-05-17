@@ -1,0 +1,6 @@
+- 昵称：   Gray
+- GitHub 用户名：   Gray-c-c
+- 微信： f1935279767
+- Aleo 钱包地址： aleo12scte9sfy3xym23xfhwpgln4tpjqf9t20yn99xsglszjtf4mgggs6z9r46
+- 技术栈：  python
+- 自我介绍：  尝试进入web3领域中

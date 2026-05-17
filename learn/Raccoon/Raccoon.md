@@ -1,0 +1,6 @@
+- 昵称：  Raccoon
+- GitHub 用户名：  RaccoonHacker
+- 微信：  sunmaoqin112233
+- Aleo 钱包地址：  aleo1pxlq66rn0r7du7w346j0c3k62lr8nungvtxw34lt7qkc36tnlu9qdzevmu
+- 技术栈：  Solidity / Python / Rust
+- 自我介绍： full stack developer

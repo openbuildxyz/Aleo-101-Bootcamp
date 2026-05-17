@@ -1,0 +1,6 @@
+- 昵称：Lazybones3
+- GitHub 用户名：Lazybones3
+- 微信：HappySolana
+- Aleo 钱包地址：aleo1jx3ppd0t5st7a6gn6w3gkmdqhwpmwxdf9dq2jz77wz4z0lh29qpsv3ners
+- 技术栈：React, Axum, Solana，Solidity
+- 自我介绍：喜欢折腾，热爱学习，迷恋新技术

@@ -1,0 +1,6 @@
+- 昵称：Hex_01   
+- GitHub 用户名：Jiningsi   
+- 微信：Hex_10 
+- Aleo 钱包地址：aleo1e8ay9hem7c3q4pnmsgdvhqjnn3ks05van6w2f5lvxh29jjav9yzqzlkzaz
+- 技术栈：rust;后端
+- 自我介绍：渴望进入web3的技术爱好者   

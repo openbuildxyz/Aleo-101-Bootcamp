@@ -1,0 +1,6 @@
+- 昵称：   Thne
+- GitHub 用户名： thneoly  
+- 微信： cal-_-0503
+- Aleo 钱包地址：  (不明白的可以学完基础知识后再填)  
+- 技术栈：  Rust, Solana, Python, 大模型
+- 自我介绍：   技术爱好者

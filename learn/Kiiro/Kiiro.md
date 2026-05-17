@@ -1,0 +1,6 @@
+- 昵称：kiiro
+- GitHub 用户名：Xiaoteng152
+- 微信：oonyc8
+- Aleo 钱包地址：(不明白的可以学完基础知识后再填)
+- 技术栈：react, node, typescript, python, rn
+- 自我介绍：热爱技术，希望能参与到加密事业

@@ -1,0 +1,6 @@
+- 昵称：  sen
+- GitHub 用户名：  0xSen10
+- 微信：Next.
+- Aleo 钱包地址：  aleo130pfw9t4g9g0tj68rpg39v8e57jg08wk6dq8wejas9lj0h9egugsst047x 
+- 技术栈：  solidity , go , rust
+- 自我介绍：  本人热爱zk技术，学习过一些Aleo的知识，现如今是一名公链开发，想要系统的学习一下aleo的zk技术

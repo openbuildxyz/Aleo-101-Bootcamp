@@ -1,0 +1,6 @@
+- 昵称： Hill  
+- GitHub 用户名：  henanshifandaxue 
+- 微信： WYKSRUC6
+- Aleo 钱包地址：  aleo14sv5c2t9283tfwc2tz89hfhsyrmcqvd0dedft82z69z5sqvtpupqav5548
+- 技术栈：rust C++  
+- 自我介绍： 热爱技术，希望进入web3行业  

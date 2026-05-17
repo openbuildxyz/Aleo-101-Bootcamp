@@ -1,0 +1,6 @@
+- 昵称：  Xiaozhi
+- GitHub 用户名：XiaoZhi2003
+- 微信：  jinjidefanren666
+- Aleo 钱包地址：  aleo16mkgnu2cmr53nq0l92qylqlczl2gws8elcafdqmurvef5dgrsgrsny85j4
+- 技术栈：  Solidity Rust TS JS
+- 自我介绍： cs student

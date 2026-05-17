@@ -1,0 +1,6 @@
+- 昵称：Maimai
+- GitHub 用户名：Maimai10808
+- 微信：Yourfffff
+- Aleo 钱包地址： aleo1cgmmrhnx050u2yksfp6gs0ztjgp2v3x6zjr2pvn5vdfxh0uguy8sjr668q
+- 技术栈：Next.js、React、TypeScript、Tailwind CSS、wagmi、viem、RainbowKit、Solidity、Foundry、Web3 前端开发、链上交互、钱包接入、DApp UI/UX
+- 自我介绍：Hi，我是 Maimai，目前主要做 Next.js 和 Web3 前端开发，平时比较关注链上交互、钱包接入、DApp 产品体验这些方向。最近也在持续通过做 demo 和开源项目提升自己，希望进一步进入 ZK / Web3 更核心的技术方向。来这次活动主要是想认识更多同方向的小伙伴，一起交流学习，也希望有机会组队做点有意思的项目。

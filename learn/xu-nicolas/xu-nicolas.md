@@ -1,0 +1,6 @@
+- 昵称：ni-nico
+- GitHub 用户名：xu-nicolas
+- 微信：xuliquan002
+- Aleo 钱包地址：aleo1vwsyyscy5d8pekfmzc5q9rsyux5erehlrkg86wn45upauk7qfgxse08zwm
+- 技术栈：Golang、Java、JavaScript
+- 自我介绍：后端开发方向，主要使用 Golang、Java 和 JavaScript，关注 Web3 基础设施与隐私计算方向。希望通过 Aleo 101 系统学习 Leo 语言和 ZK 应用开发流程，并完成一个可以真实运行和交互的隐私应用。

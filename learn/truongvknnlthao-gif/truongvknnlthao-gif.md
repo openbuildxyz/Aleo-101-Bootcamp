@@ -1,0 +1,6 @@
+- 昵称：棟
+- GitHub 用户名：truongvknnlthao-gif
+- 微信：justplayfun
+- Aleo 钱包地址：aleo1mvcxge4cawjgenjle7n6w4mycnxq3gzpvy84z2ejhfukzg0pgq9qk9qupv
+- 技术栈：Web3、区块链基础、隐私应用学习中
+- 自我介绍：对 ZK、隐私计算和 Web3 应用开发感兴趣，希望通过 Aleo 101 Bootcamp 系统学习 Leo 语言和 Aleo 隐私应用开发流程，并完成一个真实可运行的隐私 dApp。

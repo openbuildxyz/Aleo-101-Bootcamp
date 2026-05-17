@@ -1,0 +1,94 @@
+---
+title: 快速开始
+---
+
+# 快速开始
+
+本指南会带你完成 Aleo 开发的基础流程：创建一个简单的 Leo 程序、将它部署到 Aleo 网络，并执行一次程序函数。
+
+## 前置要求
+
+开始之前，请先准备：
+
+- 一个 Aleo 钱包，例如 [Leo Wallet](https://leo.app/) 或 [Puzzle Wallet](https://puzzle.online/)。
+- 一些测试网额度，可通过 [Aleo Faucet](https://faucet.aleo.org/) 获取。
+- 一个可以访问 [Leo Playground](https://play.leo-lang.org/) 的浏览器。
+
+如果你希望在本地开发，请先完成 [Installation](/introduction/installation) 中的 Leo 和 snarkOS 安装步骤。
+
+## 1. 打开 Leo Playground
+
+访问 [Leo Playground](https://play.leo-lang.org/)，并连接你的 Aleo 钱包。
+
+Leo Playground 是一个在线开发环境，你可以直接在浏览器中编写、编译、部署和执行 Leo 程序。对于第一次体验 Aleo 的开发者来说，这是最快的上手方式。
+
+## 2. 创建第一个 Leo 程序
+
+在 Playground 中创建一个新的 Leo 项目。你可以从一个简单的示例程序开始，例如保存和读取公开数据，或执行一次基础函数调用。
+
+Leo 程序通常由以下部分组成：
+
+- `program`：程序名称和网络后缀。
+- `transition`：可以被执行的函数。
+- `mapping`：用于保存链上状态的键值存储。
+- `record`：用于保存用户私有状态的数据结构。
+
+第一次练习时，建议先从公开输入和公开输出开始，确认编译、部署和执行流程都能跑通，再继续尝试 private input、private record 等隐私能力。
+
+## 3. 编译程序
+
+在部署前，请先编译程序。
+
+编译会检查 Leo 语法、类型和程序结构。如果编译失败，请根据错误信息修改代码后再次编译。
+
+## 4. 部署到 Aleo 网络
+
+编译通过后，可以在 Playground 中部署程序。
+
+部署时需要：
+
+- 连接的钱包账户。
+- 足够的测试网额度。
+- 一个未被占用的 program name。
+
+部署交易提交后，你可以在 Aleo Explorer 中查看交易状态。交易确认可能需要一些时间，请等待网络确认后再继续执行程序函数。
+
+## 5. 执行程序函数
+
+程序部署成功后，可以在 Playground 中选择目标 `transition` 并填写输入参数。
+
+执行函数时需要注意：
+
+- public input 会公开出现在链上。
+- private input 会在本地生成证明，只暴露必要的公开结果。
+- 如果函数会创建或消费 record，请确认钱包中有对应 record。
+
+执行交易提交后，同样可以在 Explorer 中查看状态和结果。
+
+## 6. 查看结果
+
+交易确认后，请检查：
+
+- 部署交易是否成功。
+- 执行交易是否成功。
+- mapping 或 record 的状态是否符合预期。
+- Explorer 中显示的 program name、function name 和交易哈希是否正确。
+
+如果你在 Playground 中执行的是示例程序，可以对照示例说明确认输出是否正确。
+
+## 下一步
+
+完成快速开始后，你已经体验了 Aleo 应用的最小开发闭环：
+
+1. 编写 Leo 程序。
+2. 编译程序。
+3. 部署程序。
+4. 执行函数。
+5. 查看链上结果。
+
+接下来可以继续学习：
+
+- [Installation](/introduction/installation)：在本地安装 Leo 和 snarkOS。
+- [Leo CLI guide](https://docs.leo-lang.org/cli/overview)：学习 Leo 命令行工具。
+- [Leo Language guide](https://docs.leo-lang.org/language/overview)：学习 Leo 语言语法和核心概念。
+- [Local devnet guide](https://docs.leo-lang.org/guides/devnet)：在本地网络中测试程序。

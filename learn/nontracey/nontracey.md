@@ -1,0 +1,6 @@
+- 昵称：nontracey
+- GitHub 用户名：nontracey
+- 微信：nontracey
+- Aleo 钱包地址： aleo18kvx4atvn22j6qrnt8efhzskp5lhk3re0c0ewnp9z3a9tmcreyrsszx2cd
+- 技术栈：c#、java、python、vue、react
+- 自我介绍：前后端全栈开发

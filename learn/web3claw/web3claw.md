@@ -1,0 +1,6 @@
+- 昵称：星沙
+- GitHub 用户名：web3claw
+- 微信：web3claw
+- Aleo 钱包地址： aleo1h0tv88kc9f748df9u20vhpxclddenrq657yyv88xu0anvz25l58st5e3jj
+- 技术栈： rust, react, solidity
+- 自我介绍：全栈开发工程师, 热爱开源技术，终身学习主义者

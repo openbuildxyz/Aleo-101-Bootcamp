@@ -1,0 +1,160 @@
+---
+title: 安装
+---
+
+# 安装
+
+安装以下工具后，你就可以在本地开发和测试 Aleo 程序。
+
+## 1. 安装 Leo
+
+### 1.1 安装 Git
+
+请先安装 Git：
+
+```text
+bit.ly/start-git
+```
+
+### 1.2 安装 Rust
+
+请安装 Rust：
+
+```text
+bit.ly/start-rust
+```
+
+### 1.3 安装 Leo
+
+你可以使用以下任一方式安装 Leo。
+
+#### Cargo（推荐）
+
+```bash
+cargo install leo-lang
+```
+
+这会把 `leo` 可执行文件安装到：
+
+```text
+~/.cargo/bin/leo
+```
+
+#### 预编译二进制文件
+
+从 [Leo GitHub releases page](https://github.com/ProvableHQ/leo/releases) 下载最新版本，然后执行：
+
+```bash
+# 让二进制文件可执行
+chmod +x leo
+
+# 移动到系统路径
+mv leo /usr/local/bin
+```
+
+预编译二进制文件支持 macOS Apple Silicon 和其他平台。你可以在 releases 页面查看所有可用选项。
+
+#### 从源码构建
+
+```bash
+# 下载源码
+git clone https://github.com/ProvableHQ/leo
+cd leo
+
+# 安装 leo
+cargo install --path .
+```
+
+### 1.4 验证安装
+
+运行以下命令验证安装是否成功：
+
+```bash
+leo --version
+```
+
+### 1.5 更新 Leo
+
+你可以使用以下命令将 Leo 更新到最新版本：
+
+```bash
+leo update
+```
+
+[Leo CLI guide](https://docs.leo-lang.org/cli/overview) 提供了所有 CLI 命令的说明。
+
+[Leo Language guide](https://docs.leo-lang.org/language/overview) 介绍了 Leo 编程语言的语法和语义。
+
+### 1.6 可选：IDE 语法高亮
+
+Aleo 为多种常用代码编辑器维护了语法高亮实现。语法高亮可以通过视觉提示让 Leo 代码更容易阅读，从而显著改善开发体验。
+
+当前支持的编辑器包括：
+
+1. Visual Studio Code
+2. Sublime Text
+3. IntelliJ
+
+如需查看这些编辑器的详细配置步骤，请参考 [Tooling for Leo](https://docs.leo-lang.org/getting_started/ide#plugins) 指南。
+
+## 2. 安装 snarkOS
+
+### 2.1 前置要求
+
+支持的操作系统（仅限 64 位）：
+
+- Ubuntu 22.04 LTS
+- macOS Ventura 或更高版本
+- Windows 11 或更高版本
+
+Rust：
+
+- 请通过 `rustup` 安装 `rust-toolchain` 文件中指定的版本。
+
+Windows 用户还需要额外依赖：
+
+1. 通过 Visual Studio Installer 安装 C++ Clang tools for Windows。
+2. 将 `LIBCLANG_PATH` 环境变量设置为已安装的 `libclang.dll` 文件位置。通常路径为：
+
+```text
+Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\Llvm\x64\bin
+```
+
+### 2.2 克隆 snarkOS 仓库
+
+```bash
+git clone --branch mainnet --single-branch https://github.com/ProvableHQ/snarkOS.git
+cd snarkOS
+```
+
+Ubuntu 用户可以使用辅助脚本安装依赖：
+
+```bash
+./build_ubuntu.sh
+```
+
+### 2.3 安装 snarkOS
+
+```bash
+cargo install --locked --path .
+```
+
+可选：GPU 支持（实验性）
+
+CUDA 支持已经可用，但仍被视为不稳定：
+
+```bash
+cargo install --locked --path . --features cuda
+```
+
+### 2.4 验证安装
+
+```bash
+snarkos --version
+```
+
+## 3. 下一步
+
+我们建议从 [Quick Start Guide](/introduction/quick-start) 开始。该指南会带你创建第一个 Aleo 应用，将其部署到网络，并执行程序函数。通过这种动手实践，你可以更直观地理解 Aleo 平台的核心功能和工作流程。
+
+现在，你已经拥有了在本地构建和测试 Leo 程序所需的全部工具。在部署到测试网之前，我们建议先使用本地网络测试你的程序。[这份指南](https://docs.leo-lang.org/guides/devnet) 介绍了如何初始化本地网络，并将程序部署到本地网络。

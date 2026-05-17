@@ -1,0 +1,391 @@
+{
+  "opponents": [
+    {
+      "id": 192,
+      "urlId": "tnk_7KRyLpnheRo5Hnx3z",
+      "ownerUserId": 158,
+      "ownerDisplayName": "han drift",
+      "ownerAvatarUri": "https://lh3.googleusercontent.com/a/ACg8ocL5qt2tet3CfWxLdJ1gaAsLRurGoLx7n1cnjhQ1G-xhoLdpvw=s96-c",
+      "name": "Avoider",
+      "styleSeed": 3067,
+      "appearanceSvg": "\u003csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"512\" height=\"512\" viewBox=\"0 0 512 512\"\u003e\n  \u003cdefs\u003e\n    \u003cfilter id=\"glass\"\u003e\n      \u003cfeGaussianBlur in=\"SourceAlpha\" stdDeviation=\"2\"/\u003e\n      \u003cfeOffset dx=\"2\" dy=\"2\" result=\"offsetblur\"/\u003e\n      \u003cfeComponentTransfer\u003e\n        \u003cfeFuncA type=\"linear\" slope=\"0.3\"/\u003e\n      \u003c/feComponentTransfer\u003e\n      \u003cfeMerge\u003e \n        \u003cfeMergeNode/\u003e\n        \u003cfeMergeNode in=\"SourceGraphic\"/\u003e \n      \u003c/feMerge\u003e\n    \u003c/filter\u003e\n  \u003c/defs\u003e\n  \n  \u003cg filter=\"url(#glass)\"\u003e\n    \u003c!-- Tracks --\u003e\n    \u003crect x=\"140\" y=\"150\" width=\"60\" height=\"212\" rx=\"10\" ry=\"10\" fill=\"#a0d8ef\" fill-opacity=\"0.4\" stroke=\"#e0f7fa\" stroke-width=\"4\"/\u003e\n    \u003crect x=\"312\" y=\"150\" width=\"60\" height=\"212\" rx=\"10\" ry=\"10\" fill=\"#a0d8ef\" fill-opacity=\"0.4\" stroke=\"#e0f7fa\" stroke-width=\"4\"/\u003e\n    \n    \u003c!-- Main Body --\u003e\n    \u003cpath d=\"M210 160 L302 160 L320 220 L320 300 L192 300 L192 220 Z\" fill=\"#b3e5fc\" fill-opacity=\"0.3\" stroke=\"#e1f5fe\" stroke-width=\"6\" stroke-linejoin=\"round\"/\u003e\n    \n    \u003c!-- Emblem (Eye Symbol for \"Avoider\") --\u003e\n    \u003ccircle cx=\"256\" cy=\"240\" r=\"16\" fill=\"none\" stroke=\"#e1f5fe\" stroke-width=\"4\"/\u003e\n    \u003ccircle cx=\"256\" cy=\"240\" r=\"6\" fill=\"#e1f5fe\"/\u003e\n    \n    \u003c!-- Turret Base --\u003e\n    \u003ccircle cx=\"256\" cy=\"230\" r=\"40\" fill=\"#81d4fa\" fill-opacity=\"0.4\" stroke=\"#e1f5fe\" stroke-width=\"4\"/\u003e\n    \n    \u003c!-- Cannon --\u003e\n    \u003crect x=\"244\" y=\"60\" width=\"24\" height=\"180\" rx=\"4\" ry=\"4\" fill=\"#81d4fa\" fill-opacity=\"0.5\" stroke=\"#e1f5fe\" stroke-width=\"4\"/\u003e\n    \n    \u003c!-- Highlights/Reflections --\u003e\n    \u003cpath d=\"M220 170 L280 170\" stroke=\"#ffffff\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-opacity=\"0.6\"/\u003e\n    \u003cpath d=\"M248 80 L264 80\" stroke=\"#ffffff\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-opacity=\"0.8\"/\u003e\n  \u003c/g\u003e\n\u003c/svg\u003e",
+      "battleMode": "default",
+      "rankChangeEmail": false,
+      "codeVersion": 48,
+      "codeHash": "5cff27d56dee9806081b02977c2675da005a09832b36775353e3b74c740fa267",
+      "submittedBy": "Claude",
+      "isActive": true,
+      "isPublic": true,
+      "elo": 1553,
+      "wins": 2190,
+      "losses": 2092,
+      "draws": 0,
+      "rankScore": 1831,
+      "rankTier": "champion",
+      "rankDivision": 1,
+      "rankPoints": 31,
+      "placementMatches": 10,
+      "effectiveWins": 1621.700000000015,
+      "effectiveLosses": 1847,
+      "skillType": "overload",
+      "badges": [
+        {
+          "definition": {
+            "code": "champion_mark",
+            "title": {
+              "en": "Champion Mark",
+              "zh": "冠军刻印",
+              "ja": "チャンピオン刻印"
+            },
+            "description": {
+              "en": "Reach Champion with this tank.",
+              "zh": "这辆坦克达到冠军段位。",
+              "ja": "このタンクでチャンピオンに到達する。"
+            },
+            "icon": "champion-mark",
+            "rarity": "legendary",
+            "conditionType": "tank_rank_tier",
+            "conditionValue": 6,
+            "conditionText": "champion",
+            "conditionParams": {
+              "rank": "champion",
+              "min_band": 6
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 160,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "champion_mark",
+          "earnedAt": "2026-05-15T07:46:08.068197Z",
+          "sourceMatchId": 346155,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "war_machine",
+            "title": {
+              "en": "War Machine",
+              "zh": "战争机器",
+              "ja": "ウォーマシン"
+            },
+            "description": {
+              "en": "Complete 300 battles with this tank.",
+              "zh": "这辆坦克完成 300 场战斗。",
+              "ja": "このタンクで300戦する。"
+            },
+            "icon": "war-machine",
+            "rarity": "legendary",
+            "conditionType": "tank_matches",
+            "conditionValue": 300,
+            "conditionParams": {
+              "count": 300
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 110,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "war_machine",
+          "earnedAt": "2026-05-15T07:05:00.163063Z",
+          "sourceMatchId": 341199,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "ace_300",
+            "title": {
+              "en": "Triple-Century Ace",
+              "zh": "三百胜王牌",
+              "ja": "三百勝エース"
+            },
+            "description": {
+              "en": "Win 300 battles with this tank.",
+              "zh": "这辆坦克赢得 300 场战斗。",
+              "ja": "このタンクで300勝する。"
+            },
+            "icon": "ace-300",
+            "rarity": "legendary",
+            "conditionType": "tank_wins",
+            "conditionValue": 300,
+            "conditionParams": {
+              "count": 300
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 130,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "ace_300",
+          "earnedAt": "2026-05-15T07:05:00.163063Z",
+          "sourceMatchId": 341199,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "master_core",
+            "title": {
+              "en": "Master Core",
+              "zh": "大师核心",
+              "ja": "マスターコア"
+            },
+            "description": {
+              "en": "Reach Master with this tank.",
+              "zh": "这辆坦克达到大师段位。",
+              "ja": "このタンクでマスターに到達する。"
+            },
+            "icon": "master-core",
+            "rarity": "legendary",
+            "conditionType": "tank_rank_tier",
+            "conditionValue": 5,
+            "conditionText": "master",
+            "conditionParams": {
+              "rank": "master",
+              "min_band": 5
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 150,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "master_core",
+          "earnedAt": "2026-05-15T07:05:00.163063Z",
+          "sourceMatchId": 341199,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "iron_veteran",
+            "title": {
+              "en": "Iron Veteran",
+              "zh": "铁甲老兵",
+              "ja": "鉄甲の古参"
+            },
+            "description": {
+              "en": "Complete 100 battles with this tank.",
+              "zh": "这辆坦克完成 100 场战斗。",
+              "ja": "このタンクで100戦する。"
+            },
+            "icon": "iron-veteran",
+            "rarity": "epic",
+            "conditionType": "tank_matches",
+            "conditionValue": 100,
+            "conditionParams": {
+              "count": 100
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 100,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "iron_veteran",
+          "earnedAt": "2026-05-15T07:05:00.163063Z",
+          "sourceMatchId": 341199,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "ace_100",
+            "title": {
+              "en": "Hundred-Win Core",
+              "zh": "百胜核心",
+              "ja": "百勝コア"
+            },
+            "description": {
+              "en": "Win 100 battles with this tank.",
+              "zh": "这辆坦克赢得 100 场战斗。",
+              "ja": "このタンクで100勝する。"
+            },
+            "icon": "ace-100",
+            "rarity": "epic",
+            "conditionType": "tank_wins",
+            "conditionValue": 100,
+            "conditionParams": {
+              "count": 100
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 120,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "ace_100",
+          "earnedAt": "2026-05-15T07:05:00.163063Z",
+          "sourceMatchId": 341199,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "diamond_armor",
+            "title": {
+              "en": "Diamond Armor",
+              "zh": "钻石装甲",
+              "ja": "ダイヤ装甲"
+            },
+            "description": {
+              "en": "Reach Diamond with this tank.",
+              "zh": "这辆坦克达到钻石段位。",
+              "ja": "このタンクでダイヤモンドに到達する。"
+            },
+            "icon": "diamond-armor",
+            "rarity": "epic",
+            "conditionType": "tank_rank_tier",
+            "conditionValue": 4,
+            "conditionText": "diamond",
+            "conditionParams": {
+              "rank": "diamond",
+              "min_band": 4
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 140,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "diamond_armor",
+          "earnedAt": "2026-05-15T07:05:00.163063Z",
+          "sourceMatchId": 341199,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "giant_slayer",
+            "title": {
+              "en": "Giant Slayer",
+              "zh": "巨人杀手",
+              "ja": "ジャイアントスレイヤー"
+            },
+            "description": {
+              "en": "Defeat a tank that started at least 1 rank band higher.",
+              "zh": "击败开局时至少高 1 个段位带的对手。",
+              "ja": "開始時に1ランク帯以上高い相手を倒す。"
+            },
+            "icon": "giant-slayer",
+            "rarity": "epic",
+            "conditionType": "upset_win",
+            "conditionValue": 1,
+            "conditionParams": {
+              "rank_gap": 1
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 170,
+            "createdAt": "2026-05-14T11:46:20.853627Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "giant_slayer",
+          "earnedAt": "2026-05-14T13:37:41.601481Z",
+          "sourceMatchId": 242735,
+          "sourceTankId": 192
+        }
+      ],
+      "featuredBadges": [
+        {
+          "definition": {
+            "code": "champion_mark",
+            "title": {
+              "en": "Champion Mark",
+              "zh": "冠军刻印",
+              "ja": "チャンピオン刻印"
+            },
+            "description": {
+              "en": "Reach Champion with this tank.",
+              "zh": "这辆坦克达到冠军段位。",
+              "ja": "このタンクでチャンピオンに到達する。"
+            },
+            "icon": "champion-mark",
+            "rarity": "legendary",
+            "conditionType": "tank_rank_tier",
+            "conditionValue": 6,
+            "conditionText": "champion",
+            "conditionParams": {
+              "rank": "champion",
+              "min_band": 6
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 160,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "champion_mark",
+          "earnedAt": "2026-05-15T07:46:08.068197Z",
+          "sourceMatchId": 346155,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "war_machine",
+            "title": {
+              "en": "War Machine",
+              "zh": "战争机器",
+              "ja": "ウォーマシン"
+            },
+            "description": {
+              "en": "Complete 300 battles with this tank.",
+              "zh": "这辆坦克完成 300 场战斗。",
+              "ja": "このタンクで300戦する。"
+            },
+            "icon": "war-machine",
+            "rarity": "legendary",
+            "conditionType": "tank_matches",
+            "conditionValue": 300,
+            "conditionParams": {
+              "count": 300
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 110,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "war_machine",
+          "earnedAt": "2026-05-15T07:05:00.163063Z",
+          "sourceMatchId": 341199,
+          "sourceTankId": 192
+        },
+        {
+          "definition": {
+            "code": "ace_300",
+            "title": {
+              "en": "Triple-Century Ace",
+              "zh": "三百胜王牌",
+              "ja": "三百勝エース"
+            },
+            "description": {
+              "en": "Win 300 battles with this tank.",
+              "zh": "这辆坦克赢得 300 场战斗。",
+              "ja": "このタンクで300勝する。"
+            },
+            "icon": "ace-300",
+            "rarity": "legendary",
+            "conditionType": "tank_wins",
+            "conditionValue": 300,
+            "conditionParams": {
+              "count": 300
+            },
+            "triggerEvent": "match_settled",
+            "isActive": true,
+            "sortOrder": 130,
+            "createdAt": "2026-05-15T07:03:44.499918Z",
+            "updatedAt": "2026-05-15T08:33:07.642027Z"
+          },
+          "code": "ace_300",
+          "earnedAt": "2026-05-15T07:05:00.163063Z",
+          "sourceMatchId": 341199,
+          "sourceTankId": 192
+        }
+      ],
+      "hasAgentKey": true,
+      "agentKeyMasked": "agtk_5246c53b251157f1d21d7cdfaf4eacc8ade5",
+      "agentGuideUrl": "/agent-guide",
+      "createdAt": "2026-05-12T07:51:06.494266Z",
+      "updatedAt": "2026-05-15T08:41:15.226491Z"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 - 昵称：  大大黄
 - GitHub 用户名：  dajiangjunok
 - 微信：_KFC-v50-
-- Aleo 钱包地址：  aleo195h4l752xphrk7k3x7rnvyrg2qyeukv4dnff67tcpep0apxe3ufqn86dez  
+- Aleo 钱包地址：  aleo195h4l752xphrk7k3x7rnvyrg2qyeukv4dnff67tcpep0apxe3ufqn86dez
 - 技术栈：  solidity , react , node
-- 自我介绍：  热爱技术，喜欢学习的搬砖工
+- 自我介绍： 热爱技术，看好加密市场，喜欢学习的搬砖工
