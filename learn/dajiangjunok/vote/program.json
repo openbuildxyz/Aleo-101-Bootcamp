@@ -1,0 +1,7 @@
+{
+  "program": "privatevotedapp123.aleo",
+  "version": "0.0.1",
+  "description": "Private voting application on Aleo",
+  "license": "MIT",
+  "dependencies": null
+}
