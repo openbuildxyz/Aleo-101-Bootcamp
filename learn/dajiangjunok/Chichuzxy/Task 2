@@ -1,0 +1,146 @@
+# Task 2 - Leo 入门：学会这门语言 
+
+## 问题
+
+**Q1. Leo 中的 "Private by Default"（默认隐私）语义是什么？**
+
+A:所有未显式声明可见性的变量、字段和函数参数都默认为private类型。这意味着它们会被加密存储在链上，只有拥有对应视图密钥的所有者才能解密查看其内容Aleo Developer。开发者可以根据需要显式声明public或constant可见性来覆盖默认行为。
+
+---
+
+**Q2. Tuple 包含 array structs 的示例，以及如何访问 struct 中的元素。**
+
+A:
+// 定义结构体
+struct Point {
+    x: u32,
+    y: u32,
+}
+
+// 创建包含结构体数组的元组
+let tuple_with_array: ([Point; 2], u64) = (
+    [Point { x: 1u32, y: 2u32 }, Point { x: 3u32, y: 4u32 }],
+    100u64
+);
+
+// 访问元组中的结构体数组
+let points_array: [Point; 2] = tuple_with_array.0;
+
+// 访问数组中第一个结构体的字段
+let first_x: u32 = points_array[0u8].x; // 结果为1u32
+let first_y: u32 = points_array[0u8].y; // 结果为2u32
+
+// 链式访问
+let second_x: u32 = tuple_with_array.0[1u8].x; // 结果为3u32
+
+
+---
+
+**Q3. Aleo record 中 owner 字段的作用是什么？**
+      
+A:owner字段是所有 Aleo 记录必须包含的强制字段，类型为address。它指定了该记录的合法所有者，只有拥有对应私钥的地址才能消费（使用）该记录Aleo。记录被消费时会生成一个唯一的序列号（nullifier），防止双重花费Aleo Developer。
+
+---
+
+**Q4. 程序中的 final 是什么？**
+
+A:在 Leo 中，final有两种主要用法：
+final 块：附加在 transition 函数之后，包含的代码会在零知识证明验证通过后，由网络节点原子性地在链上执行
+final 函数：可重用的链上终结逻辑，声明在program {}块外，可被多个 transition 函数的 final 块调用
+final 上下文中的所有参数和操作都是公开可见的，主要用于更新链上的公共状态（如 mappings 和 storage vectors）。
+
+---
+
+**Q5. 如何创建 helper functions（辅助函数）？**
+
+A:辅助函数是纯计算函数，用于封装可重用的逻辑。它们必须声明在program {}块内部，使用fn关键字定义：
+program example.aleo {
+    // 辅助函数
+    fn add(a: u64, b: u64) -> u64 {
+        return a + b;
+    }
+
+    // 入口函数调用辅助函数
+    transition main(x: u64, y: u64) -> u64 {
+        return add(x, y);
+    }
+}
+
+---
+
+**Q6. helper functions 能否创建 records？**
+
+A:不能。辅助函数只能执行纯计算，不能产生记录或修改链上状态。只有 transition 函数才能创建和消费记录，因为它们是程序的公共入口点，会生成零知识证明并更新链上状态。
+
+---
+
+**Q7. constructor 的目的是什么？**
+
+A:constructor 是一个特殊的异步函数，在程序的每次部署和升级时都会在链上运行。它的主要作用是：
+作为程序的 "守门人"，如果 constructor 逻辑失败（如断言失败），整个部署或升级交易将被拒绝
+定义程序的升级权限和规则
+初始化程序的初始状态
+constructor 的逻辑在首次部署后是不可变的，无法通过后续升级修改。
+
+---
+
+**Q8. 如何组合多个 interfaces（接口）？**
+
+A:使用+号来组合多个接口：
+// 定义两个独立接口
+interface Transfer {
+    record Token;
+    fn transfer(input: Token, to: address, amount: u64) -> Token;
+}
+
+interface Pausable {
+    fn pause();
+    fn unpause();
+}
+
+// 程序实现多个接口
+program my_token.aleo : Transfer + Pausable {
+    record Token {
+        owner: address,
+        amount: u64,
+    }
+
+    fn transfer(input: Token, to: address, amount: u64) -> Token {
+        return Token { owner: to, amount };
+    }
+
+    fn pause() { /* 实现 */ }
+    fn unpause() { /* 实现 */ }
+}
+
+接口之间也可以通过+号继承多个其他接口。
+
+---
+
+**Q9. record interface 中 `..` 的含义是什么？**
+
+A:在接口的记录定义中使用..表示结构子类型化，允许实现该接口的记录包含接口中未声明的额外字段。例如：
+interface HasMemo {
+    // 要求记录至少包含owner和memo字段，但允许有其他字段
+    record Rec { owner: address, memo: u64, .. }
+}
+这样，任何包含owner和memo字段的记录都满足这个接口要求，即使它还有其他字段。
+
+---
+
+**Q10. 何时使用 dyn record（动态 record）？**
+
+A:dyn record用于动态调度场景，当你需要在运行时调用不同程序的相同接口方法，而在编译时不知道具体的程序身份时使用。它允许你编写通用代码，处理任何实现了特定接口的记录，而不需要知道具体的记录类型。
+
+---
+
+**Q11. storage vector 支持的核心操作有哪些？**
+
+A:storage vector 是 Leo 中用于存储动态列表的链上数据结构，支持以下核心操作：
+push(value)：在向量末尾添加一个元素
+pop()：移除并返回向量的最后一个元素
+get(index)：获取指定索引处的元素（返回 Option 类型）
+set(index, value)：设置指定索引处的元素
+swap_remove(index)：移除指定索引处的元素，并将最后一个元素移到该位置
+len()：返回向量的当前长度
+clear()：将向量长度设置为 0（不实际删除元素）
