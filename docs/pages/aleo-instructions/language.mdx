@@ -1,7 +1,983 @@
 ---
-title: Language
+title: 语言指南
 ---
 
-# Language
+# Aleo 语言指南（Aleo Instructions Language Guide）
 
-Coming soon.
+### 静态类型（Statically Typed）
+
+Aleo 是一种**静态类型语言**，这意味着运行零知识电路（circuit）之前，我们必须确认每个变量的类型。
+
+### 必须显式声明类型（Explicit Types Required）
+
+Aleo 中不存在 `undefined` 或 `null` 这样的值。当给一个新变量赋值时，**变量所保存的数据类型必须被明确声明**。
+
+### 值传递（Pass by Value）
+
+Aleo 表达式始终是**值传递**的，这意味着当它们作为函数输入或者用于变量赋值时，其数据都会被复制一份。
+
+### 基于寄存器（Register Based）
+
+Aleo 中没有变量名。所有变量都存储在寄存器中，表示为 `rX`，其中 `X` 是从 0 开始的非负整数（`r0, r1, r2，etc.` 等）。
+
+## 数据类型与值（Data Types and Values）
+
+### 布尔值（Booleans）
+
+Aleo 支持传统的 `true` 或 `false` 布尔值。语句中使用布尔值时，必须显式声明 `boolean` 类型。
+
+```aleo
+function main:
+    input r0: boolean.private;
+```
+
+### 整数（Integers）
+
+Aleo 支持有符号整数类型 `i8`、`i16`、`i32`、`i64`、`i128` 和无符号整数类型 `u8`、`u16`、`u32`、`u64`、`u128`等。
+
+```aleo
+function main:
+    input r0: u8.public;
+```
+
+> **提示：** 整数的位宽越大，电路中生成约束越多，可能会减慢计算速度。
+
+### 域元素（Field Elements）
+
+Aleo 支持 `field` 类型，表示椭圆曲线基域的元素。这些元素本质是小于基域模数的无符号整数，因此最大的域元素是 `8444461749428370424248824938781546531375899335154063827935233455917409239040field`。
+
+```aleo
+function main:
+    input r0: field.private;
+```
+
+### 群元素（Group Elements）
+
+传入 Aleo 编译器的椭圆曲线基域上仿射点的集合构成一个群。该曲线是 Twisted Edwards 曲线，其中 `a = -1`，`d = 3021`。Aleo 支持该群的一个子群（由生成元点生成）作为基本数据类型。群元素由其点的 x 坐标表示；例如，`2group` 表示点 `(2, 5553594316923449299484601589326170487897520766531075014687114064346375156608)`。生成元点为 `1540945439182663264862696551825005342995406165131907382295858612069623286213group`。
+
+```aleo
+function main:
+    input r0: group.private;
+```
+
+#### 群生成元（Group Generators）
+
+Aleo 提供了几个可在程序中使用的内置群生成元：
+
+| 名称 | 描述 |
+|------|------|
+| `group::GEN` | 椭圆曲线素数阶子群的生成元。 |
+| `aleo::GENERATOR` | 单个群点（不可索引）。用于 Aleo 账户派生的点 `G`，满足 `view_key * G = address`。 |
+| `aleo::GENERATOR_POWERS` | Aleo 签名和加密方案的群基数组。使用 `aleo::GENERATOR_POWERS[Nu32]` 进行索引。 |
+
+**`group::GEN`** 是椭圆曲线素数阶子群的生成元，用于通用椭圆曲线操作。
+
+**`aleo::GENERATOR`** 是满足 `view_key * G = address` 的点 `G`，在 `g_scalar_multiply` 中用于 Aleo 账户和签名派生。它是 `aleo::GENERATOR_POWERS` 的第一个元素。
+
+**`aleo::GENERATOR_POWERS`** 是 Aleo 签名和加密方案的群基，通过对域字符串 `"AleoAccountEncryptionAndSignatureScheme0"` 调用 `hash_to_curve` 生成。这专门用于 Aleo 账户和签名。数组长度为 253，有效索引范围为 `0u32` 到 `252u32`。
+
+```aleo
+function example:
+    input r0 as scalar.public;
+    input r1 as address.public;
+    // 使用椭圆曲线生成元
+    add group::GEN group::GEN into r2;
+
+    // 使用 Aleo 账户生成元从 view key 派生地址
+    mul aleo::GENERATOR r0 into r3;
+
+    // 访问 GENERATOR_POWERS 的第一个元素（等同于 aleo::GENERATOR）
+    mul aleo::GENERATOR_POWERS[0u32] r0 into r4;
+
+    // 这两个操作产生相同的结果
+    assert.eq r3 r4;
+
+    // 将群元素转换为地址
+    cast r3 into r5 as address;
+    assert.eq r1 r5;
+```
+
+### 标量元素（Scalar Elements）
+
+Aleo 支持 `scalar` 类型，用于椭圆曲线子群定义的标量域元素。这些是无符号整数，小于标量域的模数，因此最大的标量是 `2111115437357092606062206234695386632838870926408408195193685246394721360382scalar`。
+
+```aleo
+function main:
+    input r0: scalar.private;
+```
+
+### 地址（Addresses）
+
+地址类型被定义来启用编译器优化例程，用于解析和操作地址。
+
+```aleo
+function main:
+    input r0: address.private;
+```
+
+### 签名（Signatures）
+
+Aleo 使用 Schnorr 签名方案，用 Aleo 私钥对消息进行签名。签名可以使用 [`sign.verify`](./opcodes#signverify) 指令在 Aleo中进行验证。
+
+```aleo
+sign.verify sign069ju4e8s66unu25celqycvsv3k9chdyz4n4sy62tx6wxj0u25vqp58hgu9hwyqc63qzxvjwesf2wz0krcvvw9kd9x0rsk4lwqn2acqhp9v0pdkhx6gvkanuuwratqmxa3du7l43c05253hhed9eg6ppzzfnjt06fpzp6msekdjxd36smjltndmxjndvv9x2uecsgngcwsc2qkns4afd r1 r2 into r3;
+```
+
+### 动态 Record（Dynamic Record）
+
+`record.dynamic` 是任意 record 的固定大小通用表示，可跨[动态调用](#动态分发)边界使用。与静态 record 不同，其大小不会因为数据字段数量或类型的发生变化而改变
+
+| 字段 | 类型 | 描述 |
+|-------|------|------|
+| `owner` | `address` | record 的所有者 |
+| `_root` | `field` | record 数据条目的 Merkle 根 |
+| `_nonce` | `group` | record 的 nonce |
+| `_version` | `u8` | record 版本 |
+
+`record.dynamic` 不能直接实例化。它必须作为输入接收、从 [`call.dynamic`](#calldynamic) 返回，或通过转换静态 record 来创建：
+
+```aleo
+cast r0 into r1 as record.dynamic;
+```
+
+`owner` 字段可以直接访问（`r1.owner`）。其他字段需要使用 [`get.record.dynamic`](#getrecorddynamic)。
+
+> **注意：** 接受 `record.dynamic` 的函数**不会**验证所有权或废弃（nullify）该 record。只有接收静态 record 输入的函数才会消耗（nullify）record。
+
+### 动态 Future（Dynamic Future）
+
+`future.dynamic` 仅由 [`call.dynamic`](#calldynamic) 在被调用方返回 future 时产生。与静态 future 一样，它必须通过 `async` 消费并在 finalize 中 await：
+
+```aleo
+finalize my_function:
+    input r0 as future.dynamic;
+    await r0;
+```
+
+`future.dynamic` 不能由函数直接输出 —— 它必须通过 `async` 指令包装在静态 future 中。
+
+## Aleo 程序布局（Layout of an Aleo Program）
+
+一个 Aleo 程序包含以下声明：[Program ID](#程序-id)、[导入](#导入)、[函数](#函数)、[闭包](#闭包)、[结构体](#结构体)、[记录](#记录)、[映射](#映射) 和 [Finalize](#finalize)。只有导入（imports）有顺序要求，必须位于文件顶部。声明在程序文件内是本地可访问的。如果你需要其他程序文件的声明，必须导入它。
+
+### 程序 ID（Program ID）
+
+程序 ID 声明为 `{name}.{network}`。`name` 的第一个字符必须是小写。`name` 可以包含小写字母、数字和下划线。目前，`aleo` 是唯一支持的网络域。
+
+```aleo
+program hello.aleo; // 有效
+
+program Foo.aleo;   // 无效
+program baR.aleo;   // 无效
+program 0foo.aleo;  // 无效
+program 0_foo.aleo; // 无效
+program _foo.aleo;  // 无效
+```
+
+### 导入（Import）
+
+导入声明为 `import {ProgramID};`。导入通过程序 ID 获取其他声明并将其引入当前文件作用域。你可以导入已下载到 `imports` 目录的依赖项。
+
+```aleo
+import foo.aleo; // 将 `foo.aleo` 程序导入 `hello.aleo` 程序。
+
+program hello.aleo;
+```
+
+### 函数（Function）
+
+函数声明为 `function {name}:`。函数包含可以计算值的指令。函数必须在程序的当前作用域内才能被调用。
+
+```aleo
+function foo:
+    input r0 as field.public;
+    input r1 as field.private;
+    add r0 r1 into r2;
+    output r2 as field.private;
+```
+
+#### 函数输入（Function Inputs）
+
+函数输入声明为 `input {register} as {type}.{visibility};`。函数输入必须紧跟在函数名声明之后。
+
+```aleo
+// 函数 `foo` 接受一个输入 `r0`，类型为 `field`，可见性为 `public`。
+function foo:
+    input r0 as field.public;
+```
+
+#### 函数输出（Function Outputs）
+
+函数输出声明为 `output {register} as {type}.{visibility};`。函数输出必须在函数定义末尾声明。
+
+```aleo
+...
+    output r0 as field.public;
+```
+
+#### 调用函数（Call a Function）
+
+在 Aleo 协议中，调用函数会创建一个可在链上消耗和产出 record 的转换。使用 `aleo run` CLI 命令向函数传递输入并执行程序。在 Testnet 中，程序函数不能调用其他内部程序函数。如果你想开发在程序内部调用的"辅助函数"，可以尝试编写 `closure`。
+
+#### 调用导入的函数（Call an Imported Function）
+
+Aleo 程序可以使用 `call {program}/{function} {register} into {register}` 指令从外部调用其他 Aleo 程序。
+
+```aleo
+import foo.aleo;
+
+program bar.aleo;
+
+function call_external:
+    input r0 as u64.private;
+    call foo.aleo/baz r0 into r1; // 从外部调用 foo.aleo 中的函数 `baz`，传入参数 `r0`，将结果存入 `r1`。
+    output r1 as u64.private;
+```
+
+### 闭包（Closure）
+
+闭包声明为 `closure {name}:`。闭包包含可以计算值的指令。闭包是不能直接执行的辅助函数。闭包可以被其他本地或外部函数调用，但不能返回 record，也不能进行 call 或 await。
+
+```aleo
+closure foo:
+    input r0 as field;
+    input r1 as field;
+    add r0 r1 into r2;
+    output r2 as field;
+```
+
+#### 调用闭包（Call a Closure）
+
+Aleo 程序可以使用 `call {name} {register} into {register}` 指令在内部调用其他 Aleo 闭包。
+
+```aleo
+program bar.aleo;
+
+function call_internal:
+    input r0 as u64.private;
+    call foo r0 into r1; // 在内部调用闭包 `foo`，传入参数 `r0`，将结果存入 `r1`。
+    output r1 as u64.private;
+```
+
+### 结构体（Struct）
+
+结构体是一种数据类型，声明为 `struct {name}:`。结构体包含组件声明 `{name} as {type}`。
+
+```aleo
+struct array3:
+    a0 as u32;
+    a1 as u32;
+    a2 as u32;
+```
+
+要在程序中实例化一个 `struct`，使用 `cast` 指令。
+
+```aleo
+function new_array3:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    cast r0 r1 r2 into r3 as array3;
+    output r3 as array3.private;
+```
+
+### 外部结构体（External Structs）
+
+外部结构体允许你使用已导入的其他 Aleo 程序中定义的数据结构。
+
+- **命名空间语法**：外部结构体使用斜杠运算符引用：`program_name.aleo/struct_name`。
+- **用法**：一旦导入程序，其结构体就可以用作变量类型、函数输入和返回类型。
+- **转换（Casting）**：与 record 不同，外部结构体可以使用 `cast` 指令在本地实例化，因为它们只是数据模式，而非承载状态的对象。
+
+```aleo
+import token_registry.aleo;
+
+transition get_metadata:
+    input r0 as field.public;
+    // 如果你有所需字段，可以 cast 一个外部结构体
+    cast r0 0u64 18u8 into r1 as token_registry.aleo/TokenInfo;
+    output r1 as token_registry.aleo/TokenInfo.private;
+```
+
+### 数组（Array）
+
+数组字面量写作 `[{value}, {value}, ..]`，其中所有值的类型相同。例如：
+
+```aleo
+[true, false, true]
+```
+
+数组的类型包含元素类型和数组长度 `[{type}; {length}]`。此示例的类型为：
+
+```aleo
+[boolean; 3u32]
+```
+
+可以使用 `cast` 操作码初始化数组。
+
+```aleo
+function new_array:
+    input r0 as boolean.private;
+    input r1 as boolean.private;
+    input r2 as boolean.private;
+    cast r0 r1 r2 into r3 as [boolean; 3u32];
+    output r3 as [boolean; 3u32].private;
+```
+
+可以使用 `{name}[{index}]` 对数组进行索引。
+
+```aleo
+function get_array_element:
+    input r0 as [boolean; 4u32].public;
+    input r1 as u32.public;
+    r0[r1] into r2;
+    output r2 as boolean.public;
+```
+
+数组可以嵌套。
+
+```aleo
+[[true, false, true, false], [false, true, false, true]]
+```
+
+```aleo
+function get_nested_array_element:
+    input r0 as [[boolean; 4u32]; 2u32].public;
+    r0[0u32][1u32] into r1;
+    output r1 as boolean.public;
+```
+
+> **提示：** Aleo目前仅支持固定长度的静态数组。最大数组大小为 **2,048 个元素**（在 Aleo Stack v4.6.0 中从 512 增加到 2048，以支持验证 [`snark.verify`](./opcodes#snarkverify) 使用的密钥和证明）。
+
+### Record
+
+[Record](../../concepts/fundamentals/02_records.md) 类型声明为 `record {name}:`。Record 包含组件声明 `{name} as {type}.{visibility};`。Record 数据结构必须包含如下所示的 `owner` 声明。当将 record 作为输入传递给程序函数时，还需要 `_nonce as group.{visibility}` 声明。
+
+```aleo
+record token:
+    // 代币所有者。
+    owner as address.private;
+    // 代币数量。
+    amount as u64.private;
+```
+
+要在程序中实例化一个 `record`，使用 `cast` 指令。
+
+```aleo
+function new_token:
+    input r0 as address.private;
+    input r1 as u64.private;
+    input r2 as u64.private;
+    cast r0 r1 r2 into r3 as token.record;
+    output r3 as token.record;
+```
+
+### 外部 Record（External Records）
+
+你可以引用其他程序中定义的 record 来指定程序期望接收或传递的数据类型。
+
+- **命名空间语法**：外部 record 使用相同的斜杠运算符：`program_name.aleo/record_name`。
+- **只读访问**：你可以访问传入函数的外部 record 的字段。
+- **所有权规则**：一个程序不能创建（`cast`）或花费/产生 nullifier 属于另一个程序的 record。只有定义该 record 的程序才有权更改其状态。
+
+| 操作 | 内部 Record | 外部 Record |
+|--------|----------------|----------------|
+| 作为输入传入 | 允许 | 允许 |
+| 访问字段 | 允许 | 允许 |
+| 通过 `cast` 实例化 | 允许 | 禁止 |
+| 花费/销毁（Spend/Burn） | 允许 | 禁止 |
+
+**传递模式（Pass-Through Pattern）：**
+
+由于不能花费外部 record，标准模式是将其作为输入接受，并将其传递给定义程序内的外部调用。
+
+```aleo
+import credits.aleo;
+
+// 你的程序作为中间人
+function transfer_on_behalf:
+    input r0 as credits.aleo/credits.record;
+    input r1 as address.private;
+    input r2 as u64.private;
+    // 我们不能在这里 '花费' r0。
+    // 我们必须调用 credits.aleo 来处理逻辑。
+    call credits.aleo/transfer_private r0 r1 r2 into r3 r4;
+    output r3 as credits.aleo/credits.record;
+    output r4 as credits.aleo/credits.record;
+```
+
+### 特殊操作数（Special Operands）
+
+#### self.signer
+
+`self.signer` 操作数返回发起转换的用户地址。这在需要修改原始调用者状态而非自身状态的中间程序中特别有用。
+
+在下面的示例中，`transfer_public_as_signer` 函数使用 `self.signer` 从原始用户的账户而非中间程序的账户中扣除余额。
+
+```aleo
+// `transfer_public_as_signer` 函数将指定金额
+// 从签名者的 `account` 转移到接收者的 `account`。
+function transfer_public_as_signer:
+    // 输入接收者。
+    input r0 as address.public;
+    // 输入金额。
+    input r1 as u64.public;
+    // 公开地转移积分。
+    async transfer_public_as_signer self.signer r0 r1 into r2;
+    // 输出 finalize future。
+    output r2 as credits.aleo/transfer_public_as_signer.future;
+
+finalize transfer_public_as_signer:
+    // 输入签名者。
+    input r0 as address.public;
+    // 输入接收者。
+    input r1 as address.public;
+    // 输入金额。
+    input r2 as u64.public;
+    // 将 `account[r0]` 减少 `r2`。
+    // 如果 `account[r0] - r2` 发生下溢，`transfer_public_as_signer` 将被回滚。
+    get account[r0] into r3;
+    sub r3 r2 into r4;
+    set r4 into account[r0];
+    // 将 `account[r1]` 增加 `r2`。
+    // 如果 `account[r1]` 不存在，则使用 0u64。
+    // 如果 `account[r1] + r2` 发生溢出，`transfer_public_as_signer` 将被回滚。
+    get.or_use account[r1] 0u64 into r5;
+    add r5 r2 into r6;
+    set r6 into account[r1];
+```
+
+#### self.caller
+
+`self.caller` 操作数返回程序的直接调用者地址。
+
+### 映射（Mapping）
+
+映射声明为 `mapping {name}:`。映射包含键值对，必须在程序内定义。映射公开存储在链上，无法在映射中私密存储数据。
+
+```aleo
+// 链上存储 `account` 映射，以 `owner` 为键，
+// 以 `amount` 为值。
+mapping account:
+    // 代币所有者。
+    key as address.public;
+    // 代币数量。
+    value as u64.public;
+```
+
+#### Contains
+
+检查映射中是否存在某个键的命令，例如 `contains accounts[r0] into r1;`。
+
+#### Get
+
+从映射中检索值的命令，例如 `get accounts[r0] into r1;`。
+
+#### Get or Use
+
+在失败时使用提供的默认值的 get 命令，例如 `get.or_use account[r1] 0u64 into r5;`。
+
+```aleo
+// `transfer_public` 函数将指定金额
+// 从调用者的 `account` 转移到接收者的 `account`。
+function transfer_public:
+    // 输入接收者。
+    input r0 as address.public;
+    // 输入金额。
+    input r1 as u64.public;
+    // 公开地转移积分。
+    async transfer_public self.caller r0 r1 into r2;
+    // 输出 finalize future。
+    output r2 as credits.aleo/transfer_public.future;
+
+finalize transfer_public:
+    // 输入调用者。
+    input r0 as address.public;
+    // 输入接收者。
+    input r1 as address.public;
+    // 输入金额。
+    input r2 as u64.public;
+    // 将 `account[r0]` 减少 `r2`。
+    // 如果 `account[r0] - r2` 发生下溢，`transfer_public` 将被回滚。
+    get account[r0] into r3;
+    sub r3 r2 into r4;
+    set r4 into account[r0];
+    // 将 `account[r1]` 增加 `r2`。
+    // 如果 `account[r1]` 不存在，则使用 0u64。
+    // 如果 `account[r1] + r2` 发生溢出，`transfer_public` 将被回滚。
+    get.or_use account[r1] 0u64 into r5;
+    add r5 r2 into r6;
+    set r6 into account[r1];
+```
+
+#### Set
+
+在映射中设置值的命令，例如 `set r0 into accounts[r0];`。
+
+#### Remove
+
+从映射中移除键值对的命令，例如 `remove accounts[r0];`。
+
+#### 读取外部程序的映射值（Reading External Program's Mapping Value）
+
+程序也可以读取外部程序的映射值。这使你的程序能够访问和利用另一个程序维护的数据，实现可组合性。例如：
+
+```aleo
+// 导入你要读取其映射的外部程序。
+import credits.aleo;
+program another_program.aleo;
+
+function main:
+    async main into r0;
+    output r0 as another_program.aleo/main.future;
+
+finalize main:
+    // 从外部 `credits.aleo` 程序的 'account' 映射中读取指定键的值。
+    get credits.aleo/account[aleo1...] into r0;
+    // 从外部 `credits.aleo` 程序的 'account' 映射中读取指定键的值，
+    // 如果映射不存在则使用默认值 0u64。
+    get.or_use credits.aleo/account[aleo1...] 0u64 into r1;
+```
+
+### Finalize
+
+Finalize 声明为 `finalize {name}:`。Finalize 必须紧跟在[函数](#函数)后面，并且必须具有相同的名称。
+
+```aleo
+// `transfer_public_to_private` 函数将指定金额
+// 从映射 `account` 转换为指定接收者的 record。
+//
+// 此函数会公开揭示发送者、接收者和指定金额。
+// 但是，后续使用接收者 record 的方法可以保护接收者的隐私。
+function transfer_public_to_private:
+    // 输入接收者。
+    input r0 as address.private;
+    // 输入金额。
+    input r1 as u64.public;
+    // 为接收者构造一个 record。
+    cast r0 r1 into r2 as credits.record;
+    // 公开地减少发送者的余额。
+    async transfer_public_to_private self.caller r1 into r3;
+    // 输出接收者的 record。
+    output r2 as credits.record;
+    // 输出 finalize future。
+    output r3 as credits.aleo/transfer_public_to_private.future;
+
+finalize transfer_public_to_private:
+    // 输入发送者。
+    input r0 as address.public;
+    // 输入金额。
+    input r1 as u64.public;
+    // 检索发送者的余额。
+    get account[r0] into r2;
+    // 将 `account[r0]` 减少 `r1`。
+    // 如果 `r2 - r1` 发生下溢，`transfer_public_to_private` 将被回滚。
+    sub r2 r1 into r3;
+    // 更新发送者的余额。
+    set r3 into account[r0];
+```
+
+> **注意：** `finalize` 函数在关联函数的零知识证明执行结果被验证后，在链上执行。如果 finalize 函数成功，程序逻辑被执行。如果 finalize 函数失败，程序逻辑被回滚。
+
+### Futures
+
+Future 等效于链上执行的调用图，并在完成执行时显式使用。转换/电路不是从代码中隐式构建调用图，而是显式输出一个 future，指定哪些代码块在链上运行以及如何运行它们。
+
+#### future 类型（Future Type）
+
+用户可以通过指定 `Locator` 后跟标签 `.future` 来声明 future 类型。例如 `credits.aleo/mint_public.future`。`function` 只能输出 future，finalize 块只能接受 future 作为输入。`closure` 不能输出 future 或接受 future 作为输入。
+
+#### async 调用（Async Call）
+
+用户可以通过 `async` 关键字对 finalize 块进行异步调用。例如 `async mint_public r0 r1 into r2;`。注意必须指定关联的函数。此操作产生 `Future` 作为输出。`async` 取代了 `finalize` 命令，后者原先允许放在函数体中输出语句之后。
+
+#### await 命令（Await Command）
+
+用户可以使用 `await` 命令在 finalize 块内执行 future。例如 `await r0;`。`await` 命令只能在 finalize 块中使用。操作数必须是包含 Future 的寄存器。
+
+#### 索引 Future（Indexing a Future）
+
+包含 future 的寄存器可以使用现有的索引语法进行索引。例如 `r0[0u32]`。这将获取该特定索引处 future 的输入。访问可以嵌套以匹配 future 的嵌套结构。
+
+#### Future 示例（Future Example）
+
+```aleo
+program basic_math.aleo;
+
+mapping uses:
+    key user as address.public;
+    value count as i64.public;
+
+function add_and_count:
+    input r0 as i64.private;
+    input r1 as i64.private;
+    add r0 r1 into r2;
+    async add_and_count self.caller into r3;
+    output r2 as i64.private;
+    output r3 as basic_math.aleo/add_and_count.future;
+
+finalize add_and_count:
+    input r0 as address.public;
+    get.or_use uses[r0] 0i64 into r1;
+    add r1 1i64 into r2;
+    set r2 into uses[r0];
+
+function sub_and_count:
+    input r0 as i64.private;
+    input r1 as i64.private;
+    sub r0 r1 into r2;
+    async sub_and_count self.caller into r3;
+    output r2 as i64.private;
+    output r3 as basic_math.aleo/sub_and_count.future;
+
+finalize sub_and_count:
+    input r0 as address.public;
+    get.or_use uses[r0] 0i64 into r1;
+    add r1 1i64 into r2;
+    set r2 into uses[r0];
+
+/////////////////////////////////////////////////
+
+import basic_math.aleo;
+
+program count_usages.aleo;
+
+function add_and_subtract:
+    input r0 as i64.private;
+    input r1 as i64.private;
+    call basic_math.aleo/add_and_count r0 r1 into r2 r3;
+    call basic_math.aleo/sub_and_count r2 r1 into r4 r5;
+    assert.eq r0 r4;
+    assert.eq r3[0u32] r5[0u32];
+    async add_and_subtract r3 r5 into r6;
+    output r0 as i64.private;
+    output r6 as count_usages.aleo/add_and_subtract.future;
+
+finalize add_and_subtract:
+    input r0 as basic_math.aleo/add_and_count.future;
+    input r1 as basic_math.aleo/sub_and_count.future;
+    await r0;
+    assert.eq r0[0u32] r1[0u32];
+    await r1;
+```
+
+使用这些组件有一些相关规则：
+
+1. 如果函数有 finalize 块，则必须恰好有一个 async 指令。
+2. 如果函数有 finalize 块，其最后一个输出必须是 future。
+3. 如果函数没有 finalize 块，则不能有 async 指令。
+4. 由调用创建的所有 future 需要按产生顺序作为 async 指令的输入。
+5. async 调用必须引用相同的函数。
+6. 所有调用必须在调用 async 之前完成。
+7. finalize 块中输入的 future 类型必须与其在函数中创建的顺序匹配。
+8. finalize 中的所有 future 必须被 await，并按其指定顺序进行。
+9. 指令可以在 call、async 和 await 的调用之间交错放置。
+
+### Finalize 命令（Finalize Commands）
+
+Aleo中支持以下命令来提供额外的程序功能。
+
+#### block.height
+
+`block.height` 命令返回程序所在区块的高度（最新区块高度 + 1）。这对于管理程序的基于时间的访问控制很有用。`block.height` 命令必须在 finalize 块内调用。
+
+```aleo
+assert.eq block.height 100u64;
+```
+
+#### block.timestamp
+
+`block.timestamp` 命令返回 finalize 作用域内当前区块的 unix 时间戳。这对于管理程序的基于时间的访问控制很有用。`block.timestamp` 命令必须在 finalize 块内调用。返回类型为 `i64`。
+
+```aleo
+assert.eq block.timestamp 1767976339i64;
+```
+
+#### network.id
+
+`network.id` 命令返回程序执行所在网络的 ID。这对于管理特定于网络的程序行为很有用。`network.id` 命令必须在 finalize 块内调用。
+
+当前支持的网络 ID：
+
+- 0: Mainnet（主网）
+- 1: Testnet（测试网）
+- 2: Canarynet
+
+#### rand.chacha
+
+`rand.chacha` 命令返回由 [ChaCha20 算法](http://cr.yp.to/chacha.html)生成的随机数。此命令支持采样随机 `address`、`boolean`、`field`、`group`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` 和 `scalar`。最多可以提供两个额外的种子给 `rand.chacha` 命令。目前仅支持 ChaCha20，但未来可能会支持其他随机数生成器。
+
+```aleo
+rand.chacha into r0 as field;
+rand.chacha r0 into r1 as field;
+rand.chacha r0 r1 into r2 as field;
+```
+
+#### 哈希（Hash）
+
+Aleo支持以下语法对标准类型进行哈希。
+
+```aleo
+hash.bhp256 r0 into r1 as address;
+hash.bhp256 r0 into r1 as field;
+hash.bhp256 r0 into r1 as group;
+hash.bhp256 r0 into r1 as i8;
+hash.bhp256 r0 into r1 as i16;
+hash.bhp256 r0 into r1 as i32;
+hash.bhp256 r0 into r1 as i64;
+hash.bhp256 r0 into r1 as i128;
+hash.bhp256 r0 into r1 as u8;
+hash.bhp256 r0 into r1 as u16;
+hash.bhp256 r0 into r1 as u32;
+hash.bhp256 r0 into r1 as u64;
+hash.bhp256 r0 into r1 as u128;
+hash.bhp256 r0 into r1 as scalar;
+hash.bhp512 ...;
+hash.bhp768 ...;
+hash.bhp1024 ...;
+hash.ped64 ...;
+hash.ped128 ...;
+hash.psd2 ...;
+hash.psd4 ...;
+hash.psd8 ...;
+```
+
+查看 [Aleo操作码](./opcodes) 获取支持的哈希算法的完整列表。
+
+#### 承诺（Commit）
+
+Aleo支持以下语法对标准类型进行承诺。注意 `commit` 命令要求第一个参数为任意类型，第二个参数为 `scalar`。
+
+```aleo
+commit.bhp256 r0 r1 into r2 as address;
+commit.bhp256 r0 r1 into r2 as field;
+commit.bhp256 r0 r1 into r2 as group;
+commit.bhp512 ...;
+commit.bhp768 ...;
+commit.bhp1024 ...;
+commit.ped64 ...;
+commit.ped128 ...;
+```
+
+查看 [Aleo操作码](./opcodes) 获取支持的承诺算法的完整列表。
+
+#### snark.verify, snark.verify.batch
+
+`snark.verify` 命令在 finalize 作用域内验证 Varuna SNARK 证明，返回 `bool`。`snark.verify.batch` 命令使用单个批量证明批量验证多个证明。这两个命令都是 **finalize-only（仅限 finalize）** 的。
+
+```aleo
+snark.verify r0 r1 r2 into r3;       // r0: vk ([u8]), r1: inputs ([field]), r2: proof ([u8]), r3: bool
+snark.verify.batch r0 r1 r2 into r3; // r0: vks, r1: 嵌套输入, r2: 批量证明, r3: bool
+```
+
+`snark.verify.batch` 受编译时限制：最多 32 个电路，最多 128 个总实例。
+
+查看 [Aleo操作码](./opcodes#snarkverify) 获取完整规范。
+
+#### position, branch.eq, branch.neq
+
+`position` 命令（例如 `position exit`）指示分支执行的目标点。`branch.eq` 命令（例如 `branch.eq r0 r1 to exit`）如果 `r0` 和 `r1` 相等，则将执行分支到 `exit` 指示的位置。`branch.neq` 命令（例如 `branch.neq r0 r1 to exit`）如果 `r0` 和 `r1` 不相等，则将执行分支到 `exit` 指示的位置。
+
+**示例：** 如果输入为 0u8，则 finalize 块成功退出，否则失败。
+
+```aleo
+program test_branch.aleo;
+
+function run_test:
+    input r0 as u8.public;
+    finalize r0;
+
+finalize run_test:
+    input r0 as u8.public;
+    branch.eq r0 0u8 to exit;
+    assert.eq true false;
+    position exit;
+```
+
+### 程序互操作性（Program Interoperability）
+
+本节示例将使用以下环境。
+
+```bash title=".env"
+NETWORK=testnet
+PRIVATE_KEY=APrivateKey1zkpE37QxQynZuEGg3XxYrTuvhzWbkVaN5NgzCdEGzS43Ms5 # 用户私钥
+ADDRESS=aleo1p2h0p8mr2pwrvd0llf2rz6gvtunya8alc49xldr8ajmk3p2c0sqs4fl5mm # 用户地址
+```
+
+#### 子程序和父程序（Child and Parent Program）
+
+以下示例演示了程序 `parent.aleo` 如何调用另一个程序 `child.aleo`。
+
+```aleo title="./imports/child.aleo"
+program child.aleo;
+
+function foo:
+    output self.caller as address.public;
+    output self.signer as address.public;
+```
+
+```aleo title="./parent.aleo"
+import child.aleo;
+
+program parent.aleo;
+
+// 从 `parent.aleo` 对 `child.aleo` 中的 `function foo` 进行外部程序调用。
+function foo:
+    call child.aleo/foo into r0 r1;
+    output r0 as address.public;
+    output r1 as address.public;
+    output self.caller as address.public;
+    output self.signer as address.public;
+```
+
+```bash
+⛓  约束
+
+ •  'test.aleo/foo' - 2,025 约束（调用 1 次）
+ •  'child.aleo/foo' - 0 约束（调用 1 次）
+
+➡️  输出
+
+ # `child.aleo/foo` 的调用者地址 => `program.aleo`
+ • aleo18tpu6k9g6yvp7uudmee954vgsvffcegzez4y8v8pru0m6k6zdsqqw6mx3t
+
+ # 发起导致 `child.aleo/foo` 的调用序列的地址 => 用户地址
+ • aleo1p2h0p8mr2pwrvd0llf2rz6gvtunya8alc49xldr8ajmk3p2c0sqs4fl5mm
+
+ # `program.aleo/foo` 的调用者地址 => 用户地址
+ • aleo1p2h0p8mr2pwrvd0llf2rz6gvtunya8alc49xldr8ajmk3p2c0sqs4fl5mm
+
+ # 发起导致 `program.aleo/foo` 的调用序列的地址 => 用户地址
+ • aleo1p2h0p8mr2pwrvd0llf2rz6gvtunya8alc49xldr8ajmk3p2c0sqs4fl5mm
+```
+
+#### 仅用户可调用程序（User Callable Program）
+
+通过在第 4 行使用 `assert.eq self.caller self.signer;`，开发者可以限制其函数使其只能被用户调用。
+
+```aleo title="./imports/child.aleo"
+program child.aleo;
+
+function foo:
+    assert.eq self.caller self.signer; // 如果被其他程序调用，此检查应失败。
+    output self.caller as address.public;
+    output self.signer as address.public;
+```
+
+```aleo title="./parent.aleo"
+import child.aleo;
+
+program parent.aleo;
+
+// 从 `parent.aleo` 对 `child.aleo` 中的 `function foo` 进行外部程序调用。
+function foo:
+    call child.aleo/foo into r0 r1;
+    output r0 as address.public;
+    output r1 as address.public;
+    output self.caller as address.public;
+    output self.signer as address.public;
+```
+
+```bash
+⚠️  无法执行指令 (call child.aleo/foo into r0 r1;):
+无法执行指令 (assert.eq self.caller self.signer ;):
+'assert.eq' 失败:
+'aleo18tpu6k9g6yvp7uudmee954vgsvffcegzez4y8v8pru0m6k6zdsqqw6mx3t'
+不等于
+'aleo1p2h0p8mr2pwrvd0llf2rz6gvtunya8alc49xldr8ajmk3p2c0sqs4fl5mm'
+（应该相等）
+```
+
+#### 仅程序可调用程序（Program Callable Program）
+
+通过在第 4 行使用 `assert.neq self.caller self.signer;`，开发者可以限制其函数使其只能被其他程序调用。
+
+```aleo title="restrict.aleo"
+program restrict.aleo;
+
+function foo:
+    assert.neq self.caller self.signer;
+    output self.caller as address.public;
+    output self.signer as address.public;
+```
+
+```bash
+⚠️  无法执行指令 (assert.neq self.caller self.signer ;):
+'assert.neq' 失败:
+'aleo1p2h0p8mr2pwrvd0llf2rz6gvtunya8alc49xldr8ajmk3p2c0sqs4fl5mm'
+等于
+'aleo1p2h0p8mr2pwrvd0llf2rz6gvtunya8alc49xldr8ajmk3p2c0sqs4fl5mm'
+（不应该相等）
+```
+
+## 动态分发（Dynamic Dispatch）
+
+动态分发使程序能够在运行时确定要调用的函数。这解锁了接口模式、可插拔库和可组合协议，同时保留了 Aleo 的安全和隐私保证。有关包括转换电路和安全考虑的完整规范，请参阅 [ARC-0009](https://vote.aleo.org/p/arc-0009)。
+
+### call.dynamic
+
+`call.dynamic` 指令调用一个在运行时解析目标的函数。
+
+**语法：**
+
+```aleo
+call.dynamic <PROG> <NET> <FUN> with <INPUTS> (as <INPUT_TYPES>) into <OUTPUTS> (as <OUTPUT_TYPES>);
+```
+
+标识符可以写为带引号的字面量（`'credits'`、`'aleo'`、`'transfer_public'`），这些被视作域元素。类型为 `field` 的变量也是允许的。
+
+```aleo
+program token_router.aleo;
+
+// 将转账路由到任何兼容的代币程序
+function route_transfer:
+    input r0 as field.public;          // 代币程序名称
+    input r1 as address.public;        // 接收者
+    input r2 as u64.public;            // 金额
+    call.dynamic r0 'aleo' 'transfer' with r1 r2 (as address.public u64.public) into r3 (as future.dynamic);
+    async route_transfer r3 into r4;
+    output r4 as token_router.aleo/route_transfer.future;
+
+finalize route_transfer:
+    input r0 as future.dynamic;
+    await r0;
+```
+
+**允许的类型：**
+
+| 位置 | 允许 | 不允许 |
+|----------|---------|------------|
+| 输入 | Plaintext 类型、`record.dynamic` | `record`、外部 record、`future`、`future.dynamic` |
+| 输出 | Plaintext 类型、`record.dynamic`、`future.dynamic` | `record`、外部 record、`future` |
+
+**限制：**
+- `call.dynamic` 只能出现在函数体中，不能出现在 finalize 块中
+- 目标程序、网络和函数是**公开**电路输入。不要使用私有数据来选择调用目标，因为目标是可观察的
+- 动态目标不能在运行时从链上映射解析；调用者提供目标作为输入（从链下查询），finalize 逻辑可以对照存储值进行验证
+
+**类型转换：** 当 `record.dynamic` 被传递给期望静态 record 的调用方时（反之亦然），AVM 会自动运行转换电路来证明两种表示之间的一致性。详见 [ARC-0009](https://vote.aleo.org/p/arc-0009)。
+
+### get.record.dynamic
+
+通过验证 Merkle 证明来从 `record.dynamic` 中检索指定名称的字段，证明该条目以指定类型存在。
+
+```aleo
+get.record.dynamic r0.microcredits into r1 as u64;
+get.record.dynamic r0.metadata into r2 as [u8; 32u32];
+```
+
+如果字段不存在或类型不兼容，Merkle 证明将失败，执行将回滚。这强制执行隐式 record 接口：任何包含所需字段的 record 都能通过检查，无论它由哪个程序定义。
+
+`owner` 字段可以直接访问，无需 Merkle 验证：`r0.owner`。
+
+### 动态映射操作（Dynamic Mapping Operations）
+
+三个 finalize 作用域命令提供了对动态指定程序中映射的运行时访问：
+
+```aleo
+get.dynamic <PROG> <NET> <MAP>[<KEY>] into <DEST> as <TYPE>;
+get.or_use.dynamic <PROG> <NET> <MAP>[<KEY>] <DEFAULT> into <DEST> as <TYPE>;
+contains.dynamic <PROG> <NET> <MAP>[<KEY>] into <DEST>;
+```
+
+这些命令的行为与静态对应命令相同，不同之处在于程序和映射是从运行时域元素操作数解析的。

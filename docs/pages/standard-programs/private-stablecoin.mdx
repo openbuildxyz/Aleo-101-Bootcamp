@@ -1,7 +1,387 @@
 ---
-title: Private Stablecoin
+title: 隐私稳定币
 ---
 
-# Private Stablecoin
+# 隐私稳定币程序
 
-Coming soon.
+## 概述
+
+隐私稳定币程序是在 Aleo 区块链上发行和管理隐私保护型稳定币的标准。目前主网上有两个使用该实现的稳定币：
+
+### USDCx (`usdcx_stablecoin.aleo`)
+
+[`usdcx_stablecoin.aleo`](https://explorer.provable.com/program/usdcx_stablecoin.aleo) 是 Aleo 上的第一个隐私稳定币，由 Aleo 与 [Circle](https://www.circle.com/blog/usdcx-on-aleo-testnet-via-circle-xreserve) 合作开发。USDCx 由锁定在以太坊 Circle xReserve 智能合约中的**原生 USDC 1:1 支持**。当用户将 USDC 存入 xReserve 时，等量的 USDCx 在 Aleo 上铸造。更多详情见 [aleo.org/usdcx](https://aleo.org/usdcx/)。
+
+**Circle xReserve** 是一个非托管智能合约和互操作性基础设施，为 Aleo 上的 USDCx 提供存款和铸造证明。它与两个互补的 Circle 服务协同工作：
+
+- **Circle Gateway** — 实现统一的 USDC 余额功能
+
+- **Circle CCTP**（跨链传输协议）— 促进跨区块链资产转移
+
+这些服务共同使 USDCx 能够在不依赖第三方桥接的情况下，与支持 USDC 的区块链实现互操作。隐私功能仅适用于在 Aleo 上的 USDCx，桥接回其他区块链后将移除这些保护。
+
+### USAD (`usad_stablecoin.aleo`)
+
+[`usad_stablecoin.aleo`](https://explorer.provable.com/program/usad_stablecoin.aleo) 是由 [Aleo 网络基金会（ANF）和 Paxos Labs](https://aleo.org/post/paxos-labs-and-ANF-launch-USAD-Private-Stablecoin/) 联合开发的隐私保护型稳定币。USAD 由 **USDG（全球美元）** 支持，USDG 是通过 Paxos Labs 发行框架发行的受监管、机构级数字美元。它是第一个在结合智能合约能力与增强隐私的 Layer 1 区块链上发行的美元稳定币。USAD 旨在将敏感信息（包括参与者身份和交易金额）保密，同时保持对监管监督的透明。更多详情见 [aleo.org/usad](https://aleo.org/usad/)。
+
+两个程序共享相同的链上实现，旨在满足监管合规要求，同时利用 Aleo 独特的零知识隐私功能。该程序集成了三个支持组件：
+
+- 用于需要多签批准的管理操作的**多签核心**程序
+
+- 用于对代币持有者执行合规控制的**冻结列表**程序
+
+- 用于高效、隐私保护的成员证明的**默克尔树**程序
+
+该稳定币架构的关键设计目标是允许完全私密的转账，同时仍能对地址进行合规冻结。私密发送者通过提交非成员资格的默克尔证明来证明他们不在冻结列表上，而无需在链上透露其地址。
+
+## 合规与隐私设计
+
+### 冻结列表
+
+冻结列表由一个配套程序管理（`usdcx_freezelist.aleo` / `usad_freezelist.aleo`）。冻结列表上的地址被阻止进行所有公共转账。私密转账执行相同的限制，但不透露发送者的地址：发送者必须提供非成员资格的默克尔证明，证明其地址不是冻结列表树中的叶子节点。
+
+### ComplianceRecord
+
+每个跨越公共/私有边界的操作（私密铸造、私密销毁以及公共到私有的转换）都会向指定的合规官员地址发出 `ComplianceRecord`。这允许发行方出于监管目的维护审计跟踪，而不会在链上公开暴露信息。
+
+### 多签管理
+
+管理操作受 `usdcx_multisig_core.aleo`（或 `usad_multisig_core.aleo`）保护，需要多个签名者（通过 Aleo 地址和 ECDSA 密钥识别）授权敏感更改，如角色更新和程序初始化。
+
+底层模式——由 ECDSA 签名授权的 Aleo 智能合约钱包——在 [`virtual_wallet` Leo 示例](https://github.com/ProvableHQ/leo-examples/tree/main/virtual_wallet) 中进行了演示。该示例对于需要使用现有 ECDSA 密钥基础设施（例如 HSM 或现有以太坊签名密钥）管理链上资产的**托管人**特别有用，而无需将原生 Aleo 私钥作为权限暴露。它展示了如何部署一个接受 secp256k1 ECDSA 签名作为其授权机制的程序，使用临时 Aleo 密钥进行交易签名，而 ECDSA 密钥保留实际的支出权限。
+
+## 关键特性
+
+- 公共和私有代币余额
+
+- 基于角色的访问控制（管理员、铸造者、销毁者）
+
+- 通过冻结列表和基于默克尔证明的执行实现合规
+
+- 凭证门控的私密转账：发送者必须证明他们未被冻结
+
+- 每次铸造、销毁和公共到私有转账都会发出合规记录
+
+- 紧急暂停机制
+
+- 多签保护的管理操作
+
+## 如何使用隐私稳定币程序
+
+具有 `MINTER_ROLE` 或 `ADMIN_ROLE` 的地址可以通过 `mint_public` 公开铸造代币，或通过 `mint_private` 私密铸造代币。具有 `BURNER_ROLE` 或 `ADMIN_ROLE` 的地址可以通过 `burn_public` 或 `burn_private` 销毁代币。
+
+代币持有者可以使用 `transfer_public` 进行公开转账，或使用 `transfer_private` 进行私密转账。私密转账要求发送者通过 Provable API 获取当前冻结列表默克尔树，计算两个按字典序限定其地址的相邻 `MerkleProof` 结构体，并将这些证明直接传递给 `transfer_private`。
+
+公共余额可以通过 `transfer_public_to_private` 转换为私有代币记录，私有记录可以通过 `transfer_private_to_public` 转换回来。授权机制（`approve_public`、`unapprove_public`、`transfer_from_public`、`transfer_from_public_to_private`）允许第三方代表所有者支出代币。
+
+### 私密转账流程
+
+私密转账在不透露发送者链上地址的情况下强制执行冻结列表合规性。发送者必须通过提供一对相邻的默克尔树条目来证明其不在冻结列表中，这些条目按字典序限定其地址。
+
+#### 冻结列表 API
+
+要获取私密转账所需的默克尔树数据，请查询 Provable Explorer API：
+
+```
+GET https://api.explorer.provable.com/v2/programs/{programID}/compliance/freeze-list
+```
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `programID` | 路径（字符串）| 稳定币程序 ID，例如 `usdcx_stablecoin.aleo` |
+
+**响应：** 表示当前冻结列表的默克尔树字段元素数组。使用这些来计算 `transfer_private` 所需的两个相邻 `MerkleProof` 结构体。
+
+完整 API 参考：[Provable Explorer API v2 — 合规冻结列表](https://docs.explorer.provable.com/docs/api/v2/get-program-program-id-compliance-freeze-list)
+
+## 数据结构
+
+### Token 记录
+
+```
+record Token {
+
+ owner: address,
+
+ amount: u128,
+
+}
+```
+
+### ComplianceRecord 记录
+
+```
+record ComplianceRecord {
+
+ owner: address,
+
+ amount: u128,
+
+ sender: address,
+
+ recipient: address,
+
+}
+```
+
+在每次 `mint_private`、`burn_private`、`transfer_public_to_private` 和 `transfer_from_public_to_private` 调用时发出，为合规官员提供审计跟踪，而不会在链上公开暴露数据。
+
+### Credentials 记录
+
+```
+record Credentials {
+
+ owner: address,
+
+ freeze_list_root: field,
+
+}
+```
+
+必须在调用 `transfer_private` 之前通过 `get_credentials` 获取。证明持有者的地址不在已证明的默克尔根对应的冻结列表上。
+
+### TokenInfo 结构体
+
+```
+struct TokenInfo {
+
+ name: u128, // ASCII 文本编码为 u128 位串
+
+ symbol: u128, // ASCII 文本编码为 u128 位串
+
+ decimals: u8,
+
+ supply: u128,
+
+ max_supply: u128,
+
+}
+```
+
+### TokenAllowance 结构体
+
+```
+struct TokenAllowance {
+
+ account: address,
+
+ spender: address,
+
+}
+```
+
+### MerkleProof 结构体
+
+```
+struct MerkleProof {
+
+ siblings: [field; 16],
+
+ leaf_index: u32,
+
+}
+```
+
+用于 `get_credentials` 和 `transfer_private` 中，以证明在冻结列表中的非成员资格（或成员资格）。树的深度为 16；`siblings` 包含每层一个兄弟哈希。
+
+### ChecksumEdition 结构体
+
+```
+struct ChecksumEdition {
+
+ checksum: [u8; 32],
+
+ edition: u16,
+
+}
+```
+
+### AdminOp 结构体
+
+```
+struct AdminOp {
+
+ op: u8,
+
+ threshold: u8,
+
+ aleo_signer: address,
+
+ ecdsa_signer: [u8; 20],
+
+}
+```
+
+## 映射
+
+`mapping token_info: bool => TokenInfo;`
+
+在键 `true` 处存储代币元数据。只有一个条目。
+
+`mapping balances: address => u128;`
+
+将每个地址映射到其公共代币余额。
+
+`mapping allowances: field => u128;`
+
+将 `TokenAllowance` 结构体的 BHP256 哈希映射到授权的支出金额。
+
+`mapping address_to_role: address => u16;`
+
+将每个地址映射到其角色位掩码。
+
+`mapping pause: bool => bool;`
+
+在键 `true` 处存储暂停状态。当为 `true` 时，所有铸造、销毁和转账都被阻止。
+
+## 角色常量
+
+角色以位掩码形式存储在 `address_to_role` 中。一个地址可以同时持有多个角色。
+
+| 角色 | 位掩码 | 描述 |
+|---|---|---|
+| `MINTER_ROLE` | `1u16` | 可以调用 `mint_public` 和 `mint_private` |
+| `BURNER_ROLE` | `2u16` | 可以调用 `burn_public` 和 `burn_private` |
+| `ADMIN_ROLE` | `8u16` | 可以调用所有特权函数，包括 `update_role` |
+
+具有 `ADMIN_ROLE` 的地址可以为其他地址分配或撤销角色。管理员不能移除自己的 `ADMIN_ROLE`。
+
+## 功能
+
+### `initialize()`
+
+使用代币元数据初始化稳定币程序并设置初始管理员地址。只能由部署者地址调用一次。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `name` | `public u128` | 编码为 ASCII 的代币名称 |
+| `symbol` | `public u128` | 编码为 ASCII 的代币符号 |
+| `decimals` | `public u8` | 小数位数 |
+| `max_supply` | `public u128` | 最大允许供应量 |
+| `admin` | `public address` | 初始管理员地址 |
+
+返回：`Future`
+
+### `update_role()`
+
+为目标地址分配新的角色位掩码。调用者必须具有 `ADMIN_ROLE`。管理员不能移除自己的 `ADMIN_ROLE`。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `account` | `public address` | 要更新的地址 |
+| `role` | `private u16` | 要分配的新角色位掩码 |
+
+返回：`Future`
+
+### `get_credentials()`
+
+通过验证两个相邻的默克尔证明来对抗当前冻结列表根，证明交易签名者不在冻结列表上。该函数确认签名者的地址落在两个连续的叶子条目之间，按字典序建立非成员资格。返回调用 `transfer_private` 所需的 `Credentials` 记录。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `proofs` | `private [MerkleProof; 2]` | 在冻结列表树中限定签名者地址的两个相邻证明 |
+
+返回：`Credentials`（在已证明的根处证明非成员资格）、`Future`
+
+### `get_signing_op_id_for_deploy()`
+
+计算程序部署的签名操作 ID 的实用函数，用于多签管理流程。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `checksum` | `private [u8; 32]` | 部署校验和 |
+| `edition` | `private u16` | 部署版本 |
+
+返回：`field` — `ChecksumEdition` 结构体的 BHP256 哈希，用作签名操作标识符。
+
+### `mint_public()` / `mint_private()`
+
+向接收者铸造代币。需要 `MINTER_ROLE` 或 `ADMIN_ROLE`。程序不能处于暂停状态，且新供应量不能超过 `max_supply`。`mint_private` 向合规官员发出 `ComplianceRecord`。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `recipient` | `public address` / `private address` | 接收者地址（`mint_private` 时为私有） |
+| `amount` | `public u128` | 要铸造的代币数量 |
+
+返回：`mint_public` → `Future`；`mint_private` → `ComplianceRecord`、`Token`、`Future`
+
+### `burn_public()` / `burn_private()`
+
+销毁代币。需要 `BURNER_ROLE` 或 `ADMIN_ROLE`。程序不能处于暂停状态。`burn_private` 向合规官员发出 `ComplianceRecord`。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `owner` | `public address` | 要销毁代币的地址（仅限 `burn_public`） |
+| `input_record` | `Token` | 要销毁的代币记录（仅限 `burn_private`） |
+| `amount` | `public u128` | 要销毁的代币数量 |
+
+返回：`burn_public` → `Future`；`burn_private` → 剩余 `Token`、`ComplianceRecord`、`Future`
+
+### `transfer_public()` / `transfer_public_as_signer()`
+
+在公共地址之间转账代币。发送者和接收者都不能在冻结列表上。程序不能处于暂停状态。`transfer_public_as_signer` 使用 `self.signer` 作为发送者而不是 `self.caller`，支持在程序调用链中使用，同时将扣款归因于原始交易签名者。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `recipient` | `public address` | 接收者地址 |
+| `amount` | `public u128` | 转账金额 |
+
+返回：`Future`
+
+### `approve_public()` / `unapprove_public()`
+
+`approve_public` 授予支出者代表调用者转账代币的能力，按指定金额增加授权额度。`unapprove_public` 减少或撤销该授权额度。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `spender` | `public address` | 要授权或取消授权的地址 |
+| `amount` | `public u128` | 要添加或从授权额度中减去的金额 |
+
+返回：`Future`
+
+### `transfer_from_public()`
+
+使用预先授权的授权额度，从所有者向接收者转账代币。所有者和接收者都不能在冻结列表上。程序不能处于暂停状态。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `owner` | `public address` | 要扣款的地址 |
+| `recipient` | `public address` | 要入账的地址 |
+| `amount` | `public u128` | 转账金额 |
+
+返回：`Future`
+
+### `transfer_public_to_private()` / `transfer_from_public_to_private()`
+
+将公共余额转换为私有 `Token` 记录，向合规官员发出 `ComplianceRecord`。`transfer_from_public_to_private` 代表所有者使用预先授权的授权额度进行操作。两者都要求发送者/所有者不在冻结列表上，且程序不能处于暂停状态。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `owner` | `public address` | 要公开扣款的地址（仅限 `transfer_from_public_to_private`） |
+| `recipient` | `private address` | 私有接收者地址（链上不可见） |
+| `amount` | `public u128` | 要转换的金额 |
+
+返回：`ComplianceRecord`、`Token`、`Future`
+
+### `transfer_private()`
+
+在两个私有 `Token` 记录之间转账代币。发送者必须提供两个相邻的 `MerkleProof` 结构体，证明其地址不在当前冻结列表上。程序不能处于暂停状态。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `recipient` | `private address` | 接收者地址（链上不可见） |
+| `amount` | `private u128` | 转账金额（链上不可见） |
+| `input_record` | `Token` | 发送者的代币记录 |
+| `proofs` | `private [MerkleProof; 2]` | 证明发送者不在冻结列表上的默克尔证明 |
+
+返回：发送者剩余的 `Token`、接收者的新 `Token`、`Future`
+
+### `transfer_private_to_public()`
+
+将私有 `Token` 记录转换为公共余额。程序不能处于暂停状态。
+
+| 参数 | 类型 | 描述 |
+|---|---|---|
+| `recipient` | `public address` | 公共接收者地址 |
+| `amount` | `public u128` | 转换金额 |
+| `input_record` | `Token` | 要转换的代币记录 |

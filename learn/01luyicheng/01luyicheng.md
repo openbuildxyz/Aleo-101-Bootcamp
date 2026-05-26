@@ -1,0 +1,6 @@
+- 昵称：陆奕丞
+- GitHub 用户名：01luyicheng
+- 微信：luyicheng-1
+- Aleo 钱包地址：aleo13zjkkxfv9j32vpptr8l7cquwj5rfzzpffs4ulrgpsr0xtjhcmqysw9ee3h
+- 技术栈：solidity, react, node
+- 自我介绍：热爱技术，看好加密市场，喜欢学习

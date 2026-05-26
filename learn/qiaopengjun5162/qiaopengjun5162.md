@@ -1,6 +1,6 @@
 - 昵称：  Paxon
 - GitHub 用户名：  qiaopengjun5162
 - 微信：qpj4812701762
-- Aleo 钱包地址：  aleo1lqkc6r53r3dym3cdhvfjhc64f6mvuupamuxq6hfd278qnal5yq9qukw6x7
+- Aleo 钱包地址：  aleo1cu0xk4tt99pgxglpqltzk3tmpgh7qftjwukxcmewzpy0fkqghvgsxu0g03
 - 技术栈：  python go rust solidity
 - 自我介绍：   Web3 Developer

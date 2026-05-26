@@ -1,7 +1,258 @@
 ---
-title: Special Operands
+id: special_operands
+title: Aleo 特殊操作数
+sidebar_label: 特殊操作数
 ---
 
-# Special Operands
+下面的列表展示了 Aleo 指令支持的特殊操作数。
 
-Coming soon.
+## 特殊操作数表
+
+| 名称                               | 说明                                             |
+| ---------------------------------- | :----------------------------------------------- |
+| [block.height](#blockheight)       | 在 `finalize` 作用域内返回区块高度               |
+| [block.timestamp](#blocktimestamp) | 在 `finalize` 作用域内返回当前区块的 Unix 时间戳 |
+| [self.signer](#selfsigner)         | 返回发起 transition 的用户地址                   |
+| [self.caller](#selfcaller)         | 返回当前程序的直接调用者地址                     |
+| [network.id](#networkid)           | 返回程序执行所在网络的 ID                        |
+| [edition](#edition)                | 返回程序的版本号（`u16`）                        |
+| [checksum](#checksum)              | 返回程序字符串的 SHA3-256 哈希值                 |
+| [program_owner](#programowner)     | 返回提交部署交易的账户地址                       |
+
+## 群生成元表
+
+| 名称                                           | 说明                                   |
+| ---------------------------------------------- | :------------------------------------- |
+| [group::GEN](#groupgen)                        | 椭圆曲线素数阶子群的生成元             |
+| [aleo::GENERATOR](#aleogenerator)              | 用于 Aleo 账户派生的点 `G`             |
+| [aleo::GENERATOR_POWERS](#aleogeneratorpowers) | 用于 Aleo 签名和加密方案的完整群基数组 |
+
+## 规范说明
+
+下面是 Aleo 虚拟机（AVM）中每个特殊操作数的规范说明。
+
+### `network.id`
+
+[返回顶部](#特殊操作数表)
+
+#### 描述
+
+返回程序执行所在网络的 ID。这可用于管理与网络相关的程序行为。
+
+`network.id` 命令必须在 `finalize` 块中调用。
+
+当前支持的网络 ID 如下：
+
+- `0`：Mainnet
+- `1`：Testnet
+- `2`：Canarynet
+
+#### 使用示例
+
+```aleo
+assert.eq network.id 0u64;  // 用于 mainnet
+```
+
+### `block.height`
+
+[返回顶部](#特殊操作数表)
+
+#### 描述
+
+在 `finalize` 作用域内返回区块高度。
+
+`block.height` 命令必须在 `finalize` 块中调用。
+
+返回值类型为 `u64`。
+
+#### 使用示例
+
+```aleo
+assert.eq block.height 100u64;
+```
+
+<a id="blocktimestamp"></a>
+### `block.timestamp`
+
+[返回顶部](#特殊操作数表)
+
+#### 描述
+
+在 `finalize` 作用域内返回当前区块的 Unix 时间戳。
+
+`block.timestamp` 命令必须在 `finalize` 块中调用。
+
+返回值类型为 `i64`。
+
+#### 使用示例
+
+```aleo
+assert.eq block.timestamp 1767976339i64;
+```
+
+### `self.signer`
+
+[返回顶部](#特殊操作数表)
+
+#### 描述
+
+返回发起 transition 的用户地址。
+
+#### 使用示例
+
+```aleo
+assert.eq self.signer aleo1...;
+```
+
+### `self.caller`
+
+[返回顶部](#特殊操作数表)
+
+#### 描述
+
+返回当前程序的直接调用者地址。
+
+#### 使用示例
+
+```aleo
+assert.eq self.caller aleo1...;
+```
+
+### `edition`
+
+[返回顶部](#特殊操作数表)
+
+#### 描述
+
+以无符号 16 位整数（`u16`）的形式返回程序版本号。初始部署时，`edition` 必须为 `0u16`。每次有效升级时，它必须严格递增 `1`。
+
+该操作数只能在 `finalize` 作用域内使用，用于程序可升级性。
+
+#### 使用示例
+
+```aleo
+assert.eq edition 0u16;  // 检查这是否为初始部署
+```
+
+:::note
+你也可以通过程序名限定操作数来引用其他程序的元数据，例如 `Program::edition(credits.aleo)`、`Program::edition(foo.aleo)`。如果要使用这种语法，需要先在 Leo 文件中导入对应程序。
+:::
+
+### `checksum`
+
+[返回顶部](#特殊操作数表)
+
+#### 描述
+
+返回一个 32 字节数组（`[u8; 32u32]`），表示程序字符串的 SHA3-256 哈希值。它是程序代码的唯一指纹。
+
+在任何可升级程序的部署中，`checksum` 都是必需的，用于验证已部署代码是否符合预期。
+
+该操作数只能在 `finalize` 作用域内使用。
+
+#### 使用示例
+
+```aleo
+assert.eq checksum <EXPECTED_CHECKSUM>;  // 验证程序代码是否与预期哈希一致
+```
+
+:::note
+你也可以通过程序名限定操作数来引用其他程序的元数据，例如 `Program::checksum(credits.aleo)`、`Program::checksum(foo.aleo)`。如果要使用这种语法，需要先在 Leo 文件中导入对应程序。
+:::
+
+<a id="programowner"></a>
+### `program_owner`
+
+[返回顶部](#特殊操作数表)
+
+#### 描述
+
+返回提交部署交易的账户 `address`。
+
+在任何可升级程序的部署中，`program_owner` 都是必需的，并且可用于对程序升级实施访问控制。
+
+该操作数只能在 `finalize` 作用域内使用。
+
+#### 使用示例
+
+```aleo
+assert.eq program_owner <ADMIN_ADDRESS>;  // 将升级权限限制给指定管理员
+```
+
+:::note
+你也可以通过程序名限定操作数来引用其他程序的元数据，例如 `Program::program_owner(credits.aleo)`、`Program::program_owner(foo.aleo)`。如果要使用这种语法，需要先在 Leo 文件中导入对应程序。
+:::
+
+:::warning
+在可升级功能推出之前部署的程序没有 `program_owner`。尝试访问它会导致运行时错误。
+:::
+
+<a id="groupgen"></a>
+### `group::GEN`
+
+[返回顶部](#群生成元表)
+
+#### 描述
+
+椭圆曲线素数阶子群的生成元。它用于 Twisted Edwards 曲线上的通用椭圆曲线运算，也会在某些特定类型转换操作中作为默认值之一使用。
+
+#### 使用示例
+
+```aleo
+add group::GEN group::GEN into r0;
+mul group::GEN 2scalar into r1;
+```
+
+<a id="aleogenerator"></a>
+### `aleo::GENERATOR`
+
+[返回顶部](#群生成元表)
+
+#### 描述
+
+用于 Aleo 账户派生的点 `G`，其中 `view_key * G = address`。它用于 Aleo 账户和签名派生过程中的 `g_scalar_multiply`。
+
+它是通过对域字符串 `"AleoAccountEncryptionAndSignatureScheme0"` 调用 `hash_to_curve` 生成的群基数组中的第一个元素。这些群基专门用于 Aleo 账户和签名。
+
+#### 使用示例
+
+```aleo
+function derive_address:
+    input r0 as scalar.public;  // view_key
+    input r1 as address.public; // expected address
+    // Derive the address from the view key
+    mul aleo::GENERATOR r0 into r2;
+    cast r2 into r3 as address;
+    assert.eq r1 r3;
+```
+
+:::note
+关于该生成元如何用于账户派生，请参阅 [Accounts 文档](../../concepts/fundamentals/00_accounts.md#generate-an-address)。
+:::
+
+<a id="aleogeneratorpowers"></a>
+### `aleo::GENERATOR_POWERS`
+
+[返回顶部](#群生成元表)
+
+#### 描述
+
+用于 Aleo 签名和加密方案的群基数组。它通过对域字符串 `"AleoAccountEncryptionAndSignatureScheme0"` 调用 `hash_to_curve` 生成，专门用于 Aleo 账户和签名。
+
+该数组长度为 `253`，有效索引范围是 `0u32` 到 `252u32`。
+
+#### 使用示例
+
+```aleo
+function example:
+    input r0 as scalar.public;
+    // Access the first generator power (same as aleo::GENERATOR)
+    mul aleo::GENERATOR_POWERS[0u32] r0 into r1;
+
+    // Verify equivalence with aleo::GENERATOR
+    mul aleo::GENERATOR r0 into r2;
+    assert.eq r1 r2;
+
+    // These are equivalent
+    assert.eq aleo::GENERATOR aleo::GENERATOR_POWERS[0u32];
+```

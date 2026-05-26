@@ -1,0 +1,6 @@
+- 昵称： rzexin
+- GitHub 用户名： JasonRUAN
+- 微信： ruanzx
+- Aleo 钱包地址：aleo1s59tyrcr79jmj9glj289adncasjakzavr6npkcc7jkwqwx0yavzq99rv09
+- 技术栈： go move rust
+- 自我介绍：web2.5开发者

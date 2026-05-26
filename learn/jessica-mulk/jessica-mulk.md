@@ -1,0 +1,6 @@
+- 昵称：   jessica-mulk
+- GitHub 用户名：   jessica-mulk
+- 微信：Hly248826
+- Aleo 钱包地址：  aleo17en9ay5rfut3zrfxe9qq8sc86p38f2ggkmursmda9w4c5qczwqzsa3a2lq
+- 技术栈：
+- 自我介绍：

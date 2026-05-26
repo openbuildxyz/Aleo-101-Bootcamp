@@ -25,7 +25,7 @@
 1. `Fork` 本仓库，然后 `clone` 到你的本地。
 2. 进入 [learn](./learn) 文件夹，创建以你的名字(github用户名)命名的文件夹 `YourName`。
 3. 复制 [Template.md](./Template.md) 文件到刚才创建的文件夹，并将文件重命名为你的名字：`YourName.md`。
-4. 打开 `learn/YourName/YourName.md` 文件，根据文档指引填写你的信息并保存。（**钱包地址用来发奖励，请认真填写**）
+4. 打开 `learn/YourName/YourName.md` 文件，根据文档指引填写你的信息并保存。（**钱包地址用来发奖励，请认真填写**，参考 [Shield Wallet 指南](./Shield_Wallet_guide.md)）
 5. 提交一个 PR 到本仓库，等待合并。| [如何提交PR？](https://juejin.cn/post/7021727244124962846)
 
 ---
@@ -60,6 +60,29 @@
 
 ---
 
+### ⭐ 课程大纲 ⭐
+
+**第一章：为什么需要隐私？**（2 节课）5.11 - 5.17 | [课程](https://openbuild.xyz/learn/challenges/2097505722/1778499675) | [task1](./task/task1.md)
+
+* 常见的隐私常见介绍和技术背景
+* 介绍Aleo的背景和基础信息
+* Aleo Concept
+  * UTXO
+
+**第二章：Leo 入门：学会这门语言**（1 节课）5.19 - 5.24 | [课程](https://openbuild.xyz/learn/challenges/2097505722) | [task2](./task/task2.md)
+
+* Leo语言语法基础入门和简单Demo
+
+* 融入AI Coding部分
+
+**第三章：建起来：从程序到 dApp**（1 节课）5.26 - 5.31 | [课程](https://openbuild.xyz/learn/challenges/2097505722) | [task3](./task/task3.md)
+
+* 基于Leo+前端+必要的SDK等构建一个有前端界面的隐私小应用
+* 融入AI Coding部分
+
+**第四章：用起来：真实场景落地**（1-2 节课）6.2 - 6.7 | [课程](https://openbuild.xyz/learn/challenges/2097505722) | [task4](./task/task4.md)
+
+---
 
 ### 任务
 
@@ -67,10 +90,12 @@
 
 <br>
 
+**任何时间都可以提交作业，只是在截止时间之后提交的作业没有奖励**
+
 | Task                     | 对应章节                  | 学习奖励 | **截止提交时间**       | **奖励发放** |
 | ------------------------ | ------------------------- | -------- | ---------------------- | ------------ |
-| [task1](./task/task1.md) | 1. 为什么需要隐私？       | ¥6       | 5月17日24:00:00(UTC+8) |              |
-| [task2](./task/task2.md) | 2. Leo 入门：学会这门语言 | ¥12      | 5月24日24:00:00(UTC+8) |              |
+| [task1](./task/task1.md) | 1. 为什么需要隐私？       | ¥6       | 5月17日24:00:00(UTC+8) | [奖励发放记录](./reward/task1_bounty.md)  |
+| [task2](./task/task2.md) | 2. Leo 入门：学会这门语言 | ¥12      | 5月24日24:00:00(UTC+8) | [奖励发放记录](./reward/task2_bounty.md)  |
 | [task3](./task/task3.md) | 3. 建起来：从程序到 dApp  | ¥15      | 5月31日24:00:00(UTC+8) |              |
 | [task4](./task/task4.md) | 4. 用起来：真实场景落地   | ¥20      | 6月14日24:00:00(UTC+8) |              |
 
@@ -85,6 +110,22 @@
 - 寻宝大奖为一台 MacBook Neo(价值500美元）, 需要学完课程完成所有课程作业，参与黑客松并提交项目。(根据作业完成度和项目综合评审选取一位中奖者）
 
 - 作业奖励上面task部分已经列出，按时提交作业即可获得作业奖励，如果作业奖励池用完，则晚提交的作业没有奖励
+
+---
+
+### 关于中文文档
+
+Aleo 中文文档已经在加紧翻译中啦 🚀
+欢迎大家一起参与翻译共建，无论是补充内容、修正文案，还是完善教程，都会帮助更多开发者更轻松进入 Aleo 生态 💪
+
+后续所有学员都可以直接通过以下地址直接查看中文文档：
+
+* https://openbuildxyz.github.io/Aleo-101-Bootcamp
+
+目前 `docs/` 目录也正在持续补充与翻译官方内容，可参考：
+
+* 官方文档：https://developer.aleo.org/guides/introduction/getting_started/
+* 官方文档资源源代码：https://github.com/AleoNet/welcome
 
 ---
 

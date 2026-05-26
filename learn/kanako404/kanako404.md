@@ -1,6 +1,6 @@
 - 昵称：  K
 - GitHub 用户名：  kanako404
 - 微信：_kanak0_
-- Aleo 钱包地址： 
+- Aleo 钱包地址： aleo18u0525gjk0j6smncv8u5c55dft4fvkm76700jyd5th7jqkqaqsgs5qupuj
 - 技术栈：  
 - 自我介绍：  

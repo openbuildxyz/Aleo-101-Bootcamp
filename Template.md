@@ -1,6 +1,6 @@
 - 昵称：   
 - GitHub 用户名：   
 - 微信： 
-- Aleo 钱包地址：  (不明白的可以学完基础知识后再填)  
+- Aleo 钱包地址：  (不明白的可以学完基础知识后再填，参考 [Shield Wallet 指南](Shield_Wallet_guide.md))
 - 技术栈：  
 - 自我介绍：   

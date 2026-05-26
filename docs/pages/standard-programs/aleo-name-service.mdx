@@ -1,7 +1,315 @@
 ---
-title: Aleo Name Service
+title: Aleo 域名服务
 ---
 
-# Aleo Name Service
+# Aleo 域名服务
 
-Coming soon.
+## 概述
+
+Aleo 域名服务（ANS）是一个标准程序，专为在 Aleo 区块链上管理人类可读的域名而设计。该标准源自 [ARC-137 提案](https://github.com/ProvableHQ/ARCs/discussions/45)，并通过 [Aleo 治理](https://vote.aleo.org/p/137) 的社区投票正式批准。
+
+ANS 旨在通过提供可记忆且可更新的人类可读标识符，简化与 Aleo 资源的交互。它支持公共域名和私有域名，各自服务于不同的用例和隐私需求。公共域名提供稳定的人类可读标识符，可用于指定网络资源；而私有域名则允许在不暴露接收方真实 Aleo 地址的情况下，私密转移 Aleo 积分（AC）。
+
+### 与 ARC-0721 的兼容性
+
+虽然 ANS 力求与 [ARC-0721 标准](https://developer.aleo.org/guides/standards/nft_standards) 兼容，但需要对 NFT 结构进行一些修改，以支持其独特的域名注册功能。这些差异对于实现域名标识符的动态创建是必要的，同时保持与更广泛的 Aleo 生态系统的兼容性。
+
+#### NFT 结构的差异
+
+关键差异之一在于 ANS 中使用的 NFT 结构。虽然 ARC-0721 定义了 NFT 的标准结构，但 ANS 需要对 NFT 记录中的 `data` 字段采用动态方法。这是由于域名注册的性质决定的，每个 NFT 必须反映一个唯一的标识符（name_hash），该标识符仅在用户注册域名时确定。以下是 ANS 特定的 NFT 结构：
+
+```
+// ANS NFT 结构在 `data` 字段上与 ARC-0721 有所不同。
+
+// 这里的 `data` 不是预定义的，而是根据用户注册的域名动态创建的。
+
+// 这个 `data` 作为域名的 name_hash，在 ANS 中唯一标识该域名。
+
+record NFT {
+
+ owner: address,
+
+ data: data,
+
+ edition: scalar // 版本号，类似于 ARC-0721 的结构。
+
+}
+```
+
+#### 拥抱差异以增强功能
+
+ANS 中对 NFT 结构的修改对于支持协议的功能和目标是必要的。虽然 ANS 努力与 ARC-0721 等现有标准保持一致，但它也认识到需要创新和调整其 NFT 表示形式，以有效服务其独特目的。这种方法确保 ANS 能够提供强大且以隐私为中心的命名服务，补充更广泛的 Aleo 生态系统。
+
+社区和开发者了解这些差异对于无缝集成非常重要，以便在适用的地方利用两种标准的优势。
+
+本文档概述了 Aleo 域名服务程序的功能，并提供了使用指南。原始源代码可以在 [GitHub 仓库](https://github.com/S-T-Soft/ans-programs) 中找到。
+
+## ANS 组件
+
+Aleo 域名服务由三个主要组件组成：
+
+1. **注册表程序**：管理域名系统，将域名映射到解析器并允许更新这些映射
+
+2. **注册商**：处理域名分配和顶级域名管理
+
+3. **解析器**：处理资源查找并返回请求的数据
+
+## 注册表程序
+
+注册表程序是 ANS 的核心组件，负责管理域名系统并维护域名与其关联数据之间的映射。
+
+### 数据结构
+
+#### Name 结构体
+
+```
+struct Name {
+
+ name: [u128; 4],
+
+ parent: field // 父域名的 name_hash，对于顶级域名(tld)，此属性为 0field。
+
+}
+```
+
+#### NameStruct
+
+```
+struct NameStruct {
+
+ name: [u128; 4],
+
+ parent: field,
+
+ resolver: field // 解析器程序地址
+
+}
+```
+
+#### Data 结构体
+
+```
+struct data {
+
+ metadata: [field; 4], // 第一个元素是域名的 name_hash
+
+}
+```
+
+#### NFT 记录
+
+```
+record NFT {
+
+ owner: address,
+
+ data: data,
+
+ edition: scalar
+
+}
+```
+
+#### NFTView 记录
+
+```
+record NFTView {
+
+ owner: address,
+
+ data: data,
+
+ edition: scalar,
+
+ is_view: bool
+
+}
+```
+
+### 映射
+
+```
+mapping nft_owners: field => address;
+
+mapping names: field => NameStruct;
+
+mapping tlds: field => [u128; 4];
+
+mapping primary_names: address => field;
+
+mapping name_versions: field => u64;
+
+mapping resolvers: ResolverIndex => [u128; 4];
+
+mapping domain_credits: field => u64;
+```
+
+### 核心功能
+
+注册表程序提供以下核心功能：
+
+- `register_tld()`：注册新的顶级域名
+
+- `register()`：注册新的域名
+
+- `register_private()`：注册私有子域名
+
+- `register_public()`：注册公共域名
+
+- `transfer_private()`：转移私有域名的所有权
+
+- `transfer_public()`：转移公共域名的所有权
+
+- `set_primary_name()`：将域名设置为地址的主名称
+
+- `unset_primary_name()`：移除主名称设置
+
+- `set_resolver()`：为域名设置解析器地址
+
+## 注册商
+
+注册商负责管理域名分配和顶级域名（TLD）操作。它们与注册表程序协同工作，处理域名注册和管理。
+
+### 注册商功能
+
+- 域名验证
+
+- 顶级域名管理
+
+- 注册费用处理
+
+- 域名续期处理
+
+## 解析器
+
+解析器是专门处理资源查找并返回域名请求数据的程序。它们处理域名到其关联资源的实际解析。
+
+### 解析器功能
+
+- 资源查找处理
+
+- 数据解析
+
+- 记录管理
+
+- 版本控制
+
+### ResolverIndex 结构体
+
+```
+struct ResolverIndex {
+
+ name: field, // 域名的 name_hash
+
+ category: u128, // 解析器的类型
+
+ version: u64 // 解析器的版本
+
+}
+```
+
+### 解析器操作
+
+- `set_resolver_record()`：为私有域名设置解析器记录
+
+- `unset_resolver_record()`：移除私有域名的解析器记录
+
+- `set_resolver_record_public()`：为公共域名设置解析器记录
+
+- `unset_resolver_record_public()`：移除公共域名的解析器记录
+
+## 隐私积分转移方案
+
+隐私积分转移方案是构建在 Aleo 域名服务（ANS）之上的创新功能，促进积分的私密转移。该方案确保交易双方都不需要披露其 Aleo 地址，从而在增强隐私的同时保持易用性。
+
+### 转移积分
+
+此功能允许将积分转移到 ANS 域名，而无需透露域名持有者的真实 Aleo 地址。它涉及一个秘密，允许域名持有者私密地领取转移的积分。
+
+#### 向 ANS 名称转移私有积分
+
+```
+// 用于将积分转移到 ANS 域名的功能，无需透露域名持有者的真实地址。
+
+// @param receiver: 接收方 ANS 域名的 name_hash。
+
+// @param secret: 与交易关联的秘密，用于领取验证。
+
+// @param amount: 要转移的积分数量。
+
+// @param pay_record: 正在进行的付款记录。
+
+fn transfer_credits(receiver: field, secret: [u128; 2], amount: u64, pay_record: credits.aleo::credits)
+```
+
+#### 向 ANS 名称转移公共积分
+
+```
+// 用于将积分转移到 ANS 域名的功能，无需透露域名持有者的真实地址。
+
+// @param receiver: 接收方 ANS 域名的 name_hash。
+
+// @param secret: 与交易关联的秘密，用于领取验证。
+
+// @param amount: 要转移的积分数量。
+
+fn transfer_credits_public(receiver: field, secret: [u128; 2], amount: u64)
+```
+
+### 领取积分
+
+这些功能允许域名持有者领取转移的积分。根据域名是公共的还是私有的，使用相应的领取功能。
+
+#### 私密领取积分
+
+```
+// 域名持有者使用由 NFT 代表的私有 ANS 域名和秘密来领取积分的功能。
+
+// 这确保领取过程保持私密，域名持有者的真实地址不会被暴露。
+
+// @param receiver: 接收方地址
+
+// @param nft: 代表私有 ANS 域名的 NFT 记录。
+
+// @param secret: 用于验证领取的秘密。
+
+// @param amount: 要领取的积分数量。
+
+fn claim_credits_private(receiver: address, nft: NFT, secret: [u128; 2], amount: u64)
+```
+
+#### 公共领取积分 - 调用者是 ANS 名称的所有者
+
+```
+// 类似于私有领取功能，这允许为公共 ANS 域名领取积分。
+
+// 域名持有者使用秘密来领取积分，保持隐私。
+
+// @param receiver: 接收方地址
+
+// @param name_hash: 公共 ANS 域名的 name_hash。
+
+// @param secret: 用于验证领取的秘密。
+
+// @param amount: 要领取的积分数量。
+
+fn claim_credits_public(receiver: address, name_hash: field, secret: [u128; 2], amount: u64)
+```
+
+#### 作为签名者领取积分 - 签名者是 ANS 名称的所有者
+
+```
+// 类似于私有领取功能，这允许为公共 ANS 域名领取积分。
+
+// 域名持有者使用秘密来领取积分，保持隐私。
+
+// @param receiver: 接收方地址
+
+// @param name_hash: 公共 ANS 域名的 name_hash。
+
+// @param secret: 用于验证领取的秘密。
+
+// @param amount: 要领取的积分数量。
+
+fn claim_credits_as_signer(receiver: address, name_hash: field, secret: [u128; 2], amount: u64)
+```

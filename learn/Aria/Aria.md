@@ -1,6 +1,6 @@
 - 昵称：  Aira
-- GitHub 用户名：  Aira
+- GitHub 用户名：  AriaOnChain
 - 微信：369441879
-- Aleo 钱包地址：    
+- Aleo 钱包地址：aleo1cyd0g6z8xp2vry0kq5tne2sek5c0vmqzuptx023vjz6we9lrxuzqf354rm
 - 技术栈：  python , go , sql , solidity
 - 自我介绍：  热爱技术，喜欢学习的搬砖工

@@ -1,7 +1,393 @@
 ---
-title: NFT Standards
+title: NFT 标准
 ---
 
-# NFT Standards
+# NFT 标准
 
-Coming soon.
+## 概述
+
+NFT 标准文档概述了在 Aleo 区块链上实现非同质化代币（NFT）的规范。该标准源自 [ARC-0721 提案](https://github.com/ProvableHQ/ARCs/discussions/79)，并通过 [Aleo 治理](https://vote.aleo.org/p/721) 的社区投票正式批准。
+
+随着[动态调度（ARC-0009）](https://github.com/ProvableHQ/ARCs/tree/master/arc-0009)的最终确定，程序可以在运行时调用其他程序而无需编译时导入，解决了以前需要中心化注册表方法的可组合性挑战。一个提议的 [NFT 注册表程序（ARC-722）](https://github.com/ProvableHQ/ARCs/discussions/80) 将充当 NFT 集合的中心枢纽，并实现 NFT 与 DeFi 应用之间的互操作性，尽管它仍处于提案阶段。
+
+## 关键特性
+
+该标准利用 Aleo 独特的隐私功能提供：
+
+- 私有或公共的代币所有者可见性
+
+- 与代币关联的私有或公共数据
+
+- 灵活的链上和链下数据存储选项
+
+## 数据存储选项
+
+### 链上与链下数据
+
+该标准允许以三种方式存储 NFT 数据：
+
+1. **链上数据**
+
+    - 直接在区块链上存储数据
+
+    - 可以是完整数据或数据的哈希值
+
+2. **链下数据**
+
+    - 减少网络上的存储费用
+
+    - 通常存储为指向外部元数据的 URI
+
+    - 可以与链上数据结合用于混合方法
+
+3. **混合方法**
+
+    - 链上和链下存储的结合
+
+    - 公共数据可以存储在链上（例如 NFT 所有权）
+
+    - 私有数据可以存储在链下（例如 NFT 数据）
+
+## 数据结构
+
+### NFT 记录
+
+```
+record NFT {
+
+    private owner: address,
+
+    private data: data,
+
+    private edition: scalar,
+
+}
+```
+
+#### NFT 记录字段
+
+- `owner`：NFT 所有者的私有地址
+
+- `data`：与 NFT 关联的私有数据
+
+- `edition`：用于唯一性和隐私的标量值
+
+### NFT 查看记录
+
+```
+record NFTView {
+
+    private owner: address,
+
+    private data: data,
+
+    private edition: scalar,
+
+    private is_view: bool
+
+}
+```
+
+#### NFT 查看记录字段
+
+- `owner`：NFT 所有者的私有地址
+
+- `data`：与 NFT 关联的私有数据
+
+- `edition`：用于唯一性和隐私的标量值
+
+- `is_view`：用于区分 NFTView 与 NFT 的布尔标志（始终为 true）
+
+### Data 结构体
+
+```
+struct attribute {
+
+ trait_type: [field; 4],
+
+ _value: [field; 4],
+
+}
+
+struct data {
+
+ metadata: [field; 4], // 链下元数据 JSON 的 URI
+
+    // (可选) name: [field; 4],
+
+    // (可选) image: [field; 16],
+
+    // (可选) attributes: [attribute; 4],
+
+    // (可选) ...
+
+}
+```
+
+#### Data 结构体字段
+
+- `metadata`：指向链下元数据 JSON 的 URI
+
+- `name`：NFT 的可选名称
+
+- `image`：可选图像数据
+
+- `attributes`：可选的属性数组
+
+此类链下元数据 JSON 的示例可以在[这里](https://aleo-public.s3.us-west-2.amazonaws.com/testnet3/privacy-pride/1.json)找到。
+
+### NFT 内容结构体
+
+```
+struct nft_content {
+
+ data: data,
+
+ edition: scalar
+
+}
+```
+
+#### NFT 内容结构体字段
+
+- `data`：与 NFT 关联的数据
+
+- `edition`：NFT 的版本号
+
+## 映射
+
+`mapping nft_commits: field => bool;`
+
+NFT 提交到其存在状态的映射。
+
+`mapping nft_owners: field => address;`
+
+NFT 提交到其公共所有者的映射。
+
+`mapping nft_contents: field => nft_content;`
+
+NFT 提交到其公共内容的映射。
+
+## 功能
+
+### `commit_nft()`
+
+#### 描述
+
+通过将 NFT 的数据和版本提交到字段来创建唯一标识符。
+
+#### 参数
+
+- `nft_data: data`：NFT 的数据
+
+- `nft_edition: scalar`：NFT 的版本号
+
+#### 返回
+
+- `field`：NFT 提交标识符
+
+### `transfer_private_to_public()`
+
+#### 描述
+
+将私有拥有的 NFT 转换为公共所有权。
+
+#### 参数
+
+- `private nft: NFT`：要转换的 NFT 记录
+
+- `public to: address`：公共接收者地址
+
+#### 返回
+
+- `NFTView`：NFT 查看记录
+
+- `Future`：用于最终完成转账的 Future
+
+### `publish_nft_content()`
+
+#### 描述
+
+发布 NFT 内容以使其可公开访问。
+
+#### 参数
+
+- `public nft_data: data`：要发布的 NFT 数据
+
+- `public nft_edition: scalar`：要发布的版本号
+
+#### 返回
+
+- `Future`：用于最终完成发布的 Future
+
+### `update_edition_private()`
+
+#### 描述
+
+更新私有 NFT 的版本以重新混淆其内容。
+
+#### 参数
+
+- `private nft: NFT`：要更新的 NFT 记录
+
+- `private new_edition: scalar`：新版本号
+
+#### 返回
+
+- `NFT`：更新后的 NFT 记录
+
+- `Future`：用于最终完成更新的 Future
+
+## 字符串编码
+
+NFT 严重依赖字符串的使用，无论是用于链下数据的 URL 还是数据本身。该标准指定了以下字符串编码：
+
+```
+// Leo
+
+string: [field; 4],
+
+// Aleo 指令
+
+string as [field; 4u32];
+```
+
+数组的长度可以自由调整，以匹配集合所需的最大字符数。选择字段类型是因为它们在相同的约束条件下提供的数据量接近 u128 的两倍。
+
+对于 JavaScript/TypeScript 应用程序，[ARC-721 实现](https://github.com/zsociety-io/aleo-standard-programs/blob/main/arc721/utils/strings.js) 中提供了 JavaScript 字符串与 Aleo 明文之间转换的示例。
+
+## 隐私特性
+
+该标准通过多种机制实现隐私：
+
+### 所有权隐私
+
+- 私有所有权通过 Aleo 记录实现
+
+- 公共所有权可以通过 `nft_owners` 映射启用
+
+- 程序可以在不透露其数据的情况下拥有 NFT
+
+### 数据隐私
+
+- NFT 数据默认在记录中保持私有
+
+- `edition` 标量确保唯一性而不透露数据
+
+- NFT 提交作为唯一标识符，不暴露底层数据
+
+### 重新混淆
+
+NFT 可以通过两步过程重新混淆：
+
+1. 转移回私有所有权
+
+2. 使用 `update_edition_private()` 更新版本
+
+```
+fn update_edition_private(
+
+    private nft: NFT,
+
+    private new_edition: scalar,
+
+) -> (NFT, Final) {
+
+    let out_nft: NFT = NFT {
+
+ owner: nft.owner,
+
+ data: nft.data,
+
+ edition: new_edition,
+
+    };
+
+    let nft_commit: field = commit_nft(nft.data, new_edition);
+
+    return (out_nft, final {
+
+        assert(nft_commits.contains(nft_commit).not());
+
+ nft_commits.set(nft_commit, true);
+
+    });
+
+}
+```
+
+重要的隐私注意事项：
+
+- 以前的 NFT 提交保留在映射中，以防止透露数据关系
+
+- 新版本必须是唯一的
+
+- 该过程在创建新的公共标识符的同时保持数据隐私
+
+## 授权
+
+该标准包括一个授权机制，允许指定地址代表所有者转移 NFT。授权系统支持集合范围和单个 NFT 授权：
+
+```
+struct approval {
+
+ approver: address,
+
+ spender: address
+
+}
+
+mapping for_all_approvals: field => bool;
+
+// 授权哈希 => 是否已授权
+
+mapping nft_approvals: field => field;
+
+// NFT 提交 => 授权哈希
+```
+
+授权系统提供两个主要功能：
+
+1. `set_for_all_approval`：允许所有者授权支出者用于集合中的所有 NFT
+
+2. `approve_public`：允许所有者授权支出者用于特定 NFT
+
+一旦授权，支出者可以使用 `transfer_from_public` 将 NFT 从授权者转移到接收者地址。
+
+## 设置
+
+集合级别的设置通过映射管理：
+
+```
+mapping general_settings: u8 => field;
+
+// 设置索引 => 设置值
+```
+
+可用的设置索引及其用途：
+
+- `0u8`：可铸造的 NFT 数量（所有版本）
+
+- `1u8`：可以铸造的 NFT 总数（首版）
+
+- `2u8`：NFT 的符号
+
+- `3u8`：NFT 的基础 URI，第 1 部分
+
+- `4u8`：NFT 的基础 URI，第 2 部分
+
+- `5u8`：NFT 的基础 URI，第 3 部分
+
+- `6u8`：NFT 的基础 URI，第 4 部分
+
+- `7u8`：管理员地址哈希
+
+这些设置允许对 NFT 集合的属性进行细粒度控制，包括铸造限制、元数据位置和管理控制。
+
+## 实现说明
+
+1. 该标准与 ARC21 标准兼容，用于同质化代币的名称和符号。
+
+2. 对于数据可以变为公共的集合（"可发布集合"），该标准提供了在需要时发布和管理公共内容的机制，同时保持重新混淆数据的选项。
+
+3. [NFT 注册表程序（ARC-722）](https://github.com/ProvableHQ/ARCs/discussions/80) 被提议作为 NFT 集合的中心枢纽（类似于 [代币注册表程序](https://developer.aleo.org/guides/standards/token_registry) 对同质化代币的作用），允许使用不同的数据结构通过一对（registry_program_id, collection_id）来识别多个实现。随着[动态调度（ARC-0009）](https://github.com/ProvableHQ/ARCs/tree/master/arc-0009) 的可用，DeFi 程序也可以在运行时直接与单个 NFT 程序交互，而无需注册表。

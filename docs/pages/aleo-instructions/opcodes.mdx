@@ -2,6 +2,4258 @@
 title: Opcodes
 ---
 
-# Opcodes
+# 操作码
 
-Coming soon.
+以下列表展示了 Aleo 指令支持的标准操作码和密码学操作码。
+
+## 标准操作码表
+
+| Name                                        | 描述                                    |
+| ------------------------------------------- | :-------------------------------------- |
+| [abs](#abs)                                 | 绝对值运算                              |
+| [abs.w](#abs.w)                             | 回绕绝对值运算                          |
+| [add](#add)                                 | 加法运算                                |
+| [add.w](#add.w)                             | 回绕加法运算                            |
+| [and](#and)                                 | 与运算                                  |
+| [assert.eq](#asserteq)                      | 断言相等                                |
+| [assert.neq](#assertneq)                    | 断言不相等                              |
+| [branch.eq](#brancheq)                      | 如果参数相等则分支到指定位置            |
+| [branch.neq](#branchneq)                    | 如果参数不相等则分支到指定位置          |
+| [cast](#cast)                               | 字面量之间的类型转换                    |
+| [cast.lossy](#castlossy)                    | 字面量之间有损截断类型转换              |
+| [div](#div)                                 | 除法运算                                |
+| [div.w](#div.w)                             | 回绕除法运算                            |
+| [double](#double)                           | 倍乘运算                                |
+| [gt](#gt)                                   | 大于比较                                |
+| [gte](#gte)                                 | 大于等于比较                            |
+| [inv](#inv)                                 | 乘法逆元运算                            |
+| [is.eq](#iseq)                              | 相等比较                                |
+| [is.neq](#isneq)                            | 不等比较                                |
+| [lt](#lt)                                   | 小于比较                                |
+| [lte](#lte)                                 | 小于等于比较                            |
+| [mod](#mod)                                 | 算术取模运算                            |
+| [mul](#mul)                                 | 乘法运算                                |
+| [mul.w](#mul.w)                             | 回绕乘法运算                            |
+| [nand](#nand)                               | 布尔“与非”运算                          |
+| [neg](#neg)                                 | 加法逆元运算                            |
+| [nor](#nor)                                 | 布尔“或非”运算                          |
+| [not](#not)                                 | 非运算                                  |
+| [or](#or)                                   | 或运算                                  |
+| [position](#position)                       | 位置命令                                |
+| [pow](#pow)                                 | 幂运算                                  |
+| [pow.w](#pow.w)                             | 回绕幂运算                              |
+| [rand.chacha](#randchacha)                  | 在 `finalize` 作用域内生成一个随机值    |
+| [rem](#rem)                                 | 取余运算                                |
+| [rem.w](#rem.w)                             | 回绕取余运算                            |
+| [shl](#shl)                                 | 左移运算                                |
+| [shl.w](#shlw)                              | 回绕左移运算                            |
+| [shr](#shr)                                 | 右移运算                                |
+| [shr.w](#shrw)                              | 回绕右移运算                            |
+| [sqrt](#sqrt)                               | 平方根运算                              |
+| [square](#square)                           | 平方运算                                |
+| [sub](#sub)                                 | 减法运算                                |
+| [sub.w](#subw)                              | 回绕减法运算                            |
+| [ternary](#ternary)                         | 三元选择运算                            |
+| [xor](#xor)                                 | 异或运算                                |
+| [serialize.bits](#serializebits)            | 将值序列化为比特数组（Aleo 变体比特）   |
+| [serialize.bits.raw](#serializebitsraw)     | 将值序列化为比特数组（原始比特）        |
+| [deserialize.bits](#deserializebits)        | 从比特数组反序列化为值（Aleo 变体比特） |
+| [deserialize.bits.raw](#deserializebitsraw) | 从比特数组反序列化为值（原始比特）      |
+
+## 密码学操作码表
+
+| Name                                                   | 描述                                                             |
+| ------------------------------------------------------ | :--------------------------------------------------------------- |
+| [commit.bhp256](#commitbhp256)                         | 256 位输入的 BHP 承诺                                            |
+| [commit.bhp512](#commitbhp512)                         | 512 位输入的 BHP 承诺                                            |
+| [commit.bhp768](#commitbhp768)                         | 768 位输入的 BHP 承诺                                            |
+| [commit.bhp1024](#commitbhp1024)                       | 1024 位输入的 BHP 承诺                                           |
+| [commit.ped64](#commitped64)                           | 64 位输入的 Pedersen 承诺                                        |
+| [commit.ped128](#commitped128)                         | 128 位输入的 Pedersen 承诺                                       |
+| [hash.bhp256](#hashbhp256)                             | 256 位输入的 BHP 哈希                                            |
+| [hash.bhp512](#hashbhp512)                             | 512 位输入的 BHP 哈希                                            |
+| [hash.bhp768](#hashbhp768)                             | 768 位输入的 BHP 哈希                                            |
+| [hash.bhp1024](#hashbhp1024)                           | 1024 位输入的 BHP 哈希                                           |
+| [hash.keccak256](#hashkeccak256)                       | 256 位输入的 Keccak 哈希                                         |
+| [hash.keccak384](#hashkeccak384)                       | 384 位输入的 Keccak 哈希                                         |
+| [hash.keccak512](#hashkeccak512)                       | 512 位输入的 Keccak 哈希                                         |
+| [hash.ped64](#hashped64)                               | 64 位输入的 Pedersen 哈希                                        |
+| [hash.ped128](#hashped128)                             | 128 位输入的 Pedersen 哈希                                       |
+| [hash.psd2](#hashpsd2)                                 | 输入速率为 2 的 Poseidon 哈希                                    |
+| [hash.psd4](#hashpsd4)                                 | 输入速率为 4 的 Poseidon 哈希                                    |
+| [hash.psd8](#hashpsd8)                                 | 输入速率为 8 的 Poseidon 哈希                                    |
+| [hash.sha3_256](#hashsha3_256)                         | 256 位输入的 SHA3 哈希                                           |
+| [hash.sha3_384](#hashsha3_384)                         | 384 位输入的 SHA3 哈希                                           |
+| [hash.sha3_512](#hashsha3_512)                         | 512 位输入的 SHA3 哈希                                           |
+| [hash.bhp256.raw](#hashbhp256raw)                      | 256 位输入的 BHP 哈希（原始比特）                                |
+| [hash.bhp512.raw](#hashbhp512raw)                      | 512 位输入的 BHP 哈希（原始比特）                                |
+| [hash.bhp768.raw](#hashbhp768raw)                      | 768 位输入的 BHP 哈希（原始比特）                                |
+| [hash.bhp1024.raw](#hashbhp1024raw)                    | 1024 位输入的 BHP 哈希（原始比特）                               |
+| [hash.keccak256.raw](#hashkeccak256raw)                | 256 位输入的 Keccak 哈希（原始比特）                             |
+| [hash.keccak384.raw](#hashkeccak384raw)                | 384 位输入的 Keccak 哈希（原始比特）                             |
+| [hash.keccak512.raw](#hashkeccak512raw)                | 512 位输入的 Keccak 哈希（原始比特）                             |
+| [hash.ped64.raw](#hashped64raw)                        | 64 位输入的 Pedersen 哈希（原始比特）                            |
+| [hash.ped128.raw](#hashped128raw)                      | 128 位输入的 Pedersen 哈希（原始比特）                           |
+| [hash.psd2.raw](#hashpsd2raw)                          | 输入速率为 2 的 Poseidon 哈希（原始比特）                        |
+| [hash.psd4.raw](#hashpsd4raw)                          | 输入速率为 4 的 Poseidon 哈希（原始比特）                        |
+| [hash.psd8.raw](#hashpsd8raw)                          | 输入速率为 8 的 Poseidon 哈希（原始比特）                        |
+| [hash.sha3_256.raw](#hashsha3_256raw)                  | 256 位输入的 SHA3 哈希（原始比特）                               |
+| [hash.sha3_384.raw](#hashsha3_384raw)                  | 384 位输入的 SHA3 哈希（原始比特）                               |
+| [hash.sha3_512.raw](#hashsha3_512raw)                  | 512 位输入的 SHA3 哈希（原始比特）                               |
+| [hash.keccak256.native](#hashkeccak256native)          | 256 位输入的 Keccak 哈希（输出比特数组）                         |
+| [hash.keccak256.native.raw](#hashkeccak256nativeraw)   | 256 位输入的 Keccak 哈希（原始比特，输出比特数组）               |
+| [hash.keccak384.native](#hashkeccak384native)          | 384 位输入的 Keccak 哈希（输出比特数组）                         |
+| [hash.keccak384.native.raw](#hashkeccak384nativeraw)   | 384 位输入的 Keccak 哈希（原始比特，输出比特数组）               |
+| [hash.keccak512.native](#hashkeccak512native)          | 512 位输入的 Keccak 哈希（输出比特数组）                         |
+| [hash.keccak512.native.raw](#hashkeccak512nativeraw)   | 512 位输入的 Keccak 哈希（原始比特，输出比特数组）               |
+| [hash.sha3_256.native](#hashsha3_256native)            | 256 位输入的 SHA3 哈希（输出比特数组）                           |
+| [hash.sha3_256.native.raw](#hashsha3_256nativeraw)     | 256 位输入的 SHA3 哈希（原始比特，输出比特数组）                 |
+| [hash.sha3_384.native](#hashsha3_384native)            | 384 位输入的 SHA3 哈希（输出比特数组）                           |
+| [hash.sha3_384.native.raw](#hashsha3_384nativeraw)     | 384 位输入的 SHA3 哈希（原始比特，输出比特数组）                 |
+| [hash.sha3_512.native](#hashsha3_512native)            | 512 位输入的 SHA3 哈希（输出比特数组）                           |
+| [hash.sha3_512.native.raw](#hashsha3_512nativeraw)     | 512 位输入的 SHA3 哈希（原始比特，输出比特数组）                 |
+| [sign.verify](#signverify)                             | 验证 Schnorr 签名                                                |
+| [ecdsa.verify.digest](#ecdsaverifydigest)              | 使用预先计算的摘要验证 ECDSA 签名                                |
+| [ecdsa.verify.digest.eth](#ecdsaverifydigesteth)       | 使用预先计算的摘要验证 ECDSA 签名（以太坊 20 字节地址）          |
+| [ecdsa.verify.keccak256](#ecdsaverifykeccak256)        | 使用 Keccak-256 验证 ECDSA 签名（Aleo 变体比特）                 |
+| [ecdsa.verify.keccak256.raw](#ecdsaverifykeccak256raw) | 使用 Keccak-256 验证 ECDSA 签名（原始比特）                      |
+| [ecdsa.verify.keccak256.eth](#ecdsaverifykeccak256eth) | 使用 Keccak-256 验证 ECDSA 签名（原始比特 + 以太坊 20 字节地址） |
+| [ecdsa.verify.keccak384](#ecdsaverifykeccak384)        | 使用 Keccak-384 验证 ECDSA 签名（Aleo 变体比特）                 |
+| [ecdsa.verify.keccak384.raw](#ecdsaverifykeccak384raw) | 使用 Keccak-384 验证 ECDSA 签名（原始比特）                      |
+| [ecdsa.verify.keccak384.eth](#ecdsaverifykeccak384eth) | 使用 Keccak-384 验证 ECDSA 签名（原始比特 + 以太坊 20 字节地址） |
+| [ecdsa.verify.keccak512](#ecdsaverifykeccak512)        | 使用 Keccak-512 验证 ECDSA 签名（Aleo 变体比特）                 |
+| [ecdsa.verify.keccak512.raw](#ecdsaverifykeccak512raw) | 使用 Keccak-512 验证 ECDSA 签名（原始比特）                      |
+| [ecdsa.verify.keccak512.eth](#ecdsaverifykeccak512eth) | 使用 Keccak-512 验证 ECDSA 签名（原始比特 + 以太坊 20 字节地址） |
+| [ecdsa.verify.sha3_256](#ecdsaverifysha3_256)          | 使用 SHA3-256 验证 ECDSA 签名（Aleo 变体比特）                   |
+| [ecdsa.verify.sha3_256.raw](#ecdsaverifysha3_256raw)   | 使用 SHA3-256 验证 ECDSA 签名（原始比特）                        |
+| [ecdsa.verify.sha3_256.eth](#ecdsaverifysha3_256eth)   | 使用 SHA3-256 验证 ECDSA 签名（原始比特 + 以太坊 20 字节地址）   |
+| [ecdsa.verify.sha3_384](#ecdsaverifysha3_384)          | 使用 SHA3-384 验证 ECDSA 签名（Aleo 变体比特）                   |
+| [ecdsa.verify.sha3_384.raw](#ecdsaverifysha3_384raw)   | 使用 SHA3-384 验证 ECDSA 签名（原始比特）                        |
+| [ecdsa.verify.sha3_384.eth](#ecdsaverifysha3_384eth)   | 使用 SHA3-384 验证 ECDSA 签名（原始比特 + 以太坊 20 字节地址）   |
+| [ecdsa.verify.sha3_512](#ecdsaverifysha3_512)          | 使用 SHA3-512 验证 ECDSA 签名（Aleo 变体比特）                   |
+| [ecdsa.verify.sha3_512.raw](#ecdsaverifysha3_512raw)   | 使用 SHA3-512 验证 ECDSA 签名（原始比特）                        |
+| [ecdsa.verify.sha3_512.eth](#ecdsaverifysha3_512eth)   | 使用 SHA3-512 验证 ECDSA 签名（原始比特 + 以太坊 20 字节地址）   |
+| [snark.verify](#snarkverify)                           | 在 `finalize` 作用域内验证 Varuna 证明                           |
+| [snark.verify.batch](#snarkverifybatch)                | 在 `finalize` 作用域内批量验证多个 Varuna 证明                   |
+
+## 规范
+
+以下是 Aleo 虚拟机 (AVM) 中每个操作码的规范。
+
+### `abs`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算输入的绝对值，检查溢出，将结果存储在目标寄存器中。
+
+对于整数类型，添加约束以检查下溢。如果需要回绕语义，请参阅 [abs.w](#abs.w) 指令。当下溢发生在有符号整数类型的最小值时会发生此情况。例如，`abs -128i8` 会导致下溢，因为 `128` 无法表示为 `i8`。
+
+#### 示例用法
+
+```aleo
+abs r0 into r1;
+```
+
+#### 支持的类型
+
+| Input  | Destination |
+| ------ | :---------- |
+| `I8`   | `I8`        |
+| `I16`  | `I16`       |
+| `I32`  | `I32`       |
+| `I64`  | `I64`       |
+| `I128` | `I128`      |
+
+---
+
+### `abs.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算输入的绝对值，在类型边界处回绕，并将结果存储在目标寄存器中。
+
+#### 示例用法
+
+```aleo
+abs.w r0 into r1;
+```
+
+#### 支持的类型
+
+| Input  | Destination |
+| ------ | :---------- |
+| `I8`   | `I8`        |
+| `I16`  | `I16`       |
+| `I32`  | `I32`       |
+| `I64`  | `I64`       |
+| `I128` | `I128`      |
+
+---
+
+### `add`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 与 `second` 相加，将结果存储在 `destination` 中。
+
+对于整数类型，添加约束以检查溢出。如果需要整数类型的回绕语义，请参阅 [add.w](#add.w) 指令。
+
+#### 示例用法
+
+```aleo
+add r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First    | Second   | Destination |
+| -------- | -------- | ----------- |
+| `Field`  | `Field`  | `Field`     |
+| `Group`  | `Group`  | `Group`     |
+| `I8`     | `I8`     | `I8`        |
+| `I16`    | `I16`    | `I16`       |
+| `I32`    | `I32`    | `I32`       |
+| `I64`    | `I64`    | `I64`       |
+| `I128`   | `I128`   | `I128`      |
+| `U8`     | `U8`     | `U8`        |
+| `U16`    | `U16`    | `U16`       |
+| `U32`    | `U32`    | `U32`       |
+| `U64`    | `U64`    | `U64`       |
+| `U128`   | `U128`   | `U128`      |
+| `Scalar` | `Scalar` | `Scalar`    |
+
+---
+
+### `add.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 与 `second` 相加，在类型边界处回绕，并将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+add.w r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First  | Second | Destination |
+| ------ | ------ | :---------- |
+| `I8`   | `I8`   | `I8`        |
+| `I16`  | `I16`  | `I16`       |
+| `I32`  | `I32`  | `I32`       |
+| `I64`  | `I64`  | `I64`       |
+| `I128` | `I128` | `I128`      |
+| `U8`   | `U8`   | `U8`        |
+| `U16`  | `U16`  | `U16`       |
+| `U32`  | `U32`  | `U32`       |
+| `U64`  | `U64`  | `U64`       |
+| `U128` | `U128` | `U128`      |
+
+---
+
+### `and`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+对整数（按位）或布尔类型的 `first` 和 `second` 执行与运算，
+将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+and r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First     | Second    | Destination |
+| --------- | --------- | :---------- |
+| `Boolean` | `Boolean` | `Boolean`   |
+| `I8`      | `I8`      | `I8`        |
+| `I16`     | `I16`     | `I16`       |
+| `I32`     | `I32`     | `I32`       |
+| `I64`     | `I64`     | `I64`       |
+| `I128`    | `I128`    | `I128`      |
+| `U8`      | `U8`      | `U8`        |
+| `U16`     | `U16`     | `U16`       |
+| `U32`     | `U32`     | `U32`       |
+| `U64`     | `U64`     | `U64`       |
+| `U128`    | `U128`    | `U128`      |
+
+---
+
+### `assert.eq`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+检查 `first` 和 `second` 是否相等，如果不相等则停止。
+
+#### 示例用法
+
+```aleo
+assert.eq r0 r1;
+```
+
+#### 支持的类型
+
+| First       | Second      |
+| ----------- | ----------- |
+| `Address`   | `Address`   |
+| `Boolean`   | `Boolean`   |
+| `Field`     | `Field`     |
+| `Group`     | `Group`     |
+| `I8`        | `I8`        |
+| `I16`       | `I16`       |
+| `I32`       | `I32`       |
+| `I64`       | `I64`       |
+| `I128`      | `I128`      |
+| `U8`        | `U8`        |
+| `U16`       | `U16`       |
+| `U32`       | `U32`       |
+| `U64`       | `U64`       |
+| `U128`      | `U128`      |
+| `Scalar`    | `Scalar`    |
+| `Signature` | `Signature` |
+| `Struct`    | `Struct`    |
+| `Record`    | `Record`    |
+
+---
+
+### `assert.neq`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+检查 `first` 和 `second` 是否不相等，如果相等则停止。
+
+#### 示例用法
+
+```aleo
+assert.neq r0 r1;
+```
+
+#### 支持的类型
+
+| First       | Second      |
+| ----------- | ----------- |
+| `Address`   | `Address`   |
+| `Boolean`   | `Boolean`   |
+| `Field`     | `Field`     |
+| `Group`     | `Group`     |
+| `I8`        | `I8`        |
+| `I16`       | `I16`       |
+| `I32`       | `I32`       |
+| `I64`       | `I64`       |
+| `I128`      | `I128`      |
+| `U8`        | `U8`        |
+| `U16`       | `U16`       |
+| `U32`       | `U32`       |
+| `U64`       | `U64`       |
+| `U128`      | `U128`      |
+| `Scalar`    | `Scalar`    |
+| `Signature` | `Signature` |
+| `Struct`    | `Struct`    |
+| `Record`    | `Record`    |
+
+---
+
+### `branch.eq`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+命令 `branch.eq <first> <second> to <destination>` 在 `first` 和 `second` 相等时将执行分支到 `destination` 指示的 [position](#position)。此命令仅限于 finalize 作用域，目标必须跟在命令之后。目前不支持向后分支。
+
+#### 示例用法
+
+```aleo
+branch.eq r0 r1 to skip;
+```
+
+| First     | Second    | Destination |
+| --------- | --------- | ----------- |
+| `Address` | `Address` | `Position`  |
+| `Boolean` | `Boolean` | `Position`  |
+| `Field`   | `Field`   | `Position`  |
+| `Group`   | `Group`   | `Position`  |
+| `I8`      | `I8`      | `Position`  |
+| `I16`     | `I16`     | `Position`  |
+| `I32`     | `I32`     | `Position`  |
+| `I64`     | `I64`     | `Position`  |
+| `I128`    | `I128`    | `Position`  |
+| `U8`      | `U8`      | `Position`  |
+| `U16`     | `U16`     | `Position`  |
+| `U32`     | `U32`     | `Position`  |
+| `U64`     | `U64`     | `Position`  |
+| `U128`    | `U128`    | `Position`  |
+| `Scalar`  | `Scalar`  | `Position`  |
+| `Struct`  | `Struct`  | `Position`  |
+| `Record`  | `Record`  | `Position`  |
+
+---
+
+### `branch.neq`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+命令 `branch.neq <first> <second> to <destination>` 在 `first` 和 `second` 不相等时将执行分支到 `destination` 指示的 [position](#position)。此命令仅限于 finalize 作用域，目标必须跟在命令之后。目前不支持向后分支。
+
+#### 示例用法
+
+```aleo
+branch.neq r0 r1 to process;
+```
+
+| First     | Second    | Destination |
+| --------- | --------- | ----------- |
+| `Address` | `Address` | `Position`  |
+| `Boolean` | `Boolean` | `Position`  |
+| `Field`   | `Field`   | `Position`  |
+| `Group`   | `Group`   | `Position`  |
+| `I8`      | `I8`      | `Position`  |
+| `I16`     | `I16`     | `Position`  |
+| `I32`     | `I32`     | `Position`  |
+| `I64`     | `I64`     | `Position`  |
+| `I128`    | `I128`    | `Position`  |
+| `U8`      | `U8`      | `Position`  |
+| `U16`     | `U16`     | `Position`  |
+| `U32`     | `U32`     | `Position`  |
+| `U64`     | `U64`     | `Position`  |
+| `U128`    | `U128`    | `Position`  |
+| `Scalar`  | `Scalar`  | `Position`  |
+| `Struct`  | `Struct`  | `Position`  |
+| `Record`  | `Record`  | `Position`  |
+
+---
+
+### `cast`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+允许在不同字面量之间进行类型转换。
+
+#### 示例用法
+
+```aleo
+input r0 as field.private;
+cast r0 into r1 as group;
+cast r0 into r2 as u8;
+cast r3 r4 r5 r6 into r7 as [boolean; 4u32];
+cast r7 into r8 as [[boolean; 4u32]; 1u32];
+```
+
+#### 支持的类型
+
+| From      | To                                                                                                        |
+| --------- | --------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+| Elements  | To                |
+| --------- | ----------------- |
+| `Address` | `Array`, `Struct` |
+| `Boolean` | `Array`, `Struct` |
+| `Field`   | `Array`, `Struct` |
+| `Group`   | `Array`, `Struct` |
+| `I8`      | `Array`, `Struct` |
+| `I16`     | `Array`, `Struct` |
+| `I32`     | `Array`, `Struct` |
+| `I64`     | `Array`, `Struct` |
+| `I128`    | `Array`, `Struct` |
+| `U8`      | `Array`, `Struct` |
+| `U16`     | `Array`, `Struct` |
+| `U32`     | `Array`, `Struct` |
+| `U64`     | `Array`, `Struct` |
+| `U128`    | `Array`, `Struct` |
+| `Scalar`  | `Array`, `Struct` |
+
+---
+
+### `cast.lossy`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+执行带有有损截断的类型转换。
+
+#### 示例用法
+
+```aleo
+input r0 as field.private;
+cast r0 into r1 as group;
+cast r0 into r2 as u8;
+cast.lossy r0 into r3 as u8; // r0的低8位被提取到u8中并放入r3中
+```
+
+#### 支持的类型
+
+| From      | To                                                                                                        |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `commit.bhp256`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 256 位分块的输入以及 `second` 中的随机数计算 Bowe-Hopwood-Pedersen 承诺，将承诺存储在 `destination` 中。随机数应始终为 `Scalar` 值，生成的承诺将始终为 `Address`、`Field` 或 `Group` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 129 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+commit.bhp256 r0 r1 into r2 as address;
+```
+
+#### 支持的类型
+
+| First     | Second   | Destination                 |
+| --------- | -------- | :-------------------------- |
+| `Address` | `Scalar` | `Address`, `Field`, `Group` |
+| `Boolean` | `Scalar` | `Address`, `Field`, `Group` |
+| `Field`   | `Scalar` | `Address`, `Field`, `Group` |
+| `Group`   | `Scalar` | `Address`, `Field`, `Group` |
+| `I8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `I16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I128`    | `Scalar` | `Address`, `Field`, `Group` |
+| `U8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `U16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U128`    | `Scalar` | `Address`, `Field`, `Group` |
+| `Scalar`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Struct`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Array`   | `Scalar` | `Address`, `Field`, `Group` |
+
+---
+
+### `commit.bhp512`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 512 位分块的输入以及 `second` 中的随机数计算 Bowe-Hopwood-Pedersen 承诺，将承诺存储在 `destination` 中。随机数应始终为 `Scalar` 值，生成的承诺将始终为 `Address`、`Field` 或 `Group` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 171 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+commit.bhp512 r0 r1 into r2 as field;
+```
+
+#### 支持的类型
+
+| First     | Second   | Destination                 |
+| --------- | -------- | :-------------------------- |
+| `Address` | `Scalar` | `Address`, `Field`, `Group` |
+| `Boolean` | `Scalar` | `Address`, `Field`, `Group` |
+| `Field`   | `Scalar` | `Address`, `Field`, `Group` |
+| `Group`   | `Scalar` | `Address`, `Field`, `Group` |
+| `I8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `I16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I128`    | `Scalar` | `Address`, `Field`, `Group` |
+| `U8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `U16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U128`    | `Scalar` | `Address`, `Field`, `Group` |
+| `Scalar`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Struct`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Array`   | `Scalar` | `Address`, `Field`, `Group` |
+
+---
+
+### `commit.bhp768`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 768 位分块的输入以及 `second` 中的随机数计算 Bowe-Hopwood-Pedersen 承诺，将承诺存储在 `destination` 中。随机数应始终为 `Scalar` 值，生成的承诺将始终为 `Address`、`Field` 或 `Group` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 129 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+commit.bhp768 r0 r1 into r2 as group;
+```
+
+#### 支持的类型
+
+| First     | Second   | Destination                 |
+| --------- | -------- | :-------------------------- |
+| `Address` | `Scalar` | `Address`, `Field`, `Group` |
+| `Boolean` | `Scalar` | `Address`, `Field`, `Group` |
+| `Field`   | `Scalar` | `Address`, `Field`, `Group` |
+| `Group`   | `Scalar` | `Address`, `Field`, `Group` |
+| `I8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `I16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I128`    | `Scalar` | `Address`, `Field`, `Group` |
+| `U8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `U16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U128`    | `Scalar` | `Address`, `Field`, `Group` |
+| `Scalar`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Struct`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Array`   | `Scalar` | `Address`, `Field`, `Group` |
+
+---
+
+### `commit.bhp1024`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 1024 位分块的输入以及 `second` 中的随机数计算 Bowe-Hopwood-Pedersen 承诺，将承诺存储在 `destination` 中。随机数应始终为 `Scalar` 值，生成的承诺将始终为 `Address`、`Field` 或 `Group` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 171 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+commit.bhp1024 r0 r1 into r2 as address;
+```
+
+#### 支持的类型
+
+| First     | Second   | Destination                 |
+| --------- | -------- | :-------------------------- |
+| `Address` | `Scalar` | `Address`, `Field`, `Group` |
+| `Boolean` | `Scalar` | `Address`, `Field`, `Group` |
+| `Field`   | `Scalar` | `Address`, `Field`, `Group` |
+| `Group`   | `Scalar` | `Address`, `Field`, `Group` |
+| `I8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `I16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I128`    | `Scalar` | `Address`, `Field`, `Group` |
+| `U8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `U16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U128`    | `Scalar` | `Address`, `Field`, `Group` |
+| `Scalar`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Struct`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Array`   | `Scalar` | `Address`, `Field`, `Group` |
+
+---
+
+### `commit.ped64`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中最大 64 位的输入以及 `second` 中的随机数计算 Pedersen 承诺，将承诺存储在 `destination` 中。随机数应始终为 `Scalar` 值，生成的承诺为 `Address`、`Field` 或 `Group` 值，通过指令末尾的 `as` 指定。
+
+如果给定的 `Struct` 值超过 64 位限制，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+commit.ped64 r0 r1 into r2 as field;
+```
+
+#### 支持的类型
+
+| First     | Second   | Destination                 |
+| --------- | -------- | :-------------------------- |
+| `Boolean` | `Scalar` | `Address`, `Field`, `Group` |
+| `I8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `I16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `U16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `Struct`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Array`   | `Scalar` | `Address`, `Field`, `Group` |
+
+---
+
+### `commit.ped128`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中最大 128 位的输入以及 `second` 中的随机数计算 Pedersen 承诺，将承诺存储在 `destination` 中。随机数应始终为 `Scalar` 值，生成的承诺为 `Address`、`Field` 或 `Group` 值，通过指令末尾的 `as` 指定。
+
+如果给定的 `Struct` 值超过 128 位限制，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+commit.ped128 r0 r1 into r2 as group;
+```
+
+#### 支持的类型
+
+| First     | Second   | Destination                 |
+| --------- | -------- | :-------------------------- |
+| `Boolean` | `Scalar` | `Address`, `Field`, `Group` |
+| `I8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `I16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `I64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U8`      | `Scalar` | `Address`, `Field`, `Group` |
+| `U16`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U32`     | `Scalar` | `Address`, `Field`, `Group` |
+| `U64`     | `Scalar` | `Address`, `Field`, `Group` |
+| `Struct`  | `Scalar` | `Address`, `Field`, `Group` |
+| `Array`   | `Scalar` | `Address`, `Field`, `Group` |
+
+---
+
+### `div`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 除以 `second`，将结果存储在 `destination` 中。除以零时停止。
+
+对于整数类型，此运算执行截断除法。此外，添加约束以检查下溢。当下溢发生在有符号整数类型的最小值除以 `-1` 时。例如，`div -128i8 -1i8` 会导致下溢，因为 `128` 无法表示为 `i8`。
+
+如果需要整数类型的回绕语义，请参阅 [div.w](#div.w) 指令。
+
+#### 示例用法
+
+```aleo
+div r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First   | Second  | Destination |
+| ------- | ------- | :---------- |
+| `Field` | `Field` | `Field`     |
+| `I8`    | `I8`    | `I8`        |
+| `I16`   | `I16`   | `I16`       |
+| `I32`   | `I32`   | `I32`       |
+| `I64`   | `I64`   | `I64`       |
+| `I128`  | `I128`  | `I128`      |
+| `U8`    | `U8`    | `U8`        |
+| `U16`   | `U16`   | `U16`       |
+| `U32`   | `U32`   | `U32`       |
+| `U64`   | `U64`   | `U64`       |
+| `U128`  | `U128`  | `U128`      |
+
+---
+
+### `div.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 除以 `second`，在类型边界处回绕，并将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+div.w r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First  | Second | Destination |
+| ------ | ------ | :---------- |
+| `I8`   | `I8`   | `I8`        |
+| `I16`  | `I16`  | `I16`       |
+| `I32`  | `I32`  | `I32`       |
+| `I64`  | `I64`  | `I64`       |
+| `I128` | `I128` | `I128`      |
+| `U8`   | `U8`   | `U8`        |
+| `U16`  | `U16`  | `U16`       |
+| `U32`  | `U32`  | `U32`       |
+| `U64`  | `U64`  | `U64`       |
+| `U128` | `U128` | `U128`      |
+
+---
+
+### `double`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将输入加倍，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+double r0 into r1;
+```
+
+#### 支持的类型
+
+| Input   | Destination |
+| ------- | ----------- |
+| `Field` | `Field`     |
+| `Group` | `Group`     |
+
+---
+
+### `gt`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+检查 `first` 是否大于 `second`，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+gt r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First    | Second   | Destination |
+| -------- | -------- | ----------- |
+| `Field`  | `Field`  | `Boolean`   |
+| `I8`     | `I8`     | `Boolean`   |
+| `I16`    | `I16`    | `Boolean`   |
+| `I32`    | `I32`    | `Boolean`   |
+| `I64`    | `I64`    | `Boolean`   |
+| `I128`   | `I128`   | `Boolean`   |
+| `U8`     | `U8`     | `Boolean`   |
+| `U16`    | `U16`    | `Boolean`   |
+| `U32`    | `U32`    | `Boolean`   |
+| `U64`    | `U64`    | `Boolean`   |
+| `U128`   | `U128`   | `Boolean`   |
+| `Scalar` | `Scalar` | `Boolean`   |
+
+---
+
+### `gte`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+检查 `first` 是否大于等于 `second`，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+gte r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First    | Second   | Destination |
+| -------- | -------- | ----------- |
+| `Field`  | `Field`  | `Boolean`   |
+| `I8`     | `I8`     | `Boolean`   |
+| `I16`    | `I16`    | `Boolean`   |
+| `I32`    | `I32`    | `Boolean`   |
+| `I64`    | `I64`    | `Boolean`   |
+| `I128`   | `I128`   | `Boolean`   |
+| `U8`     | `U8`     | `Boolean`   |
+| `U16`    | `U16`    | `Boolean`   |
+| `U32`    | `U32`    | `Boolean`   |
+| `U64`    | `U64`    | `Boolean`   |
+| `U128`   | `U128`   | `Boolean`   |
+| `Scalar` | `Scalar` | `Boolean`   |
+
+---
+
+### `hash.bhp256`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 256 位分块的输入计算 Bowe-Hopwood-Pedersen 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 129 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.bhp256 r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.bhp512`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 512 位分块的输入计算 Bowe-Hopwood-Pedersen 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 171 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.bhp512 r0 into r1 as field;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.bhp768`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 768 位分块的输入计算 Bowe-Hopwood-Pedersen 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 129 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.bhp768 r0 into r1 as group;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.bhp1024`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 1024 位分块的输入计算 Bowe-Hopwood-Pedersen 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 171 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.bhp1024 r0 into r1 as scalar;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.keccak256`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 256 位摘要存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.keccak256 r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.keccak384`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 384 位摘要存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.keccak384 r0 into r1 as field;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.keccak512`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 512 位摘要存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.keccak512 r0 into r1 as group;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.ped64`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中最大 64 位的输入计算 Pedersen 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定的 `Struct` 值超过 64 位限制，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.ped64 r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.ped128`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中最大 128 位的输入计算 Pedersen 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定的 `Struct` 值超过 128 位限制，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.ped128 r0 into r1 as field;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.psd2`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算输入速率为 2 的 Poseidon 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.psd2 r0 into r1 as group;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.psd4`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算输入速率为 4 的 Poseidon 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.psd4 r0 into r1 as scalar;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.psd8`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算输入速率为 8 的 Poseidon 哈希，将哈希存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.psd8 r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.sha3_256`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-256 哈希，将 256 位摘要存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.sha3_256 r0 into r1 as field;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.sha3_384`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-384 哈希，将 384 位摘要存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.sha3_384 r0 into r1 as group;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.sha3_512`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-512 哈希，将 512 位摘要存储在 `destination` 中。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.sha3_512 r0 into r1 as scalar;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.bhp256.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 256 位分块的输入计算 Bowe-Hopwood-Pedersen 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 129 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.bhp256.raw r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.bhp512.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 512 位分块的输入计算 Bowe-Hopwood-Pedersen 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 171 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.bhp512.raw r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.bhp768.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 768 位分块的输入计算 Bowe-Hopwood-Pedersen 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 213 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.bhp768.raw r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.bhp1024.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中 1024 位分块的输入计算 Bowe-Hopwood-Pedersen 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定输入小于 255 位，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.bhp1024.raw r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.keccak256.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 256 位摘要存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.keccak256.raw r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.keccak384.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 384 位摘要存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.keccak384.raw r0 into r1 as field;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.keccak512.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 512 位摘要存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.keccak512.raw r0 into r1 as field;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.ped64.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中最大 64 位的输入计算 Pedersen 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定的 `Struct` 值超过 64 位限制，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.ped64.raw r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.ped128.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中最大 128 位的输入计算 Pedersen 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+如果给定的 `Struct` 值超过 128 位限制，编译器将抛出错误。
+
+#### 示例用法
+
+```aleo
+hash.ped128.raw r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.psd2.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算输入速率为 2 的 Poseidon 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.psd2.raw r0 into r1 as group;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.psd4.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算输入速率为 4 的 Poseidon 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.psd4.raw r0 into r1 as group;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.psd8.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算输入速率为 8 的 Poseidon 哈希，将哈希存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.psd8.raw r0 into r1 as address;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.sha3_256.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-256 哈希，将 256 位摘要存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.sha3_256.raw r0 into r1 as field;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.sha3_384.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-384 哈希，将 384 位摘要存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.sha3_384.raw r0 into r1 as group;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.sha3_512.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-512 哈希，将 512 位摘要存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特。生成的哈希将始终为算术类型（`U8`、`U16`、`U32`、`U64`、`U128`、`I8`、`I16`、`I32`、`I64`、`I128`、`Field`、`Group` 或 `Scalar`）或 `Address` 值，通过指令末尾的 `as` 指定。
+
+#### 示例用法
+
+```aleo
+hash.sha3_512.raw r0 into r1 as scalar;
+```
+
+#### 支持的类型
+
+| First     | Destination                                                                                               |
+| --------- | :-------------------------------------------------------------------------------------------------------- |
+| `Array`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Address` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Boolean` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Field`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Group`   | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `I128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U8`      | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U16`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U32`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U64`     | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `U128`    | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Scalar`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+| `Struct`  | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`,`I64`,`I128`, `U8`, `U16`, `U32`, `U64`, `U128` |
+
+---
+
+### `hash.keccak256.native`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 256 位摘要作为比特数组存储在 `destination` 中。此变体执行底层哈希并返回比特数组 `[bool; 256]`。
+
+#### 示例用法
+
+```aleo
+hash.keccak256.native r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 256]` |
+| `Address` | `[bool; 256]` |
+| `Boolean` | `[bool; 256]` |
+| `Field`   | `[bool; 256]` |
+| `Group`   | `[bool; 256]` |
+| `I8`      | `[bool; 256]` |
+| `I16`     | `[bool; 256]` |
+| `I32`     | `[bool; 256]` |
+| `I64`     | `[bool; 256]` |
+| `I128`    | `[bool; 256]` |
+| `U8`      | `[bool; 256]` |
+| `U16`     | `[bool; 256]` |
+| `U32`     | `[bool; 256]` |
+| `U64`     | `[bool; 256]` |
+| `U128`    | `[bool; 256]` |
+| `Scalar`  | `[bool; 256]` |
+| `Struct`  | `[bool; 256]` |
+
+---
+
+### `hash.keccak256.native.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 256 位摘要作为比特数组存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特，并执行底层哈希返回比特数组 `[bool; 256]`。
+
+#### 示例用法
+
+```aleo
+hash.keccak256.native.raw r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 256]` |
+| `Address` | `[bool; 256]` |
+| `Boolean` | `[bool; 256]` |
+| `Field`   | `[bool; 256]` |
+| `Group`   | `[bool; 256]` |
+| `I8`      | `[bool; 256]` |
+| `I16`     | `[bool; 256]` |
+| `I32`     | `[bool; 256]` |
+| `I64`     | `[bool; 256]` |
+| `I128`    | `[bool; 256]` |
+| `U8`      | `[bool; 256]` |
+| `U16`     | `[bool; 256]` |
+| `U32`     | `[bool; 256]` |
+| `U64`     | `[bool; 256]` |
+| `U128`    | `[bool; 256]` |
+| `Scalar`  | `[bool; 256]` |
+| `Struct`  | `[bool; 256]` |
+
+---
+
+### `hash.keccak384.native`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 384 位摘要作为比特数组存储在 `destination` 中。此变体执行底层哈希并返回比特数组 `[bool; 384]`。
+
+#### 示例用法
+
+```aleo
+hash.keccak384.native r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 384]` |
+| `Address` | `[bool; 384]` |
+| `Boolean` | `[bool; 384]` |
+| `Field`   | `[bool; 384]` |
+| `Group`   | `[bool; 384]` |
+| `I8`      | `[bool; 384]` |
+| `I16`     | `[bool; 384]` |
+| `I32`     | `[bool; 384]` |
+| `I64`     | `[bool; 384]` |
+| `I128`    | `[bool; 384]` |
+| `U8`      | `[bool; 384]` |
+| `U16`     | `[bool; 384]` |
+| `U32`     | `[bool; 384]` |
+| `U64`     | `[bool; 384]` |
+| `U128`    | `[bool; 384]` |
+| `Scalar`  | `[bool; 384]` |
+| `Struct`  | `[bool; 384]` |
+
+---
+
+### `hash.keccak384.native.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 384 位摘要作为比特数组存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特，并执行底层哈希返回比特数组 `[bool; 384]`。
+
+#### 示例用法
+
+```aleo
+hash.keccak384.native.raw r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 384]` |
+| `Address` | `[bool; 384]` |
+| `Boolean` | `[bool; 384]` |
+| `Field`   | `[bool; 384]` |
+| `Group`   | `[bool; 384]` |
+| `I8`      | `[bool; 384]` |
+| `I16`     | `[bool; 384]` |
+| `I32`     | `[bool; 384]` |
+| `I64`     | `[bool; 384]` |
+| `I128`    | `[bool; 384]` |
+| `U8`      | `[bool; 384]` |
+| `U16`     | `[bool; 384]` |
+| `U32`     | `[bool; 384]` |
+| `U64`     | `[bool; 384]` |
+| `U128`    | `[bool; 384]` |
+| `Scalar`  | `[bool; 384]` |
+| `Struct`  | `[bool; 384]` |
+
+---
+
+### `hash.keccak512.native`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 512 位摘要作为比特数组存储在 `destination` 中。此变体执行底层哈希并返回比特数组 `[bool; 512]`。
+
+#### 示例用法
+
+```aleo
+hash.keccak512.native r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 512]` |
+| `Address` | `[bool; 512]` |
+| `Boolean` | `[bool; 512]` |
+| `Field`   | `[bool; 512]` |
+| `Group`   | `[bool; 512]` |
+| `I8`      | `[bool; 512]` |
+| `I16`     | `[bool; 512]` |
+| `I32`     | `[bool; 512]` |
+| `I64`     | `[bool; 512]` |
+| `I128`    | `[bool; 512]` |
+| `U8`      | `[bool; 512]` |
+| `U16`     | `[bool; 512]` |
+| `U32`     | `[bool; 512]` |
+| `U64`     | `[bool; 512]` |
+| `U128`    | `[bool; 512]` |
+| `Scalar`  | `[bool; 512]` |
+| `Struct`  | `[bool; 512]` |
+
+---
+
+### `hash.keccak512.native.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 执行 Keccak 哈希，将 512 位摘要作为比特数组存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特，并执行底层哈希返回比特数组 `[bool; 512]`。
+
+#### 示例用法
+
+```aleo
+hash.keccak512.native.raw r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 512]` |
+| `Address` | `[bool; 512]` |
+| `Boolean` | `[bool; 512]` |
+| `Field`   | `[bool; 512]` |
+| `Group`   | `[bool; 512]` |
+| `I8`      | `[bool; 512]` |
+| `I16`     | `[bool; 512]` |
+| `I32`     | `[bool; 512]` |
+| `I64`     | `[bool; 512]` |
+| `I128`    | `[bool; 512]` |
+| `U8`      | `[bool; 512]` |
+| `U16`     | `[bool; 512]` |
+| `U32`     | `[bool; 512]` |
+| `U64`     | `[bool; 512]` |
+| `U128`    | `[bool; 512]` |
+| `Scalar`  | `[bool; 512]` |
+| `Struct`  | `[bool; 512]` |
+
+---
+
+### `hash.sha3_256.native`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-256 哈希，将 256 位摘要作为比特数组存储在 `destination` 中。此变体执行底层哈希并返回比特数组 `[bool; 256]`。
+
+#### 示例用法
+
+```aleo
+hash.sha3_256.native r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 256]` |
+| `Address` | `[bool; 256]` |
+| `Boolean` | `[bool; 256]` |
+| `Field`   | `[bool; 256]` |
+| `Group`   | `[bool; 256]` |
+| `I8`      | `[bool; 256]` |
+| `I16`     | `[bool; 256]` |
+| `I32`     | `[bool; 256]` |
+| `I64`     | `[bool; 256]` |
+| `I128`    | `[bool; 256]` |
+| `U8`      | `[bool; 256]` |
+| `U16`     | `[bool; 256]` |
+| `U32`     | `[bool; 256]` |
+| `U64`     | `[bool; 256]` |
+| `U128`    | `[bool; 256]` |
+| `Scalar`  | `[bool; 256]` |
+| `Struct`  | `[bool; 256]` |
+
+---
+
+### `hash.sha3_256.native.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-256 哈希，将 256 位摘要作为比特数组存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特，并执行底层哈希返回比特数组 `[bool; 256]`。
+
+#### 示例用法
+
+```aleo
+hash.sha3_256.native.raw r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 256]` |
+| `Address` | `[bool; 256]` |
+| `Boolean` | `[bool; 256]` |
+| `Field`   | `[bool; 256]` |
+| `Group`   | `[bool; 256]` |
+| `I8`      | `[bool; 256]` |
+| `I16`     | `[bool; 256]` |
+| `I32`     | `[bool; 256]` |
+| `I64`     | `[bool; 256]` |
+| `I128`    | `[bool; 256]` |
+| `U8`      | `[bool; 256]` |
+| `U16`     | `[bool; 256]` |
+| `U32`     | `[bool; 256]` |
+| `U64`     | `[bool; 256]` |
+| `U128`    | `[bool; 256]` |
+| `Scalar`  | `[bool; 256]` |
+| `Struct`  | `[bool; 256]` |
+
+---
+
+### `hash.sha3_384.native`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-384 哈希，将 384 位摘要作为比特数组存储在 `destination` 中。此变体执行底层哈希并返回比特数组 `[bool; 384]`。
+
+#### 示例用法
+
+```aleo
+hash.sha3_384.native r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 384]` |
+| `Address` | `[bool; 384]` |
+| `Boolean` | `[bool; 384]` |
+| `Field`   | `[bool; 384]` |
+| `Group`   | `[bool; 384]` |
+| `I8`      | `[bool; 384]` |
+| `I16`     | `[bool; 384]` |
+| `I32`     | `[bool; 384]` |
+| `I64`     | `[bool; 384]` |
+| `I128`    | `[bool; 384]` |
+| `U8`      | `[bool; 384]` |
+| `U16`     | `[bool; 384]` |
+| `U32`     | `[bool; 384]` |
+| `U64`     | `[bool; 384]` |
+| `U128`    | `[bool; 384]` |
+| `Scalar`  | `[bool; 384]` |
+| `Struct`  | `[bool; 384]` |
+
+---
+
+### `hash.sha3_384.native.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-384 哈希，将 384 位摘要作为比特数组存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特，并执行底层哈希返回比特数组 `[bool; 384]`。
+
+#### 示例用法
+
+```aleo
+hash.sha3_384.native.raw r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 384]` |
+| `Address` | `[bool; 384]` |
+| `Boolean` | `[bool; 384]` |
+| `Field`   | `[bool; 384]` |
+| `Group`   | `[bool; 384]` |
+| `I8`      | `[bool; 384]` |
+| `I16`     | `[bool; 384]` |
+| `I32`     | `[bool; 384]` |
+| `I64`     | `[bool; 384]` |
+| `I128`    | `[bool; 384]` |
+| `U8`      | `[bool; 384]` |
+| `U16`     | `[bool; 384]` |
+| `U32`     | `[bool; 384]` |
+| `U64`     | `[bool; 384]` |
+| `U128`    | `[bool; 384]` |
+| `Scalar`  | `[bool; 384]` |
+| `Struct`  | `[bool; 384]` |
+
+---
+
+### `hash.sha3_512.native`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-512 哈希，将 512 位摘要作为比特数组存储在 `destination` 中。此变体执行底层哈希并返回比特数组 `[bool; 512]`。
+
+#### 示例用法
+
+```aleo
+hash.sha3_512.native r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 512]` |
+| `Address` | `[bool; 512]` |
+| `Boolean` | `[bool; 512]` |
+| `Field`   | `[bool; 512]` |
+| `Group`   | `[bool; 512]` |
+| `I8`      | `[bool; 512]` |
+| `I16`     | `[bool; 512]` |
+| `I32`     | `[bool; 512]` |
+| `I64`     | `[bool; 512]` |
+| `I128`    | `[bool; 512]` |
+| `U8`      | `[bool; 512]` |
+| `U16`     | `[bool; 512]` |
+| `U32`     | `[bool; 512]` |
+| `U64`     | `[bool; 512]` |
+| `U128`    | `[bool; 512]` |
+| `Scalar`  | `[bool; 512]` |
+| `Struct`  | `[bool; 512]` |
+
+---
+
+### `hash.sha3_512.native.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+对 `first` 中的输入计算 SHA3-512 哈希，将 512 位摘要作为比特数组存储在 `destination` 中。此变体使用原始比特形式，不含 Aleo 变体比特，并执行底层哈希返回比特数组 `[bool; 512]`。
+
+#### 示例用法
+
+```aleo
+hash.sha3_512.native.raw r0 into r1;
+```
+
+#### 支持的类型
+
+| First     | Destination   |
+| --------- | ------------- |
+| `Array`   | `[bool; 512]` |
+| `Address` | `[bool; 512]` |
+| `Boolean` | `[bool; 512]` |
+| `Field`   | `[bool; 512]` |
+| `Group`   | `[bool; 512]` |
+| `I8`      | `[bool; 512]` |
+| `I16`     | `[bool; 512]` |
+| `I32`     | `[bool; 512]` |
+| `I64`     | `[bool; 512]` |
+| `I128`    | `[bool; 512]` |
+| `U8`      | `[bool; 512]` |
+| `U16`     | `[bool; 512]` |
+| `U32`     | `[bool; 512]` |
+| `U64`     | `[bool; 512]` |
+| `U128`    | `[bool; 512]` |
+| `Scalar`  | `[bool; 512]` |
+| `Struct`  | `[bool; 512]` |
+
+---
+
+### `inv`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算输入的乘法逆元，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+inv r0 into r1;
+```
+
+#### 支持的类型
+
+| Input   | Destination |
+| ------- | ----------- |
+| `Field` | `Field`     |
+
+---
+
+### `is.eq`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+比较 `first` 和 `second`，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+is.eq r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First       | Second      | Destination |
+| ----------- | ----------- | ----------- |
+| `Address`   | `Address`   | `Boolean`   |
+| `Boolean`   | `Boolean`   | `Boolean`   |
+| `Field`     | `Field`     | `Boolean`   |
+| `Group`     | `Group`     | `Boolean`   |
+| `I8`        | `I8`        | `Boolean`   |
+| `I16`       | `I16`       | `Boolean`   |
+| `I32`       | `I32`       | `Boolean`   |
+| `I64`       | `I64`       | `Boolean`   |
+| `I128`      | `I128`      | `Boolean`   |
+| `U8`        | `U8`        | `Boolean`   |
+| `U16`       | `U16`       | `Boolean`   |
+| `U32`       | `U32`       | `Boolean`   |
+| `U64`       | `U64`       | `Boolean`   |
+| `U128`      | `U128`      | `Boolean`   |
+| `Scalar`    | `Scalar`    | `Boolean`   |
+| `Signature` | `Signature` | `Boolean`   |
+| `Struct`    | `Struct`    | `Boolean`   |
+| `Record`    | `Record`    | `Boolean`   |
+
+---
+
+### `is.neq`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+如果 `first` 不等于 `second` 则返回 true，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+is.neq r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First       | Second      | Destination |
+| ----------- | ----------- | ----------- |
+| `Address`   | `Address`   | `Boolean`   |
+| `Boolean`   | `Boolean`   | `Boolean`   |
+| `Field`     | `Field`     | `Boolean`   |
+| `Group`     | `Group`     | `Boolean`   |
+| `I8`        | `I8`        | `Boolean`   |
+| `I16`       | `I16`       | `Boolean`   |
+| `I32`       | `I32`       | `Boolean`   |
+| `I64`       | `I64`       | `Boolean`   |
+| `I128`      | `I128`      | `Boolean`   |
+| `U8`        | `U8`        | `Boolean`   |
+| `U16`       | `U16`       | `Boolean`   |
+| `U32`       | `U32`       | `Boolean`   |
+| `U64`       | `U64`       | `Boolean`   |
+| `U128`      | `U128`      | `Boolean`   |
+| `Scalar`    | `Scalar`    | `Boolean`   |
+| `Signature` | `Signature` | `Boolean`   |
+| `Struct`    | `Struct`    | `Boolean`   |
+| `Record`    | `Record`    | `Boolean`   |
+
+---
+
+### `lt`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+检查 `first` 是否小于 `second`，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+lt r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First    | Second   | Destination |
+| -------- | -------- | ----------- |
+| `Field`  | `Field`  | `Boolean`   |
+| `I8`     | `I8`     | `Boolean`   |
+| `I16`    | `I16`    | `Boolean`   |
+| `I32`    | `I32`    | `Boolean`   |
+| `I64`    | `I64`    | `Boolean`   |
+| `I128`   | `I128`   | `Boolean`   |
+| `U8`     | `U8`     | `Boolean`   |
+| `U16`    | `U16`    | `Boolean`   |
+| `U32`    | `U32`    | `Boolean`   |
+| `U64`    | `U64`    | `Boolean`   |
+| `U128`   | `U128`   | `Boolean`   |
+| `Scalar` | `Scalar` | `Boolean`   |
+
+---
+
+### `lte`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+检查 `first` 是否小于等于 `second`，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+lte r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First    | Second   | Destination |
+| -------- | -------- | ----------- |
+| `Field`  | `Field`  | `Boolean`   |
+| `I8`     | `I8`     | `Boolean`   |
+| `I16`    | `I16`    | `Boolean`   |
+| `I32`    | `I32`    | `Boolean`   |
+| `I64`    | `I64`    | `Boolean`   |
+| `I128`   | `I128`   | `Boolean`   |
+| `U8`     | `U8`     | `Boolean`   |
+| `U16`    | `U16`    | `Boolean`   |
+| `U32`    | `U32`    | `Boolean`   |
+| `U64`    | `U64`    | `Boolean`   |
+| `U128`   | `U128`   | `Boolean`   |
+| `Scalar` | `Scalar` | `Boolean`   |
+
+---
+
+### `mod`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算 `first` 对 `second` 的模，将结果存储在 `destination` 中。如果 `second` 为零则停止。
+
+此运算的语义与模运算的数学定义一致。
+
+#### 示例用法
+
+```aleo
+mod r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First  | Second | Destination |
+| ------ | ------ | ----------- |
+| `U8`   | `U8`   | `U8`        |
+| `U16`  | `U16`  | `U16`       |
+| `U32`  | `U32`  | `U32`       |
+| `U64`  | `U64`  | `U64`       |
+| `U128` | `U128` | `U128`      |
+
+---
+
+### `mul`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 与 `second` 相乘，将结果存储在 `destination` 中。
+
+对于整数类型，添加约束以检查溢出/下溢。如果需要整数类型的回绕语义，请参阅 [mul.w](#mul.w) 指令。
+
+#### 示例用法
+
+```aleo
+mul r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First    | Second   | Destination |
+| -------- | -------- | ----------- |
+| `Field`  | `Field`  | `Field`     |
+| `Group`  | `Scalar` | `Group`     |
+| `Scalar` | `Group`  | `Group`     |
+| `I8`     | `I8`     | `I8`        |
+| `I16`    | `I16`    | `I16`       |
+| `I32`    | `I32`    | `I32`       |
+| `I64`    | `I64`    | `I64`       |
+| `I128`   | `I128`   | `I128`      |
+| `U8`     | `U8`     | `U8`        |
+| `U16`    | `U16`    | `U16`       |
+| `U32`    | `U32`    | `U32`       |
+| `U64`    | `U64`    | `U64`       |
+| `U128`   | `U128`   | `U128`      |
+
+---
+
+### `mul.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 与 `second` 相乘，在类型边界处回绕，并将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+mul.w r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First  | Second | Destination |
+| ------ | ------ | ----------- |
+| `I8`   | `I8`   | `I8`        |
+| `I16`  | `I16`  | `I16`       |
+| `I32`  | `I32`  | `I32`       |
+| `I64`  | `I64`  | `I64`       |
+| `I128` | `I128` | `I128`      |
+| `U8`   | `U8`   | `U8`        |
+| `U16`  | `U16`  | `U16`       |
+| `U32`  | `U32`  | `U32`       |
+| `U64`  | `U64`  | `U64`       |
+| `U128` | `U128` | `U128`      |
+
+---
+
+### `nand`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+仅当 `first` 和 `second` 均为 true 时返回 false，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+nand r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First     | Second    | Destination |
+| --------- | --------- | ----------- |
+| `Boolean` | `Boolean` | `Boolean`   |
+
+---
+
+### `neg`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+对 `first` 取反，将结果存储在 `destination` 中。
+
+对于有符号整数类型，对最小值调用 `neg` 是无效操作。例如，输入 `-128i8` 无效，因为 `128` 无法表示为 `i8`。
+
+#### 示例用法
+
+```aleo
+neg r0 into r1;
+```
+
+#### 支持的类型
+
+| Input   | Destination |
+| ------- | ----------- |
+| `Field` | `Field`     |
+| `Group` | `Group`     |
+| `I8`    | `I8`        |
+| `I16`   | `I16`       |
+| `I32`   | `I32`       |
+| `I64`   | `I64`       |
+| `I128`  | `I128`      |
+
+---
+
+### `nor`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+当 `first` 和 `second` 均不为 true 时返回 true，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+nor r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First     | Second    | Destination |
+| --------- | --------- | ----------- |
+| `Boolean` | `Boolean` | `Boolean`   |
+
+---
+
+### `not`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+对整数（按位）或布尔输入执行非运算，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+not r0 into r1;
+```
+
+#### 支持的类型
+
+| Input     | Destination |
+| --------- | ----------- |
+| `Boolean` | `Boolean`   |
+| `I8`      | `I8`        |
+| `I16`     | `I16`       |
+| `I32`     | `I32`       |
+| `I64`     | `I64`       |
+| `I128`    | `I128`      |
+| `U8`      | `U8`        |
+| `U16`     | `U16`       |
+| `U32`     | `U32`       |
+| `U64`     | `U64`       |
+| `U128`    | `U128`      |
+
+---
+
+### `or`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+对整数（按位）或布尔类型的 `first` 和 `second` 执行或运算，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+or r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First     | Second    | Destination |
+| --------- | --------- | ----------- |
+| `Boolean` | `Boolean` | `Boolean`   |
+| `I8`      | `I8`      | `I8`        |
+| `I16`     | `I16`     | `I16`       |
+| `I32`     | `I32`     | `I32`       |
+| `I64`     | `I64`     | `I64`       |
+| `I128`    | `I128`    | `I128`      |
+| `U8`      | `U8`      | `U8`        |
+| `U16`     | `U16`     | `U16`       |
+| `U32`     | `U32`     | `U32`       |
+| `U64`     | `U64`     | `U64`       |
+| `U128`    | `U128`    | `U128`      |
+
+---
+
+### `position`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+位置声明，例如 `position <name>`，表示程序中要分支执行到的位置 `name`。  
+位置必须是小写字母数字字符串。
+
+#### 示例用法
+
+```aleo
+position skip;
+```
+
+---
+
+### `pow`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算 `first` 的 `second` 次幂，将结果存储在 `destination` 中。
+
+对于整数类型，添加约束以检查溢出/下溢。如果需要整数类型的回绕语义，请参阅 [pow.w](#pow.w) 指令。
+
+#### 示例用法
+
+```aleo
+pow r0 r1 into r2;
+```
+
+#### 支持的类型
+
+`Magnitude` 可以是 `U8`、`U16` 或 `U32`。
+
+| First   | Second      | Destination |
+| ------- | ----------- | ----------- |
+| `Field` | `Field`     | `Field`     |
+| `I8`    | `Magnitude` | `I8`        |
+| `I16`   | `Magnitude` | `I16`       |
+| `I32`   | `Magnitude` | `I32`       |
+| `I64`   | `Magnitude` | `I64`       |
+| `I128`  | `Magnitude` | `I128`      |
+| `U8`    | `Magnitude` | `U8`        |
+| `U16`   | `Magnitude` | `U16`       |
+| `U32`   | `Magnitude` | `U32`       |
+| `U64`   | `Magnitude` | `U64`       |
+| `U128`  | `Magnitude` | `U128`      |
+
+---
+
+### `pow.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算 `first` 的 `second` 次幂，在类型边界处回绕，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+pow.w r0 r1 into r2;
+```
+
+#### 支持的类型
+
+`Magnitude` 可以是 `U8`、`U16` 或 `U32`。
+
+| First  | Second      | Destination |
+| ------ | ----------- | ----------- |
+| `I8`   | `Magnitude` | `I8`        |
+| `I16`  | `Magnitude` | `I16`       |
+| `I32`  | `Magnitude` | `I32`       |
+| `I64`  | `Magnitude` | `I64`       |
+| `I128` | `Magnitude` | `I128`      |
+| `U8`   | `Magnitude` | `U8`        |
+| `U16`  | `Magnitude` | `U16`       |
+| `U32`  | `Magnitude` | `U32`       |
+| `U64`  | `Magnitude` | `U64`       |
+| `U128` | `Magnitude` | `U128`      |
+
+---
+
+### `rand.chacha`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+`rand.chacha` 操作码用于在 `finalize` 作用域内生成随机值。它支持多种类型的随机值。
+
+#### 示例用法
+
+```aleo
+rand.chacha into r0 as field;
+rand.chacha r0 into r1 as field;
+rand.chacha r0 r1 into r2 as field;
+rand.chacha 1u8 2i16 into r27 as u32;
+```
+
+#### 支持的类型
+
+`Single` 可以是以下任意类型：`Address`、`Boolean`、`Field`、`Group`、`I8`、`I16`、`I32`、`I64`、`I128`、`U8`、`U16`、`U32`、`U64`、`U128` 或 `Scalar`。不允许使用结构体和映射等复合数据类型。
+
+| First    | Second   | Destination |
+| -------- | -------- | ----------- |
+| `Single` | `Single` | `Single`    |
+
+---
+
+### `rem`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算 `first` 除以 `second` 的截断余数，将结果存储在 `destination` 中。除以零时停止。
+
+添加约束以检查下溢。当下溢发生在关联的除法运算 [div](#div) 下溢时会发生此情况。
+
+如果需要整数类型的回绕语义，请参阅 [rem.w](#rem.w) 指令。
+
+#### 示例用法
+
+```aleo
+rem r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First  | Second | Destination |
+| ------ | ------ | ----------- |
+| `I8`   | `I8`   | `I8`        |
+| `I16`  | `I16`  | `I16`       |
+| `I32`  | `I32`  | `I32`       |
+| `I64`  | `I64`  | `I64`       |
+| `I128` | `I128` | `I128`      |
+| `U8`   | `U8`   | `U8`        |
+| `U16`  | `U16`  | `U16`       |
+| `U32`  | `U32`  | `U32`       |
+| `U64`  | `U64`  | `U64`       |
+| `U128` | `U128` | `U128`      |
+
+---
+
+### `rem.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算 `first` 除以 `second` 的截断余数，在类型边界处回绕，并将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+rem.w r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First  | Second | Destination |
+| ------ | ------ | ----------- |
+| `I8`   | `I8`   | `I8`        |
+| `I16`  | `I16`  | `I16`       |
+| `I32`  | `I32`  | `I32`       |
+| `I64`  | `I64`  | `I64`       |
+| `I128` | `I128` | `I128`      |
+| `U8`   | `U8`   | `U8`        |
+| `U16`  | `U16`  | `U16`       |
+| `U32`  | `U32`  | `U32`       |
+| `U64`  | `U64`  | `U64`       |
+| `U128` | `U128` | `U128`      |
+
+---
+
+### `sign.verify`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+验证签名 `first` 针对地址公钥 `second` 和消息 `third`，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+sign.verify r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First       | Second    | Third            | Destination |
+| ----------- | --------- | ---------------- | ----------- |
+| `Signature` | `Address` | Array of `Field` | `Boolean`   |
+
+---
+
+### `ecdsa.verify.digest`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+验证 ECDSA 签名针对 33 字节 ECDSA 地址和预计算消息摘要，将结果存储在 `destination` 中。地址和摘要均为原始形式。摘要必须是 32 字节数组。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.digest r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third      | Destination |
+| ---------- | ---------- | ---------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `[u8; 32]` | `Boolean`   |
+
+---
+
+### `ecdsa.verify.digest.eth`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+验证 ECDSA 签名针对 20 字节以太坊地址和预计算消息摘要，将结果存储在 `destination` 中。地址和摘要均为原始形式。摘要必须是 32 字节数组。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.digest.eth r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third      | Destination |
+| ---------- | ---------- | ---------- | ----------- |
+| `[u8; 65]` | `[u8; 20]` | `[u8; 32]` | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak256`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-256 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。这是 Aleo 变体比特形式。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak256 r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third     | Destination |
+| ---------- | ---------- | --------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `Address` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Field`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Group`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Scalar`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`    | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`    | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak256.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-256 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。此变体使用原始比特形式，不含元数据。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak256.raw r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak256.eth`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-256 哈希验证 ECDSA 签名针对 20 字节以太坊地址和消息，将结果存储在 `destination` 中。地址为 20 字节以太坊地址，消息为原始形式。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak256.eth r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 20]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak384`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-384 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。这是 Aleo 变体比特形式。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak384 r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third     | Destination |
+| ---------- | ---------- | --------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `Address` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Field`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Group`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Scalar`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`    | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`    | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak384.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-384 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。此变体使用原始比特形式，不含元数据。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak384.raw r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak384.eth`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-384 哈希验证 ECDSA 签名针对 20 字节以太坊地址和消息，将结果存储在 `destination` 中。地址为 20 字节以太坊地址，消息为原始形式。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak384.eth r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 20]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak512`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-512 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。这是 Aleo 变体比特形式。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak512 r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third     | Destination |
+| ---------- | ---------- | --------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `Address` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Field`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Group`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Scalar`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`    | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`    | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak512.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-512 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。此变体使用原始比特形式，不含元数据。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak512.raw r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.keccak512.eth`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 Keccak-512 哈希验证 ECDSA 签名针对 20 字节以太坊地址和消息，将结果存储在 `destination` 中。地址为 20 字节以太坊地址，消息为原始形式。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.keccak512.eth r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 20]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_256`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-256 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。这是 Aleo 变体比特形式。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_256 r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third     | Destination |
+| ---------- | ---------- | --------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `Address` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Field`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Group`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Scalar`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`    | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`    | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_256.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-256 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。此变体使用原始比特形式，不含元数据。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_256.raw r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_256.eth`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-256 哈希验证 ECDSA 签名针对 20 字节以太坊地址和消息，将结果存储在 `destination` 中。地址为 20 字节以太坊地址，消息为原始形式。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_256.eth r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 20]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_384`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-384 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。这是 Aleo 变体比特形式。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_384 r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third     | Destination |
+| ---------- | ---------- | --------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `Address` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Field`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Group`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Scalar`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`    | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`    | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_384.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-384 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。此变体使用原始比特形式，不含元数据。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_384.raw r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_384.eth`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-384 哈希验证 ECDSA 签名针对 20 字节以太坊地址和消息，将结果存储在 `destination` 中。地址为 20 字节以太坊地址，消息为原始形式。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_384.eth r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 20]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_512`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-512 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。这是 Aleo 变体比特形式。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_512 r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third     | Destination |
+| ---------- | ---------- | --------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `Address` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Field`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Group`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `Scalar`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`    | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`      | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`     | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`    | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_512.raw`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-512 哈希验证 ECDSA 签名针对公钥和消息，将结果存储在 `destination` 中。此变体使用原始比特形式，不含元数据。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_512.raw r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 33]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 33]` | `U128`         | `Boolean`   |
+
+---
+
+### `ecdsa.verify.sha3_512.eth`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+使用 SHA3-512 哈希验证 ECDSA 签名针对 20 字节以太坊地址和消息，将结果存储在 `destination` 中。地址为 20 字节以太坊地址，消息为原始形式。消息必须字节对齐（比特长度必须是 8 的倍数）。
+
+#### 示例用法
+
+```aleo
+ecdsa.verify.sha3_512.eth r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First      | Second     | Third          | Destination |
+| ---------- | ---------- | -------------- | ----------- |
+| `[u8; 65]` | `[u8; 20]` | `[Address; 8]` | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Field; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Group; 8]`   | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `[Scalar; 8]`  | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `I128`         | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U8`           | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U16`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U32`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U64`          | `Boolean`   |
+| `[u8; 65]` | `[u8; 20]` | `U128`         | `Boolean`   |
+
+---
+
+### `shl`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 左移 `second` 位，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+shl r0 r1 into r2;
+```
+
+#### 支持的类型
+
+`Magnitude` 可以是 `U8`、`U16` 或 `U32`。
+
+| First  | Second      | Destination |
+| ------ | ----------- | ----------- |
+| `I8`   | `Magnitude` | `I8`        |
+| `I16`  | `Magnitude` | `I16`       |
+| `I32`  | `Magnitude` | `I32`       |
+| `I64`  | `Magnitude` | `I64`       |
+| `I128` | `Magnitude` | `I128`      |
+| `U8`   | `Magnitude` | `U8`        |
+| `U16`  | `Magnitude` | `U16`       |
+| `U32`  | `Magnitude` | `U32`       |
+| `U64`  | `Magnitude` | `U64`       |
+| `U128` | `Magnitude` | `U128`      |
+
+---
+
+### `shl.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 左移 `second` 位，在类型边界处回绕，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+shl.w r0 r1 into r2;
+```
+
+#### 支持的类型
+
+`Magnitude` 可以是 `U8`、`U16` 或 `U32`。
+
+| First  | Second      | Destination |
+| ------ | ----------- | ----------- |
+| `I8`   | `Magnitude` | `I8`        |
+| `I16`  | `Magnitude` | `I16`       |
+| `I32`  | `Magnitude` | `I32`       |
+| `I64`  | `Magnitude` | `I64`       |
+| `I128` | `Magnitude` | `I128`      |
+| `U8`   | `Magnitude` | `U8`        |
+| `U16`  | `Magnitude` | `U16`       |
+| `U32`  | `Magnitude` | `U32`       |
+| `U64`  | `Magnitude` | `U64`       |
+| `U128` | `Magnitude` | `U128`      |
+
+---
+
+### `shr`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 右移 `second` 位，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+shr r0 r1 into r2;
+```
+
+#### 支持的类型
+
+`Magnitude` 可以是 `U8`、`U16` 或 `U32`。
+
+| First  | Second      | Destination |
+| ------ | ----------- | ----------- |
+| `I8`   | `Magnitude` | `I8`        |
+| `I16`  | `Magnitude` | `I16`       |
+| `I32`  | `Magnitude` | `I32`       |
+| `I64`  | `Magnitude` | `I64`       |
+| `I128` | `Magnitude` | `I128`      |
+| `U8`   | `Magnitude` | `U8`        |
+| `U16`  | `Magnitude` | `U16`       |
+| `U32`  | `Magnitude` | `U32`       |
+| `U64`  | `Magnitude` | `U64`       |
+| `U128` | `Magnitude` | `U128`      |
+
+---
+
+### `shr.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将 `first` 右移 `second` 位，在类型边界处回绕，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+shr.w r0 r1 into r2;
+```
+
+#### 支持的类型
+
+`Magnitude` 可以是 `U8`、`U16` 或 `U32`。
+
+| First  | Second      | Destination |
+| ------ | ----------- | ----------- |
+| `I8`   | `Magnitude` | `I8`        |
+| `I16`  | `Magnitude` | `I16`       |
+| `I32`  | `Magnitude` | `I32`       |
+| `I64`  | `Magnitude` | `I64`       |
+| `I128` | `Magnitude` | `I128`      |
+| `U8`   | `Magnitude` | `U8`        |
+| `U16`  | `Magnitude` | `U16`       |
+| `U32`  | `Magnitude` | `U32`       |
+| `U64`  | `Magnitude` | `U64`       |
+| `U128` | `Magnitude` | `U128`      |
+
+---
+
+### `square`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+对输入求平方，将结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| Input   | Destination |
+| ------- | ----------- |
+| `Field` | `Field`     |
+
+#### 示例用法
+
+```aleo
+square r0 into r1;
+```
+
+---
+
+### `sqrt`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算输入的平方根，将结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| Input   | Destination |
+| ------- | ----------- |
+| `Field` | `Field`     |
+
+#### 示例用法
+
+```aleo
+sqrt r0 into r1;
+```
+
+---
+
+### `sub`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算 `first - second`，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+sub r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First   | Second  | Destination |
+| ------- | ------- | ----------- |
+| `Field` | `Field` | `Field`     |
+| `Group` | `Group` | `Group`     |
+| `I8`    | `I8`    | `I8`        |
+| `I16`   | `I16`   | `I16`       |
+| `I32`   | `I32`   | `I32`       |
+| `I64`   | `I64`   | `I64`       |
+| `I128`  | `I128`  | `I128`      |
+| `U8`    | `U8`    | `U8`        |
+| `U16`   | `U16`   | `U16`       |
+| `U32`   | `U32`   | `U32`       |
+| `U64`   | `U64`   | `U64`       |
+| `U128`  | `U128`  | `U128`      |
+
+---
+
+### `sub.w`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+计算 `first - second`，在类型边界处回绕，并将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+sub.w r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First  | Second | Destination |
+| ------ | ------ | ----------- |
+| `I8`   | `I8`   | `I8`        |
+| `I16`  | `I16`  | `I16`       |
+| `I32`  | `I32`  | `I32`       |
+| `I64`  | `I64`  | `I64`       |
+| `I128` | `I128` | `I128`      |
+| `U8`   | `U8`   | `U8`        |
+| `U16`  | `U16`  | `U16`       |
+| `U32`  | `U32`  | `U32`       |
+| `U64`  | `U64`  | `U64`       |
+| `U128` | `U128` | `U128`      |
+
+---
+
+### `ternary`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+如果 `condition` 为 true 则选择 `first`，否则选择 `second`，将结果存储在 `destination` 中。
+
+示例：`ternary r0 r1 r2 into r3`，其中 `r0` 是条件，`r1` 是 first，`r2` 是 second，`r3` 是目标。
+
+#### 示例用法
+
+```aleo
+ternary r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| Condition | First       | Second      | Destination |
+| --------- | ----------- | ----------- | ----------- |
+| `Boolean` | `Boolean`   | `Boolean`   | `Boolean`   |
+| `Boolean` | `Field`     | `Field`     | `Field`     |
+| `Boolean` | `Group`     | `Group`     | `Group`     |
+| `Boolean` | `I8`        | `I8`        | `I8`        |
+| `Boolean` | `I16`       | `I16`       | `I16`       |
+| `Boolean` | `I32`       | `I32`       | `I32`       |
+| `Boolean` | `I64`       | `I64`       | `I64`       |
+| `Boolean` | `I128`      | `I128`      | `I128`      |
+| `Boolean` | `U8`        | `U8`        | `U8`        |
+| `Boolean` | `U16`       | `U16`       | `U16`       |
+| `Boolean` | `U32`       | `U32`       | `U32`       |
+| `Boolean` | `U64`       | `U64`       | `U64`       |
+| `Boolean` | `U128`      | `U128`      | `U128`      |
+| `Boolean` | `Scalar`    | `Scalar`    | `Scalar`    |
+| `Boolean` | `Signature` | `Signature` | `Signature` |
+
+---
+
+### `xor`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+对整数（按位）或布尔类型的 `first` 和 `second` 执行异或运算，将结果存储在 `destination` 中。
+
+#### 示例用法
+
+```aleo
+xor r0 r1 into r2;
+```
+
+#### 支持的类型
+
+| First     | Second    | Destination |
+| --------- | --------- | ----------- |
+| `Boolean` | `Boolean` | `Boolean`   |
+| `I8`      | `I8`      | `I8`        |
+| `I16`     | `I16`     | `I16`       |
+| `I32`     | `I32`     | `I32`       |
+| `I64`     | `I64`     | `I64`       |
+| `I128`    | `I128`    | `I128`      |
+| `U8`      | `U8`      | `U8`        |
+| `U16`     | `U16`     | `U16`       |
+| `U32`     | `U32`     | `U32`       |
+| `U64`     | `U64`     | `U64`       |
+| `U128`    | `U128`    | `U128`      |
+
+---
+
+### `serialize.bits`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将值序列化为比特数组（布尔数组），使用 Aleo 变体比特。输入可以是多种类型，输出必须是布尔数组。
+
+#### 示例用法
+
+```aleo
+serialize.bits r0 (u32) into r1 ([boolean; 32u32]);
+```
+
+#### 支持的类型
+
+| Input                                                                                                                                                                                                                               | Destination |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`, `I64`, `I128`, `U8`, `U16`, `U32`, `U64`, `U128`, `[U8; N]`, `[U16; N]`, `[U32; N]`, `[U64; N]`, `[U128; N]`, `[I8; N]`, `[I16; N]`, `[I32; N]`, `[I64; N]`, `[I128; N]` | `[bool; M]` |
+
+---
+
+### `serialize.bits.raw`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将值序列化为比特数组（布尔数组），使用不含 Aleo 变体比特的原始比特。输入可以是多种类型，输出必须是布尔数组。
+
+#### 示例用法
+
+```aleo
+serialize.bits.raw r0 (u32) into r1 ([boolean; 32u32]);
+```
+
+#### 支持的类型
+
+| Input                                                                                                                                                                                                                               | Destination |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`, `I64`, `I128`, `U8`, `U16`, `U32`, `U64`, `U128`, `[U8; N]`, `[U16; N]`, `[U32; N]`, `[U64; N]`, `[U128; N]`, `[I8; N]`, `[I16; N]`, `[I32; N]`, `[I64; N]`, `[I128; N]` | `[bool; M]` |
+
+---
+
+### `deserialize.bits`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将比特数组（布尔数组）反序列化为值，使用 Aleo 变体比特。输入必须是布尔数组，输出可以是多种类型。
+
+#### 示例用法
+
+```aleo
+deserialize.bits r0 ([boolean; 256u32]) into r1 as u8;
+```
+
+#### 支持的类型
+
+| Input       | Destination                                                                                                                                                                                                                         |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[bool; N]` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`, `I64`, `I128`, `U8`, `U16`, `U32`, `U64`, `U128`, `[U8; M]`, `[U16; M]`, `[U32; M]`, `[U64; M]`, `[U128; M]`, `[I8; M]`, `[I16; M]`, `[I32; M]`, `[I64; M]`, `[I128; M]` |
+
+---
+
+### `deserialize.bits.raw`
+
+[返回顶部](#标准操作码表)
+
+#### 描述
+
+将比特数组（布尔数组）反序列化为值，使用不含 Aleo 变体比特的原始比特。输入必须是布尔数组，输出可以是多种类型。
+
+#### 示例用法
+
+```aleo
+deserialize.bits.raw r5 ([boolean; 256u32]) into r6 ([u8; 32u32]);
+```
+
+#### 支持的类型
+
+| Input       | Destination                                                                                                                                                                                                                         |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[bool; N]` | `Address`, `Field`, `Group`, `Scalar`, `I8`, `I16`, `I32`, `I64`, `I128`, `U8`, `U16`, `U32`, `U64`, `U128`, `[U8; M]`, `[U16; M]`, `[U32; M]`, `[U64; M]`, `[U128; M]`, `[I8; M]`, `[I16; M]`, `[I32; M]`, `[I64; M]`, `[I128; M]` |
+
+---
+
+### `snark.verify`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+验证 Varuna 证明 `third` 针对验证密钥 `first` 和公开输入 `second`，将布尔结果存储在 `destination` 中。此操作码**仅限 finalize 使用**，必须在 `finalize` 块内调用。在 Aleo Stack v4.6.0 中引入，作为 [ARC-0008](https://vote.aleo.org/p/arc-0008) 的一部分。
+
+#### 示例用法
+
+```aleo
+snark.verify r0 r1 r2 into r3;
+```
+
+#### 支持的类型
+
+| First (verifying key) | Second (public inputs) | Third (proof) | Destination |
+| --------------------- | ---------------------- | ------------- | ----------- |
+| `[U8; N]`             | `[Field; M]`           | `[U8; P]`     | `Boolean`   |
+
+:::note
+`snark.verify` 仅在 `finalize` 块内有效。
+:::
+
+---
+
+### `snark.verify.batch`
+
+[返回顶部](#密码学操作码表)
+
+#### 描述
+
+批量验证多个 Varuna 证明，针对验证密钥数组 `first`、嵌套的公开输入数组 `second` 和单个批量证明 `third`，将布尔结果存储在 `destination` 中。此操作码**仅限 finalize 使用**，必须在 `finalize` 块内调用。在 Aleo Stack v4.6.0 中引入，作为 [ARC-0008](https://vote.aleo.org/p/arc-0008) 的一部分。
+
+编译时限制适用：最多 32 个电路，所有电路最多 128 个实例。
+
+#### 示例用法
+
+```aleo
+snark.verify.batch r0 r1 r2 into r3;
+```
+
+#### 操作数
+
+| 操作数 | 类型                                      | 描述                               |
+| ------ | ----------------------------------------- | ---------------------------------- |
+| `r0`   | `[[U8; N]; num_keys]`                     | 验证密钥数组                       |
+| `r1`   | `[[[Field; M]; num_instances]; num_keys]` | 每个电路每个密钥的嵌套公开输入数组 |
+| `r2`   | `[U8; P]`                                 | 批量证明                           |
+| `r3`   | `Boolean`                                 | 批量验证结果                       |
+
+:::note
+`snark.verify.batch` 仅在 `finalize` 块内有效。
+:::
+
+---

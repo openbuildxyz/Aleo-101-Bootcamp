@@ -1,7 +1,86 @@
----
-title: Aleo Programs
+ Aleo Programs
 ---
 
-# Aleo Programs
+# Aleo 程序
 
-Coming soon.
+Aleo 程序定义了由 **Aleo 虚拟机（Aleo VM）** 执行的隐私应用逻辑。大多数开发者使用 **Leo** 语言编写程序，并将其编译为可在该虚拟机上运行的底层架构代码。
+
+## `Structure`:结构
+
+- **程序 ID**：`program <name>.aleo;`
+- **入口点**：类型化输入 → 计算逻辑 → 类型化输出
+- **类型**：原生类型，外加 `struct`（结构体）与 `record`（记录）
+
+```aleo
+program foo.aleo;
+
+function hello:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    output r2 as u32.private;
+```
+
+## `Registers and visibility`:寄存器与可见性
+
+数值存储在寄存器（`r0`、`r1`……）中。每个数值都包含**数据类型**和**可见性**两种属性：
+
+- `.public`：公开可披露
+- `.private`：可证明有效性，不可对外披露
+## `Types`:类型
+原生类型包括：
+
+- `address`
+- `boolean`
+- `field`
+- `group`
+- `i8`
+- `i16`
+- `i32`
+- `i64`
+- `i128`
+- `u8`
+- `u16`
+- `u32`
+- `u64`
+- `u128`
+- `scalar`
+  
+## `struct`:结构体
+
+```Aleo
+struct array3:
+    a0 as u32;
+    a1 as u32;
+    a2 as u32;
+```
+
+## `record`：记录（私有状态）
+
+记录属于用户自有状态。交易通常会消耗旧记录并生成新记录。
+
+## 示例：`mint + transfer`:铸造 + 转账
+
+```Aleo
+program foo.aleo;
+
+record token:
+    owner as address.private;
+    amount as u64.private;
+
+function mint:
+    input r0 as u64.private;
+    cast self.signer r0 into r1 as token.record;
+    output r1 as token.record;
+
+function transfer_amount:
+    input r0 as token.record;
+    input r1 as address.private;
+    input r2 as u64.private;
+
+    sub r0.amount r2 into r3;
+    cast r0.owner r3 into r4 as token.record;
+    cast r1 r2 into r5 as token.record;
+    output r4 as token.record;
+    output r5 as token.record;
+```

@@ -1,7 +1,350 @@
 ---
-title: Token Registry
+title: 代币注册表
 ---
 
-# Token Registry
+# 代币注册表
 
-Coming soon.
+:::caution 不建议用于新项目
+
+代币注册程序仍在主网上运行，继续为现有集成提供服务。但是，**不建议新项目使用**。更新的代币标准目前正在社区积极讨论中，预计将取代代币注册：
+
+- [ARC-20](https://github.com/ProvableHQ/ARCs/discussions/124) — Aleo 同质化代币提案标准
+- [ARC-22](https://github.com/ProvableHQ/ARCs/discussions/125) — Aleo 合规/受监管同质化代币提案标准，扩展 ARC-20
+
+新项目应关注这些讨论，并在标准最终确定后考虑基于新标准构建。
+
+:::
+
+## 概述
+
+代币注册程序是 Aleo 上用于发行和管理代币的单例程序。所有代币都注册到这个中心注册表来管理余额，而不是为每种代币部署单独的程序。DeFi 程序仅依赖注册表，因此新代币可以随时添加而无需重新部署现有的 DeFi 程序。作为附带好处，注册表内的私密转账可以隐藏正在转移的具体代币，从而提高匿名集。
+
+此设计早于[动态分派（ARC-0009）](https://github.com/ProvableHQ/ARCs/tree/master/arc-0009)。随着动态分派的最终确定，程序可以在运行时调用其他程序而无需编译时导入，从而实现了 [ARC-20](https://github.com/ProvableHQ/ARCs/discussions/124) 中描述的每程序代币模型。代币注册仍在主网上运行，继续为现有集成提供服务 — 有关新项目的指导，请参阅上方的注意事项。
+
+此标准源自社区讨论和 [ARC-21 提案](https://vote.aleo.org/p/21)的批准。
+
+{/* markdown-link-check-disable */}
+
+原始源代码可以在[这里](https://github.com/demox-labs/aleo-standard-programs/blob/main/token_registry/src/main.leo)找到。
+
+{/* markdown-link-check-enable */}
+
+## 如何使用代币注册程序
+
+使用唯一的代币 ID、名称、符号、精度和最大供应量调用 `register_token`。将 `external_authorization_required` 设为 `true` 时，在使用代币之前需要 `external_authorization_party` 的批准，该方使用 `prehook_public` 或 `prehook_private` 为指定所有者解锁余额并设置到期区块高度。管理员之后可以通过 `update_token_management` 更新 `external_authorization_party`。
+
+注册后，代币可以公开铸造（`mint_public`）或私密铸造（`mint_private`），以及公开销毁（`burn_public`）或私密销毁（`burn_private`）。铸造和销毁需要 `MINTER_ROLE`/`BURNER_ROLE`，如果调用者不是管理员则需要 `SUPPLY_MANAGER_ROLE`。
+
+所有者可以公开转账（`transfer_public`）或私密转账（`transfer_private`），并可以通过 `transfer_public_to_private` 和 `transfer_private_to_public` 在公开和私密余额之间转换。
+
+## 数据结构
+
+### Token Record
+
+```leo
+record Token {
+  owner: address,
+  amount: u128,
+  token_id: field,
+  external_authorization_required: bool,
+  authorized_until: u32           // 授权到期的区块高度
+}
+```
+
+### TokenMetadata 结构体
+
+```leo
+struct TokenMetadata {
+  token_id: field,
+  name: u128,                          // ASCII 文本的 u128 位串
+  symbol: u128,                        // ASCII 文本的 u128 位串
+  decimals: u8,
+  supply: u128,
+  max_supply: u128,
+  admin: address,
+  external_authorization_required: bool,
+  external_authorization_party: address
+}
+```
+
+### TokenOwner 结构体
+
+```leo
+struct TokenOwner {
+  account: address,
+  token_id: field
+}
+```
+
+### Balance 结构体
+
+```leo
+struct Balance {
+  token_id: field,
+  account: address,
+  balance: u128,
+  authorized_until: u32
+}
+```
+
+### Allowance 结构体
+
+```leo
+struct Allowance {
+  account: address,
+  spender: address,
+  token_id: field
+}
+```
+
+## 映射
+
+| 映射                | 键                                       | 值              |
+| ------------------- | ---------------------------------------- | --------------- |
+| `registered_tokens` | `field`（代币 ID）                       | `TokenMetadata` |
+| `balances`          | `field`（代币 ID + 账户的哈希）          | `Balance`       |
+| `allowances`        | `field`（代币 ID + 账户 + 消费者的哈希） | `Allowance`     |
+| `roles`             | `field`（代币 ID + 账户的哈希）          | `u8`            |
+
+## 常量
+
+| 常量                        | 值                                                                                  | 描述                       |
+| --------------------------- | ----------------------------------------------------------------------------------- | -------------------------- |
+| `CREDITS_RESERVED_TOKEN_ID` | `3443843282313283355522573239085696902919850365217539366784739393210722344986field` | ALEO credits 的保留代币 ID |
+| `MINTER_ROLE`               | `1u8`                                                                               | 铸造角色                   |
+| `BURNER_ROLE`               | `2u8`                                                                               | 销毁角色                   |
+| `SUPPLY_MANAGER_ROLE`       | `3u8`                                                                               | 铸造和销毁角色             |
+
+## 函数
+
+### `initialize()`
+
+注册 ALEO credits 代币，使用硬编码的元数据（名称/符号 "credits"，6 位精度，最大供应量 10 千万亿）。参数硬编码以防止抢跑。将 `wrapped_credits.aleo` 设为管理员并禁用外部授权，以便之后无法修改元数据。
+
+---
+
+### `register_token()`
+
+注册新代币。调用者成为管理员。
+
+| 参数                              | 类型             | 描述             |
+| --------------------------------- | ---------------- | ---------------- |
+| `token_id`                        | `public field`   | 唯一代币标识符   |
+| `name`                            | `public u128`    | 代币名称         |
+| `symbol`                          | `public u128`    | 代币符号         |
+| `decimals`                        | `public u8`      | 小数位数         |
+| `max_supply`                      | `public u128`    | 最大供应量       |
+| `external_authorization_required` | `public bool`    | 是否需要外部授权 |
+| `external_authorization_party`    | `public address` | 授权方地址       |
+
+返回值：`Future`
+
+---
+
+### `update_token_management()`
+
+更新代币的管理员和外部授权方。仅当前管理员可调用。
+
+| 参数                           | 类型             | 描述         |
+| ------------------------------ | ---------------- | ------------ |
+| `token_id`                     | `public field`   | 代币标识符   |
+| `admin`                        | `public address` | 新管理员地址 |
+| `external_authorization_party` | `public address` | 新授权方地址 |
+
+返回值：`Future`
+
+---
+
+### `set_role()` / `remove_role()`
+
+`set_role` 为指定代币的账户分配角色（`MINTER_ROLE`、`BURNER_ROLE` 或 `SUPPLY_MANAGER_ROLE`）。`remove_role` 清除角色。两者都要求调用者是代币管理员。
+
+| 参数       | 类型             | 描述                    |
+| ---------- | ---------------- | ----------------------- |
+| `token_id` | `public field`   | 代币标识符              |
+| `account`  | `public address` | 目标账户                |
+| `role`     | `public u8`      | 角色值（仅 `set_role`） |
+
+返回值：`Future`
+
+---
+
+### `mint_public()` / `mint_private()`
+
+向接收者铸造代币。需要管理员、`MINTER_ROLE` 或 `SUPPLY_MANAGER_ROLE`。
+
+| 参数                              | 类型                               | 描述                  |
+| --------------------------------- | ---------------------------------- | --------------------- |
+| `token_id`                        | `public field`                     | 代币标识符            |
+| `recipient`                       | `address`（`mint_private` 为私密） | 接收者地址            |
+| `amount`                          | `public u128`                      | 铸造数量              |
+| `external_authorization_required` | `public bool`                      | （仅 `mint_private`） |
+| `authorized_until`                | `public u32`                       | 授权到期区块高度      |
+
+返回值：`mint_public` → `Future`；`mint_private` → `Token`，`Future`
+
+---
+
+### `burn_public()` / `burn_private()`
+
+销毁代币。需要管理员、`BURNER_ROLE` 或 `SUPPLY_MANAGER_ROLE`。
+
+| 参数           | 类型             | 描述                           |
+| -------------- | ---------------- | ------------------------------ |
+| `token_id`     | `public field`   | 代币标识符（仅 `burn_public`） |
+| `owner`        | `public address` | 代币所有者（仅 `burn_public`） |
+| `input_record` | `Token`          | 代币记录（仅 `burn_private`）  |
+| `amount`       | `public u128`    | 销毁数量                       |
+
+返回值：`burn_public` → `Future`；`burn_private` → 剩余 `Token`，`Future`
+
+---
+
+### `prehook_public()` / `prehook_private()`
+
+由 `external_authorization_party` 调用，为指定所有者解锁代币数量直到给定区块高度。
+
+| 参数               | 类型             | 描述                              |
+| ------------------ | ---------------- | --------------------------------- |
+| `owner`            | `public address` | 代币所有者（仅 `prehook_public`） |
+| `input_record`     | `Token`          | 代币记录（仅 `prehook_private`）  |
+| `amount`           | `u128`           | 授权数量                          |
+| `authorized_until` | `u32`            | 授权到期区块高度                  |
+
+返回值：`prehook_public` → `Future`；`prehook_private` → 未授权 `Token`，已授权 `Token`，`Future`
+
+---
+
+### `transfer_public()`
+
+在公开余额之间转账。调用者即发送方（`self.caller`）。
+
+| 参数        | 类型             | 描述       |
+| ----------- | ---------------- | ---------- |
+| `token_id`  | `public field`   | 代币标识符 |
+| `recipient` | `public address` | 接收者地址 |
+| `amount`    | `public u128`    | 转账数量   |
+
+返回值：`Future`
+
+---
+
+### `transfer_public_as_signer()`
+
+与 `transfer_public` 相同，但使用 `self.signer` 作为发送方，可在任意程序调用链中使用。
+
+参数和返回值与 `transfer_public` 相同。
+
+---
+
+### `approve_public()` / `unapprove_public()`
+
+`approve_public` 授予消费者代表所有者转账的额度。`unapprove_public` 撤销或减少该额度。
+
+| 参数       | 类型             | 描述                 |
+| ---------- | ---------------- | -------------------- |
+| `token_id` | `public field`   | 代币标识符           |
+| `spender`  | `public address` | 消费者地址           |
+| `amount`   | `public u128`    | 授权或取消授权的数量 |
+
+返回值：`Future`
+
+---
+
+### `transfer_from_public()`
+
+使用预授权额度将代币从所有者转账给接收者。
+
+| 参数        | 类型             | 描述       |
+| ----------- | ---------------- | ---------- |
+| `token_id`  | `public field`   | 代币标识符 |
+| `owner`     | `public address` | 代币所有者 |
+| `recipient` | `public address` | 接收者地址 |
+| `amount`    | `public u128`    | 转账数量   |
+
+返回值：`Future`
+
+---
+
+### `transfer_public_to_private()`
+
+将公开余额转换为私密代币记录。
+
+| 参数                              | 类型              | 描述         |
+| --------------------------------- | ----------------- | ------------ |
+| `token_id`                        | `public field`    | 代币标识符   |
+| `recipient`                       | `address`（私密） | 接收者地址   |
+| `amount`                          | `public u128`     | 转换数量     |
+| `external_authorization_required` | `public bool`     | 是否需要授权 |
+
+返回值：`Token`，`Future`
+
+---
+
+### `transfer_from_public_to_private()`
+
+使用预授权额度代表所有者将公开余额转换为私密代币记录。
+
+| 参数                              | 类型              | 描述         |
+| --------------------------------- | ----------------- | ------------ |
+| `token_id`                        | `public field`    | 代币标识符   |
+| `owner`                           | `public address`  | 代币所有者   |
+| `recipient`                       | `address`（私密） | 接收者地址   |
+| `amount`                          | `public u128`     | 转换数量     |
+| `external_authorization_required` | `public bool`     | 是否需要授权 |
+
+返回值：`Token`，`Future`
+
+---
+
+### `transfer_private()`
+
+在私密记录之间转账。
+
+| 参数           | 类型              | 描述             |
+| -------------- | ----------------- | ---------------- |
+| `recipient`    | `address`（私密） | 接收者地址       |
+| `amount`       | `u128`            | 转账数量         |
+| `input_record` | `Token`           | 发送方的代币记录 |
+
+返回值：剩余 `Token`（发送方），接收 `Token`（接收方），`Future`
+
+---
+
+### `transfer_private_to_public()`
+
+将私密代币记录转换为公开余额。
+
+| 参数           | 类型             | 描述             |
+| -------------- | ---------------- | ---------------- |
+| `recipient`    | `public address` | 接收者地址       |
+| `amount`       | `public u128`    | 转换数量         |
+| `input_record` | `Token`          | 要消费的代币记录 |
+
+返回值：剩余 `Token`，`Future`
+
+---
+
+### `join()`
+
+将两个相同代币的私密代币记录合并为一个。总数量不变。
+
+| 参数      | 类型            | 描述           |
+| --------- | --------------- | -------------- |
+| `token_1` | `private Token` | 第一个代币记录 |
+| `token_2` | `private Token` | 第二个代币记录 |
+
+返回值：合并后的 `Token`
+
+---
+
+### `split()`
+
+将一个私密代币记录拆分为两个。总数量不变。
+
+| 参数     | 类型            | 描述                   |
+| -------- | --------------- | ---------------------- |
+| `token`  | `private Token` | 要拆分的代币记录       |
+| `amount` | `private u128`  | 拆分到第一个输出的数量 |
+
+返回值：拆分出的 `Token`，剩余的 `Token`

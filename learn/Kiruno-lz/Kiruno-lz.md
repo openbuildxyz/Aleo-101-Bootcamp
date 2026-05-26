@@ -1,0 +1,6 @@
+- 昵称：kiruno
+- GitHub 用户名： Kiruno-lz  
+- 微信： Kiruno_lz
+- Aleo 钱包地址： aleo1h5utc52enn9nxn7hknz6xdl9j82ym0vvmh9sdd289u3n7cs96sgq2v9eu2
+- 技术栈： rust/python/TS
+- 自我介绍：  ai-native builder, 做点感兴趣的项目

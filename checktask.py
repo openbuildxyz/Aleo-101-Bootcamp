@@ -1,6 +1,21 @@
 import os
 import re
 
+
+def count_task1_folders(base_dir='./learn'):
+    """统计 learn 下各子文件夹中包含 task1 文件（task1.md 或 task1 目录）的个数"""
+    count = 0
+    for folder_name in os.listdir(base_dir):
+        folder_path = os.path.join(base_dir, folder_name)
+        if not os.path.isdir(folder_path):
+            continue
+        task1_file = os.path.join(folder_path, 'task1.md')
+        task1_dir = os.path.join(folder_path, 'task1')
+        if os.path.exists(task1_file) or os.path.isdir(task1_dir):
+            count += 1
+    return count
+
+
 def main():
     base_dir = './learn'  
     result = []
