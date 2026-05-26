@@ -54,17 +54,22 @@ gcloud storage cp -r gs://snarkos-canary/uncompressed/block_storage_snapshot/led
 
 - **主网**
 ```bash
-wget -c https://storage.googleapis.com/snapshots-mainnet/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}
+wget -c https://storage.googleapis.com/snapshots-mainnet/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}/snapshot.tar
 ```
 
 - **测试网**
 ```bash
-wget -c https://storage.googleapis.com/snapshots-testnet/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}
+wget -c https://storage.googleapis.com/snapshots-testnet/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}/snapshot.tar
 ```
 
 - **金丝雀网**
 ```bash
-wget -c https://storage.googleapis.com/snapshots-canary/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}
+wget -c https://storage.googleapis.com/snapshots-canary/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}/snapshot.tar
+```
+
+下载完成后，解压归档文件：
+```bash
+tar -xf {local-ledger-path}/snapshot.tar -C {local-ledger-path}
 ```
 
 ## 选项 4 – 使用 `aria2` 下载（多连接、并行下载）
