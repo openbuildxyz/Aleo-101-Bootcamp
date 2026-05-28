@@ -1,0 +1,6 @@
+{
+  "program": "private_commit_card.aleo",
+  "version": "0.1.0",
+  "description": "A small Aleo demo that stores a private commitment card as a record.",
+  "license": "MIT"
+}

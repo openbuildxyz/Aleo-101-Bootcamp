@@ -1,0 +1,31 @@
+{
+  "name": "private-resume",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "leo:build": "cd programs/privateresume_mvp_20260527 && leo build"
+  },
+  "dependencies": {
+    "@demox-labs/aleo-wallet-adapter-base": "latest",
+    "@demox-labs/aleo-wallet-adapter-react": "latest",
+    "@demox-labs/aleo-wallet-adapter-reactui": "latest",
+    "aleo-adapters": "latest",
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "typescript": "latest"
+  }
+}

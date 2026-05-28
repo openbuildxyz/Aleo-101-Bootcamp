@@ -1,0 +1,6 @@
+- 昵称：  luke不吃面
+- GitHub 用户名：  Lukeknow0
+- 微信： W0_0Worz
+- Aleo 钱包地址：  aleo15xrzy5rp2rz8xadnv8htm267k7tt3q3gmkh7nqqfva5kt02v6yyqpdnu8e
+- 技术栈：  前端开发：HTML5 / CSS3 / Vanilla JS (原生 JavaScript)；AI 智能体：Hermes Agent 框架；开发工具：Cursor IDE (AI 协同开发)
+- 自我介绍： 教育AI产品经理，正在学习Web3和ZK隐私技术，对Aleo生态感兴趣，希望通过AI辅助开发快速上手。

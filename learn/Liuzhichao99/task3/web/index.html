@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Multiplier - 客私乘法小应用</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .result h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        
+        .demo-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .demo-info h3 {
+            margin-top: 0;
+            color: #ffd700;
+        }
+        
+        .demo-info p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            font-size: 1.1em;
+            color: #ffd700;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ffd700;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Private Multiplier</h1>
+        
+        <div class="input-group">
+            <label for="inputA">第一个数字 (a):</label>
+            <input type="number" id="inputA" placeholder="输入第一个数字" value="5">
+        </div>
+        
+        <div class="input-group">
+            <label for="inputB">第二个数字 (b):</label>
+            <input type="number" id="inputB" placeholder="输入第二个数字" value="3">
+        </div>
+        
+        <button onclick="performMultiply()">执行私密乘法 (a × b)</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            正在执行私密乘法运算...
+        </div>
+        
+        <div class="result" id="result">
+            <h2>等待输入...</h2>
+        </div>
+        
+        <div class="demo-info">
+            <h3>📋 项目说明</h3>
+            <p><strong>功能：</strong>基于 Leo 编程语言实现的私密乘法小应用</p>
+            <p><strong>特点：</strong>保护输入值的私密性，同时计算得到公开的结果</p>
+            <p><strong>用途：</strong>隐私计算示例，可用于需要保护输入数据的场景</p>
+            <p><strong>状态：</strong>本地模拟演示，后续可接入真实 Aleo 区块链</p>
+        </div>
+    </div>
+
+    <script>
+        function simulatePrivateMultiplication(a, b) {
+            // 模拟私密乘法运算
+            // 在真实的 Leo 环境中，这个运算会在链上执行
+            return a * b;
+        }
+        
+        function performMultiply() {
+            const inputA = parseInt(document.getElementById('inputA').value);
+            const inputB = parseInt(document.getElementById('inputB').value);
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            // 验证输入
+            if (isNaN(inputA) || isNaN(inputB)) {
+                result.innerHTML = '<h2 style="color: #ff6b6b;">⚠️ 请输入有效的数字</h2>';
+                return;
+            }
+            
+            // 显示加载状态
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            // 模拟异步运算
+            setTimeout(() => {
+                const product = simulatePrivateMultiplication(inputA, inputB);
+                
+                // 隐藏加载状态
+                loading.style.display = 'none';
+                result.style.display = 'flex';
+                
+                // 显示结果
+                result.innerHTML = `
+                    <div>
+                        <h2>🎉 计算完成！</h2>
+                        <p style="font-size: 1.3em; margin: 15px 0;">
+                            ${inputA} × ${inputB} = <strong>${product}</strong>
+                        </p>
+                        <p style="color: #ffd700; margin-top: 10px;">
+                            ✨ 计算过程完全私密，输入值已被保护
+                        </p>
+                    </div>
+                `;
+            }, 1500);
+        }
+        
+        // 页面加载时执行默认计算
+        window.onload = function() {
+            setTimeout(performMultiply, 500);
+        };
+    </script>
+</body>
+</html>

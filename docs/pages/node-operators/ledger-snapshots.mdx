@@ -1,7 +1,105 @@
 ---
-title: Ledger Snapshots
+title: 账本快照
 ---
 
-# Ledger Snapshots
+# 账本快照
 
-Coming soon.
+下载账本快照可以让您无需从创世区块开始同步，直接启动任意类型的节点（客户端、证明者或验证者）。选择最适合您环境的选项。
+
+## 选项 1 – 使用 `gcloud rsync` 仅同步缺失或更新的文件
+
+智能同步 – 仅复制变更内容，可选择删除过时的文件。需要安装 Google Cloud SDK。
+
+- **主网**
+
+```bash
+gcloud storage rsync -r gs://snarkos-mainnet/uncompressed/block_storage_snapshot/ledger-0 {local-ledger-path}
+```
+
+- **测试网**
+
+```bash
+gcloud storage rsync -r gs://snarkos-testnet/uncompressed/block_storage_snapshot/ledger-1 {local-ledger-path}
+```
+
+- **金丝雀网**
+
+```bash
+gcloud storage rsync -r gs://snarkos-canary/uncompressed/block_storage_snapshot/ledger-2 {local-ledger-path}
+```
+
+**常用标志：**
+
+- `--delete-unmatched-destination-objects` → 删除本地不存在于源端的文件（确保镜像干净）
+
+## 选项 2 – 使用 `gcloud cp` 复制整个文件夹
+
+盲拷贝 – 复制所有内容，即使已存在也会重新复制。需要安装 Google Cloud SDK。
+
+- **主网**
+
+```bash
+gcloud storage cp -r gs://snarkos-mainnet/uncompressed/block_storage_snapshot/ledger-0 {local-ledger-path}
+```
+
+- **测试网**
+
+```bash
+gcloud storage cp -r gs://snarkos-testnet/uncompressed/block_storage_snapshot/ledger-1 {local-ledger-path}
+```
+
+- **金丝雀网**
+
+```bash
+gcloud storage cp -r gs://snarkos-canary/uncompressed/block_storage_snapshot/ledger-2 {local-ledger-path}
+```
+
+## 选项 3 – 使用 `wget` 从头开始下载整个账本
+
+归档文件名始终以 `_00-00-01.tar` 结尾。
+
+- **主网**
+
+```bash
+wget -c https://storage.googleapis.com/snapshots-mainnet/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}/snapshot.tar
+```
+
+- **测试网**
+
+```bash
+wget -c https://storage.googleapis.com/snapshots-testnet/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}/snapshot.tar
+```
+
+- **金丝雀网**
+
+```bash
+wget -c https://storage.googleapis.com/snapshots-canary/archive/$(date +%Y-%m-%d)_00-00-01.tar -O {local-ledger-path}/snapshot.tar
+```
+
+下载完成后，解压归档文件：
+
+```bash
+tar -xf {local-ledger-path}/snapshot.tar -C {local-ledger-path}
+```
+
+## 选项 4 – 使用 `aria2` 下载（多连接、并行下载）
+
+首先安装：`sudo apt install -y aria2`（Ubuntu）或 `brew install aria2`（macOS）。
+
+- **主网**
+
+```bash
+aria2c -x 16 -s 16 -c https://snapshots.provable.com/mainnet/latest.tar
+```
+
+- **测试网**
+
+```bash
+aria2c -x 16 -s 16 -c https://snapshots.provable.com/testnet/latest.tar
+```
+
+- **金丝雀网**
+
+```bash
+aria2c -x 16 -s 16 -c https://snapshots.provable.com/canary/latest.tar
+```

@@ -1,0 +1,9 @@
+{
+  "program": "private_allocation_demo.aleo",
+  "version": "0.1.0",
+  "description": "A tiny Aleo demo for proving private resource allocation constraints.",
+  "license": "MIT",
+  "leo": "4.0.2",
+  "dependencies": null,
+  "dev_dependencies": null
+}

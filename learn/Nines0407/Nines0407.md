@@ -1,6 +1,6 @@
 - 昵称：九思
 - GitHub 用户名：Nines0407
 - 微信：Eason-Zhang0407
-- Aleo 钱包地址：
+- Aleo 钱包地址：aleo16awdmat7exenwfnhramf9puqmc6hc2ww4kqjhxp9dvawc83g4upqq7zrfq
 - 技术栈：Python
 - 自我介绍：一个热爱ai的全栈学习者

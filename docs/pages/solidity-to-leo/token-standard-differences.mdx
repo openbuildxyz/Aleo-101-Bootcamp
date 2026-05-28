@@ -1,7 +1,257 @@
 ---
-title: Token Standard Differences
+id: token-standard-difference
+title: 代币标准差异
+sidebar_label: 代币标准差异
 ---
 
-# Token Standard Differences
+## 介绍
 
-Coming soon.
+Aleo 目前有两个活跃的代币标准，它们分别面向网络发展的不同时期：
+
+- **[ARC-21 代币注册表](../standards/00_token_registry.md)**：现有的单例程序，用于集中管理所有代币余额。它早于动态分发出现，设计目标是让 DeFi 程序能够支持任意代币，而不需要在编译时知道具体代币。
+- **[ARC-20 代币标准](https://github.com/ProvableHQ/ARCs/discussions/124)**：即将推出的标准，目前仍处于草案阶段。它利用 [动态分发（ARC-0009）](https://github.com/ProvableHQ/ARCs/tree/master/arc-0009)，让每个代币都成为自己的程序，并通过 Leo 的 `Interface@(token_id)/function()` 语法在运行时调用。
+- **[ARC-22 合规代币标准](https://github.com/ProvableHQ/ARCs/discussions/125)**：在 ARC-20 的基础上扩展了冻结列表执行和合规记录，适用于受监管代币，例如稳定币和证券型代币。
+
+:::caution 不建议新项目使用
+
+代币注册表程序（ARC-21）仍然在主网上运行，并继续服务现有集成。但是，它**不建议用于新项目**。
+
+较新的代币标准（ARC-20 和 ARC-22）目前正在社区中积极讨论，预计会取代它。新项目应该关注这些讨论，并在相关标准最终确定后考虑基于新标准构建。
+
+:::
+
+## 快速对比
+
+| 功能       | ERC-20           | ARC-21 代币注册表  | ARC-20                                        |
+| ---------- | ---------------- | ------------------ | --------------------------------------------- |
+| 代币创建   | 部署新合约       | 向注册表注册       | 部署实现 `ARC20` 接口的新程序                 |
+| 状态管理   | 每个合约独立管理 | 中心化注册表       | 每个程序独立管理                              |
+| 转账机制   | 直接调用合约     | 调用注册表程序     | 通过 `ARC20@(token_id)/function()` 动态调用   |
+| 隐私       | 无               | 内置私有转账       | 内置私有转账                                  |
+| 授权流程   | 必需             | 可选               | 必需（公开）                                  |
+| 代币元数据 | 存在合约中       | 存在注册表中       | 存在程序中                                    |
+| 供应量管理 | 每个合约独立管理 | 中心化注册表       | 每个程序独立管理（可选 `MintableToken` 扩展） |
+| 动态分发   | 不适用           | 不需要（中心枢纽） | 核心设计要求                                  |
+
+## 架构差异
+
+### 程序结构
+
+**ERC-20**
+
+- 每个代币都作为独立智能合约部署。
+- 代币转账需要授权流程。
+- 每创建一种新代币，都需要部署新的智能合约。
+
+**ARC-21 代币注册表**
+
+- 单个程序（代币注册表）管理所有代币。
+- 基础转账不需要单独的授权流程。
+- 新代币通过注册创建，而不是通过部署新合约创建。
+
+**ARC-20**
+
+- 每个代币都是一个独立部署的程序，并声明符合 `ARC20` 接口（Leo 中的 `:InterfaceName`）。
+- DeFi 程序可以通过动态分发在运行时与任意符合接口的代币交互，不需要编译时导入。
+- 可选的 `MintableToken` 接口扩展了 `ARC20`，适用于支持铸造和销毁的代币。
+
+### 状态管理
+
+**ERC-20**
+
+- 状态存储在每个代币合约内部。
+- 合约内部可以直接访问状态。
+- 所有状态只支持公开可见。
+
+**ARC-21 代币注册表**
+
+- 状态由注册表程序管理。
+- 在 async 函数中通过 API 端点或 `mappings::get()` 调用访问状态。
+- 通过 mapping 支持公开状态可见性，并通过 record 支持私有状态。
+
+**ARC-20**
+
+- 状态由每个代币自己的程序管理。
+- 公开余额存储在各程序自己的 mapping 中；私有余额保存在 `Token` record 中。
+- 符合接口的程序会被分别查询，而不是通过共享注册表查询。
+
+## 功能差异
+
+完整的 ARC-21 函数签名和参数详情，请参阅[代币注册表程序参考](../standards/00_token_registry.md)。
+
+### 代币创建
+
+**ERC-20** 为每种代币部署一个新合约：
+
+```solidity
+contract MyToken is ERC20 {
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+        _mint(msg.sender, 1000000 * 10 ** decimals());
+    }
+}
+```
+
+**ARC-21 代币注册表**通过共享注册表程序中的 `register_token` 注册新代币，需要提供唯一的 `token_id`、名称、符号、小数位和最大供应量。不需要部署合约。
+
+可选的 `external_authorization_required` 标志允许指定的 `external_authorization_party` 使用有时间限制的授权来控制代币转账。这适用于归属期安排、支出限制或合规控制。可以使用 `prehook_public` / `prehook_private` 在满足条件后解锁转账。
+
+**ARC-20** 部署一个声明接口符合性的新程序：
+
+```leo
+program my_token.aleo: MintableToken {
+    record Token {
+        owner: address,
+        amount: u128,
+    }
+
+    fn transfer_public(public recipient: address, public amount: u128) -> Final { ... }
+    fn transfer_private(input: Token, to: address, amount: u128) -> (Token, Token) { ... }
+    // ... all ARC20 + MintableToken functions
+}
+```
+
+之后，任意 DeFi 程序都可以在运行时按名称调用该代币，而不需要导入它：
+
+```leo
+ARC20@(token_id)/transfer_public(recipient, amount);
+```
+
+### 代币转账
+
+**ERC-20**
+
+```solidity
+function transfer(address to, uint256 amount) public returns (bool)
+function transferFrom(address from, address to, uint256 amount) public returns (bool)
+```
+
+**ARC-21 代币注册表**提供多种转账变体：
+
+| 函数                              | 说明                                       |
+| --------------------------------- | ------------------------------------------ |
+| `transfer_public`                 | 从函数调用者发起公开转账                   |
+| `transfer_public_as_signer`       | 从交易签名者发起公开转账，适用于多程序调用 |
+| `transfer_private`                | 使用 `Token` record 发起私有转账           |
+| `transfer_from_public`            | 由已授权的支出者发起公开转账               |
+| `transfer_public_to_private`      | 将公开余额转换为私有 `Token` record        |
+| `transfer_from_public_to_private` | 与上一个类似，但由已授权的支出者发起       |
+| `transfer_private_to_public`      | 将私有 `Token` record 转换为公开余额       |
+
+**ARC-20** 通过 `ARC20` 接口定义了一组类似函数，并使用动态分发在运行时调用：
+
+| 函数                              | 说明                                                        |
+| --------------------------------- | ----------------------------------------------------------- |
+| `transfer_public`                 | 公开转账                                                    |
+| `transfer_private`                | 使用 `Token` record 发起私有转账                            |
+| `transfer_private_to_public`      | 将私有 `Token` 转为公开余额，并向发送者发出 `Metadata` 收据 |
+| `transfer_public_to_private`      | 将公开余额转为私有 `Token`                                  |
+| `shield`                          | 将签名者的公开余额转换为私有 `Token`                        |
+| `unshield`                        | 将私有 `Token` 转回公开余额                                 |
+| `transfer_from_public`            | 由已授权的支出者发起公开转账                                |
+| `transfer_from_public_to_private` | 由已授权的支出者发起公开转私有                              |
+
+在 DeFi 程序中动态调用这些函数：
+
+```leo
+// Works with any ARC20-conformant token, resolved at runtime
+ARC20@(token_id)/transfer_public(recipient, amount);
+ARC20@(token_id)/transfer_from_public(owner, recipient, amount);
+```
+
+使用 `dyn record`（动态 record）进行私有代币操作：
+
+```leo
+fn deposit_private(
+    private token_record: dyn record,
+    public token_id: identifier,
+    public amount: u128,
+) -> (dyn record, Final) {
+    let (change, f): (dyn record, Final) =
+        ARC20@(token_id)/transfer_private_to_public(token_record, self.address, amount);
+    return (change, final { f.run(); });
+}
+```
+
+### 代币铸造
+
+**ERC-20**
+
+```solidity
+function mint(address to, uint256 amount) public onlyOwner
+```
+
+**ARC-21 代币注册表**支持 `mint_public` 和 `mint_private`。访问权限由角色控制：只有拥有 `MINTER_ROLE`、`SUPPLY_MANAGER_ROLE` 的地址，或管理员，才能铸造。角色通过 `set_role` / `remove_role` 管理。
+
+**ARC-20** 通过可选的 `MintableToken` 扩展定义铸造能力：
+
+```leo
+fn mint_public(public recipient: address, public amount: u128) -> Final;
+fn mint_private(public recipient: address, public amount: u128) -> (Token, Final);
+```
+
+访问控制由程序自身定义，接口本身不会强制执行。
+
+### 代币销毁
+
+**ERC-20**
+
+```solidity
+function burn(uint256 amount) public
+```
+
+**ARC-21 代币注册表**支持 `burn_public` 和 `burn_private`，并采用与铸造相同的基于角色的访问控制（`BURNER_ROLE` 或 `SUPPLY_MANAGER_ROLE`）。
+
+**ARC-20** 通过 `MintableToken` 支持：
+
+```leo
+fn burn_public(public amount: u128) -> Final;
+fn burn_private(input: Token) -> Final;
+```
+
+### 代币授权
+
+**ERC-20**
+
+```solidity
+function approve(address spender, uint256 amount) public returns (bool)
+function allowance(address owner, address spender) public view returns (uint256)
+```
+
+**ARC-21 代币注册表**使用 `approve_public` 授予支出者额度，并使用 `unapprove_public` 撤销或减少额度。
+
+**ARC-20** 使用相同模式（`approve_public` / `unapprove_public`），但有一个关键区别：`approve_public` 会在现有额度上**增加**额度，而不是替换额度，从而避免 ERC-20 授权竞态问题。
+
+### 余额和供应量查询
+
+**ERC-20**
+
+```solidity
+function balanceOf(address account) public view returns (uint256)
+function totalSupply() public view returns (uint256)
+```
+
+**ARC-21 代币注册表**通过 RPC mapping 查询公开余额和供应量，不需要交易：
+
+```bash
+# Balance (composite key: token_id + account)
+GET /{network}/program/token_registry.aleo/mapping/balances/{token_id}_{account}
+
+# Total supply (within TokenMetadata)
+GET /{network}/program/token_registry.aleo/mapping/registered_tokens/{token_id}
+```
+
+**ARC-20** 按各个程序分别查询：
+
+```bash
+# Balance in a specific ARC-20 token program
+GET /{network}/program/{my_token}.aleo/mapping/account/{address}
+
+# Supply stored in the program's own mapping
+GET /{network}/program/{my_token}.aleo/mapping/supply/true
+```
+
+## 总结
+
+[ARC-21](../standards/00_token_registry.md) 代币注册表通过单个程序管理所有代币，提供隐私和基于角色的访问控制，同时不要求 DeFi 程序在编译时知道具体代币。它仍然是现有集成的推荐标准。
+
+[ARC-20](https://github.com/ProvableHQ/ARCs/discussions/124) 采用了由[动态分发（ARC-0009）](https://github.com/ProvableHQ/ARCs/tree/master/arc-0009)支持的更去中心化的方法：每个代币都是自己的程序，任意 DeFi 程序都可以通过 `ARC20@(token_id)/function()` 在运行时与任意符合接口的代币交互。[ARC-22](https://github.com/ProvableHQ/ARCs/discussions/125) 在此基础上增加了冻结列表执行和调查者可见的合规记录，适用于受监管发行方。二者目前都仍处于草案阶段，请关注相关讨论，并在标准最终确定后基于它们构建。

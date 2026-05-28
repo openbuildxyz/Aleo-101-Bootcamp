@@ -2,6 +2,1562 @@
 title: Migration Guide
 ---
 
-# Migration Guide
+# 迁移指南
 
-Coming soon.
+本指南提供了 Solidity（以太坊智能合约语言）与 Leo（Aleo 零知识应用编程语言）之间的全面对比。文档涵盖了两种语言之间的根本差异，并提供实用示例，帮助开发者从以太坊开发过渡到 Aleo。
+
+## 执行模型
+
+Leo 和 Solidity 在执行方式上存在根本性差异：
+
+- **Ethereum/Solidity**：链上执行，所有计算都在区块链上进行
+- **Aleo/Leo**：链下执行配合零知识证明，计算在私密环境下进行，仅在链上验证证明
+
+这一差异影响了许多语言设计决策，详见下文。
+
+## 基本结构
+
+### 头部声明
+
+两种语言的程序开头方式不同：
+
+**Solidity 合约：**
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+contract MyToken {
+    // 合约实现
+}
+```
+
+**Leo 程序：**
+
+```leo
+// 无需许可证标识符
+// 无需 pragma
+
+program my_token.aleo {
+    // 程序实现
+}
+```
+
+**关键差异：**
+
+- Leo 不需要许可证标识符或 pragma 声明
+- Leo 的导入语句使用程序 ID 而非文件路径
+- Leo 程序名称必须带有 `.aleo` 后缀
+- Solidity 中使用 `contract` 关键字定义合约，Leo 中使用 `program` 关键字定义程序（等同于 Solidity 中的智能合约），后跟花括号 `{}`
+
+### 构造函数
+
+Solidity 中的构造函数是可选的。Leo 目前没有构造函数，但 [ARC-0006: 程序可升级性](https://github.com/ProvableHQ/ARCs/discussions/94) 将在 Leo 新程序中引入必需的构造函数。Solidity 的构造函数只运行一次，而 Leo 的构造函数是不可变的，将在部署或升级时运行，因此用于定义程序可升级性逻辑。
+
+### 注释
+
+两种语言支持相同的注释语法：
+
+```leo
+// 两种语言中的单行注释
+
+/*
+ * 多行注释
+ * 用法完全相同
+ */
+```
+
+### 导入
+
+**Solidity 的导入系统：**
+
+```solidity
+// 导入整个文件
+import "./MyContract.sol";
+
+// 导入特定符号
+import {Symbol1, Symbol2} from "./MyContract.sol";
+
+// 带别名导入
+import * as MyAlias from "./MyContract.sol";
+
+// 从 node_modules 导入
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+```
+
+**Leo 的导入系统：**
+
+```leo
+import credits.aleo;
+
+program helloworld.aleo {
+    // 程序实现
+}
+```
+
+**重要：Leo 的导入还必须在 `program.json` 中声明：**
+
+```json
+{
+  "program": "my_token.aleo",
+  "version": "0.0.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network", // 从网络导入
+      "network": "testnet"
+    },
+    {
+      "name": "board.aleo",
+      "location": "local", // 从本地导入
+      "path": "../board"
+    }
+  ]
+}
+```
+
+**依赖类型：**
+
+- **网络依赖**：部署在 Aleo 网络（主网、测试网）上的程序
+- **本地依赖**：本地文件系统目录中的程序
+
+**关键导入差异：**
+
+- **Solidity**：导入在编译时将代码直接复制到你的合约中，将所有内容合并到一个文件
+- **Leo**：导入的程序保持为独立实体，不会与当前文件合并，每个程序在区块链上保留自己唯一的程序 ID
+
+## 数据与状态
+
+### 状态变量和存储模型
+
+Solidity 和 Leo 在处理状态变量、存储和数据隐私方面存在显著差异。
+
+**Solidity 的方式：**
+
+```solidity
+contract Storage {
+    // 带可见性修饰符的状态变量（仅访问控制）
+    uint256 public constant FIXED_VALUE = 100;  // 编译时常量
+    uint256 public immutable RUNTIME_VALUE;     // 在构造函数中设置
+    uint256 public permanentData;               // 自动生成 getter 函数
+    uint256 internal shared;                    // 在派生合约中可访问
+    uint256 private local = 42;                 // 在派生合约中不可访问，但链上仍可见
+
+    constructor(uint256 _value) {
+        RUNTIME_VALUE = _value;  // 可在构造时设置
+    }
+
+    function processData(uint256 tempData) public {
+        uint256 memoryVar = tempData * 2;   // memory（临时）
+        permanentData = memoryVar;          // 持久化到 storage
+    }
+}
+```
+
+**Leo 的方式：**
+
+```leo
+program storage.aleo {
+    // 仅编译时常量
+    const FIXED_VALUE: u64 = 100u64;
+
+    // 永久公开状态：所有人可访问
+    mapping balances: address => u64;
+
+    // 永久私密状态：存储在记录中（具有密码学隐私）
+    record Token {
+        owner: address,
+        amount: u64,
+    }
+
+    // transition 参数和返回值默认为私密，除非标记为 public
+    fn process_data(public amount: u64) -> (Token, Final) {
+        let amount_loc: u64 = amount * 2u64; // 局部变量
+
+        let token: Token = Token {
+            owner: self.caller,
+            amount: amount_loc,
+        };
+
+        return (token, final {
+            let current_balance: u64 = Mapping::get_or_use(balances, self.caller, 0u64);
+            Mapping::set(balances, self.caller, current_balance + amount_loc);
+        });
+    }
+}
+```
+
+**关键差异：**
+
+- **Solidity 可见性**：`private`、`internal`、`public` 控制代码访问，但所有数据在链上均可见
+- **Leo 隐私性**：`public` 与 `private` 决定实际的密码学隐私，即数据是存储在链上还是存储在[记录](../../concepts/fundamentals/02_records.md)中（链下）
+- **常量**：Solidity 有 `constant` 和 `immutable` 两种，Leo 仅有编译时 `const`
+- **局部变量**：`let` 关键字声明临时计算变量（类似于 Solidity 的 memory）
+- **无临时存储**：Leo 不支持 Solidity 的 transient storage 概念
+
+### Getter 函数
+
+Solidity 编译器自动为所有 `public` 状态变量创建 getter 函数。Leo 没有类似功能，而是提供直接的 API 访问来从节点查询映射值，无需在程序代码中编写 getter 函数。
+
+```solidity
+// Solidity：自动生成 getter
+contract Example {
+    uint256 public value;  // 自动创建 value() 函数作为 getter
+}
+```
+
+**关键差异：**
+
+- **Solidity**：需要 public 状态变量或显式 getter 函数才能进行外部访问
+- **Leo**：映射值可通过 REST API 端点访问，无需任何程序代码：
+  - 端点：`GET /{network}/program/{programID}/mapping/{mappingName}/{mappingKey}`
+  - 示例：`GET /testnet3/program/credis.aleo/mapping/account/aleo1abc...`
+
+### 删除状态变量
+
+**Solidity 的删除操作：**
+
+```solidity
+contract DeleteExample {
+    uint256 public value = 100;
+    mapping(address => uint256) public balances;
+
+    function resetValue() public {
+        delete value;  // 重置为初始值（uint256 为 0）
+    }
+
+    function removeBalance(address user) public {
+        delete balances[user];  // 移除映射条目，重置为初始值（0）
+    }
+}
+```
+
+**Leo 的映射操作：**
+
+```leo
+program delete_example.aleo {
+    mapping balances: address => u64;
+
+    fn remove_balance(user: address) -> Final {
+        return final {
+            // 删除前检查映射是否包含该键
+            let exists: bool = Mapping::contains(balances, user);
+            if exists {
+                // 移除映射条目
+                Mapping::remove(balances, user);
+            }
+        };
+    }
+}
+```
+
+**关键差异：**
+
+- **Solidity**：`delete` 运算符将变量重置为初始值（数字为 0，布尔为 false，数组为空）
+- **Leo**：仅支持使用 `Mapping::remove()` 从映射中移除条目
+- **无直接删除**：Leo 没有与 Solidity 的 `delete` 运算符等效的其他变量类型操作
+- **映射焦点**：Leo 的删除功能专注于映射条目，这是主要的状态存储机制
+- **键存在性检查**：Leo 提供 `Mapping::contains()` 在操作前检查键是否存在于映射中
+
+### 数据类型
+
+类型系统在多个方面有所不同：
+
+**通用类型（行为相似）：**
+
+```solidity
+// Solidity
+bool flag = true;
+uint32 smallNumber = 100;
+address userAddr = 0x742d35...;
+```
+
+```leo
+// Leo
+let flag: bool = true;
+let small_number: u32 = 100u32;  // 必须附加类型后缀（u32）
+let user_addr: address = aleo1abc...;
+```
+
+**类型后缀要求：**
+在 Leo 中，所有字面量必须显式附加其类型后缀。
+
+**Leo 特有类型：**
+
+Leo 引入了几种 Solidity 中不存在的独特密码学类型：
+
+```leo
+// Leo 独特的密码学类型
+let field_element: field = 123field;          // 用于算术运算的 field 元素
+let group_element: group = group::GEN;        // 用于椭圆曲线的 group 元素
+let scalar_value: scalar = 456scalar;         // 用于密码学操作的 scalar 值
+let user_signature: signature = sign1...;     // 内置签名类型
+```
+
+**签名验证**：Leo 的 `signature` 类型使用 Schnorr 签名方案（不同于 Solidity 的 ECDSA），签名使用随机数、挑战哈希和私钥生成，然后通过使用公钥重构挑战来验证。
+
+**Leo 的限制：**
+
+1. **整数限制：**
+
+```solidity
+// Solidity：支持最大 256 位
+uint256 bigNumber = 115792089237316195423570985008687907853269984665640564039457584007913129639935;
+```
+
+```leo
+// Leo：最大 128 位
+let big_number: u128 = 340282366920938463463374607431768211455u128;
+// uint256 等效类型不存在
+```
+
+2. **Leo 不支持的类型：**
+
+```solidity
+// Leo 不支持的 Solidity 类型
+string memory text = "Hello World";           // Leo 中无 string 类型
+bytes memory data = hex"1234";                // Leo 中无 bytes 类型
+uint256[] memory dynamicArray;                // Leo 中无动态数组
+mapping(string => uint256) stringMap;         // Leo 中映射不支持 string 键
+enum Status { Active, Inactive }              // Leo 中无 enum 类型
+```
+
+```leo
+// Leo 的替代方案或变通方法
+let text_hash: field = 123456field;           // 将文本转换为 Leo 支持的类型，如 field
+let static_array: [u32; 5] = [1u32, 2u32, 3u32, 4u32, 5u32]; // 仅支持固定大小数组
+mapping hash_map: field => u64;               // 使用 field 作为复杂键类型
+const ACTIVE: u8 = 0u8;                       // 使用常量代替 enum
+const INACTIVE: u8 = 1u8;
+```
+
+3. **Leo 中的静态数组：**
+
+```solidity
+// Solidity：同时支持动态和静态数组
+uint256[5] public staticArray;
+
+function updateArray() public {
+    staticArray[0] = 42;  // 直接修改元素
+}
+```
+
+```leo
+// Leo：仅支持静态数组
+fn simple_array() -> [u32; 3] {
+    // 创建包含 3 个元素的固定大小数组
+    let numbers: [u32; 3] = [1u32, 2u32, 3u32];
+
+    // 使用显式索引类型（u8）修改元素
+    numbers[0u8] = 10u32;
+    numbers[1u8] = 20u32;
+
+    return numbers;
+}
+```
+
+**静态数组关键特性：**
+
+- **固定大小**：数组大小必须在编译时已知
+- **元素访问**：使用显式索引类型（如 `array[0u8]`）
+- **无动态操作**：没有 `push()`、`pop()` 或调整大小的操作
+
+### 类型转换
+
+**Solidity 的隐式转换：**
+
+```solidity
+uint8 small = 100;
+uint256 big = small;  // 自动转换
+
+// Solidity 允许截断
+uint16 large = 300;
+uint8 truncated = uint8(large);  // 仅保留最右边 8 位
+```
+
+**Leo 的显式转换：**
+
+```leo
+let small: u8 = 100u8;
+let big: u32 = small as u32;  // 需要显式转换
+
+// Leo 在截断时失败（检查转换）
+let large: u32 = 300u32;
+let truncated: u8 = large as u8;  // 程序失败，不允许截断，除非能放入较小的类型
+
+// 安全转换为更大的类型
+let safe: u64 = small as u64;    // 无截断
+```
+
+**关键差异：**
+
+- Leo 要求使用 `as` 关键字进行显式转换
+- **截断行为**：Solidity 允许转换时截断，Leo 在可能丢失数据时失败
+- **类型提升**：Solidity 在运算中自动提升较小类型，Leo 要求显式转换
+
+**自动类型提升示例：**
+
+```solidity
+// Solidity：自动类型提升
+uint8 small = 100;
+uint16 medium = 200;
+uint16 result = small + medium;  // uint8 自动提升为 uint16
+```
+
+```leo
+// Leo：需要显式转换
+let small: u8 = 100u8;
+let medium: u16 = 200u16;
+let result: u16 = (small as u16) + medium;  // 必须显式将 u8 转换为 u16
+// let invalid: u16 = small + medium;  // 这会失败，类型不匹配
+```
+
+### 引用类型与值类型
+
+**Solidity** 区分值类型和引用类型，要求显式指定数据位置：
+
+```solidity
+contract TypeSystem {
+    uint256[] storageArray;  // 永久存储
+
+    function processData(uint256[] memory memoryArray) public {
+        uint256[] storage localRef = storageArray;    // storage 的引用
+        uint256[] memory localCopy = storageArray;    // 复制到 memory
+
+        localRef[0] = 100;   // 修改 storage
+        localCopy[0] = 200;  // 仅修改 memory 副本
+    }
+
+    function externalCall(uint256[] calldata data) external {
+        // calldata 是只读的，不能修改
+    }
+}
+```
+
+**Leo** 仅支持值类型，所有数据在传递时都会被复制：
+
+```leo
+program value_types.aleo {
+    fn process_data(input_array: [u32; 5]) -> [u32; 5] {
+        // 所有数据按值复制
+        let local_array: [u32; 5] = input_array;  // 创建副本
+
+        // 可以直接修改各个元素
+        local_array[0u8] = input_array[0u8] + 1u32;
+        local_array[1u8] = input_array[1u8] + 2u32;
+
+        return local_array;
+    }
+}
+```
+
+**关键差异：**
+
+- **Leo 限制**：仅支持值类型，无引用类型
+- **内存管理**：Leo 根据类型语义自动处理内存管理，无需显式指定存储位置
+
+## 函数
+
+### 函数类型
+
+Leo 完全重新设计了函数架构。Leo 不使用 Solidity 的可见性修饰符，而是使用不同的函数类型：
+
+**Solidity 的方式：**
+
+```solidity
+contract Example {
+    uint256 private data;
+
+    // External 函数 — 从外部调用
+    function publicFunction(uint256 input) external returns (uint256) {
+        return internalHelper(input);
+    }
+
+    // Internal 辅助函数 — 在继承合约中可访问
+    function internalHelper(uint256 input) internal view returns (uint256) {
+        return input * 2;
+    }
+
+    // Private 函数 — 仅在本合约中可访问
+    function privateFunction() private pure returns (uint256) {
+        return 42;
+    }
+}
+
+contract Child is Example {
+    function useParent(uint256 input) public returns (uint256) {
+        return internalHelper(input);  // 可以访问 internal 函数
+        // return privateFunction();   // 不能访问 private 函数
+    }
+}
+```
+
+**Leo 的方式：**
+
+```leo
+// Internal fn：辅助函数（类似纯函数）— 在 program 块外部声明
+// 仅能计算，不能访问状态，不能进行外部调用
+fn internal_helper(input: u32) -> u32 {
+    let doubled: u32 = inline_multiplier(input, 2u32);
+    return doubled;
+}
+
+// Internal fn：在调用处内联 — 在 program 块外部声明
+fn inline_multiplier(a: u32, b: u32) -> u32 {
+    return a * b;
+}
+
+program example.aleo {
+    // Entry fn：外部可调用，链下执行
+    // 所有输入和输出默认为私密，需要显式 'public` 关键字实现链上可见
+    fn public_function(input: u32, public pub_input2: u32) -> (public u32, u32) {
+        let result: u32 = internal_helper(input);
+        let pub_result: u32 = result + pub_input2;
+        return (pub_result, result);
+    }
+}
+```
+
+**关键差异：**
+
+- **外部可调用函数**：在 Leo 中，只有 entry `fn` 函数（直接从交易调用的函数）可以从外部调用。Internal `fn` 辅助函数只能从程序内部调用
+- **Leo 的纯计算函数**：Leo 中的 internal 辅助 `fn` 函数类似于 Solidity 的 `pure` 函数，只能执行计算，不能访问状态变量或进行外部调用
+- **Leo 中的可见性**：与 Solidity 的可见性修饰符（public、private、internal）不同，Leo 的可见性指的是数据隐私 — 数据是公开可见还是私密保存
+- **函数重载**：与支持函数重载（多个同名但参数类型不同的函数）的 Solidity 不同，Leo 不允许函数重载。每个函数名在程序中必须唯一，要求开发者为不同参数类型的函数使用不同的名称。
+
+### 返回值
+
+在 Leo 中，返回类型使用箭头（`->`）语法指定，类似于 Rust，这与 Solidity 的 `returns` 关键字不同。
+
+**关键差异：**
+
+- **返回类型语法**：Leo 只需要返回类型，不需要标识符（如 `-> u32` vs Solidity 的 `returns (uint256 value)`）
+- **返回值处理**：在 Solidity 中，可以使用逗号选择性忽略多个返回值（如 `(index, , ) = f();`），而 Leo 要求所有返回值都必须以精确类型捕获
+- **参数处理**：类似地，Solidity 允许在函数声明中省略未使用的参数，而 Leo 要求所有参数都必须显式声明其类型
+
+### 修饰器
+
+**Solidity 的修饰器：**
+Solidity 中的修饰器通常用于修改函数语义。类似于 Leo 中的 inline，函数体在每个调用处内联。
+
+```solidity
+contract ModifierExample {
+    address public owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the owner");
+        _;  // 继续执行函数
+    }
+
+    modifier validAmount(uint256 amount) {
+        require(amount > 0, "Amount must be positive");
+        _;
+    }
+
+    function withdraw(uint256 amount) public onlyOwner validAmount(amount) {
+        // 函数体在修饰器之后执行
+        payable(msg.sender).transfer(amount);
+    }
+}
+```
+
+**Leo 的方式：**
+Leo 没有修饰器，但可以使用辅助函数实现类似功能：
+
+```leo
+// 辅助函数 — 在 program 块外部声明
+fn only_owner(caller: address, owner: address) {
+    assert_eq(caller, owner);
+}
+
+fn valid_amount(amount: u64) {
+    assert(amount > 0u64);
+}
+
+program modifier_example.aleo {
+    fn withdraw(amount: u64, owner: address) -> u64 {
+        // 辅助函数被显式调用（类似修饰器）
+        only_owner(self.caller, owner);
+        valid_amount(amount);
+
+        // 函数逻辑继续
+        return amount;
+    }
+}
+```
+
+### 异步函数
+
+Leo 使用 `final {}` 块进行链上执行：
+
+```leo
+program defi_example.aleo {
+    mapping user_balances: address => u64;
+
+    fn deposit_and_update(public amount: u64) -> Final {
+        // 链下计算
+        let new_record: Token = Token {
+            owner: self.caller,
+            amount: amount,
+        };
+
+        // 返回内联的 finalization 块用于链上执行
+        return final {
+            let current_balance: u64 = user_balances.get_or_use(self.caller, 0u64);
+            user_balances.set(self.caller, current_balance + amount);
+        };
+    }
+}
+```
+
+**关键概念：**
+
+- **Finalization 模式**：Leo 使用 `fn` 配合内联 `final {}` 块进行链上执行，`final {}` 块从封闭的 `fn` 作用域捕获变量并在链上执行
+- **Final 块**：`final {}` 块在交易 finalization 时在链上执行，允许访问链下计算无法访问的映射值
+
+### 调用限制
+
+Leo 对函数调用层级执行严格的规则：
+
+**调用流程：** entry `fn` → internal `fn` | entry `fn` → 外部程序 `fn`
+
+**调用流程规则：**
+
+- Entry `fn` 可以调用 internal 辅助 `fn` 或外部程序函数。
+- Internal 辅助 `fn` 只能调用其他 internal 辅助函数。
+- 不允许直接/间接递归调用。
+
+**递归：**
+虽然 Solidity 允许函数递归（函数直接或间接调用自身），但 Leo 禁止所有形式的递归调用。
+
+```leo
+// Internal 辅助 fn — 在 program 块外部声明
+fn helper_function(input: u32) -> u32 {
+    let processed: u32 = inline_helper(input);      // 有效
+    // let invalid: u32 = another_function(input);  // 无效
+    return processed;
+}
+
+fn inline_helper(input: u32) -> u32 {
+    let doubled: u32 = inline_doubler(input);       // 有效
+    return doubled;
+}
+
+fn inline_doubler(input: u32) -> u32 {
+    return input * 2u32;
+}
+
+program call_hierarchy.aleo {
+    // Entry fn 可以调用：internal 辅助函数、外部程序
+    fn main_entry(input: u32) -> u32 {
+        let result1: u32 = helper_function(input);      // 有效
+        let result2: u32 = inline_helper(input);        // 有效
+        let result3: u32 = external_program.aleo::some_transition(input); // 有效
+        return result1 + result2 + result3;
+    }
+}
+```
+
+### Fallback 和 Receive 函数
+
+**Solidity 的 Fallback 和 Receive：**
+
+```solidity
+contract FallbackExample {
+    // Fallback 函数 — 当没有其他函数匹配时调用
+    fallback() external {
+        // 处理不匹配的函数调用
+    }
+
+    // Receive 函数 — 接收 ETH 时调用
+    receive() external payable {
+        // 处理收到的 ETH
+    }
+
+    // 普通函数
+    function regularFunction() public {
+        // 函数实现
+    }
+}
+```
+
+**Leo 的方式：**
+Leo 没有 fallback 或 receive 函数：
+
+```leo
+program fallback_example.aleo {
+    // 无 fallback 函数，所有调用必须匹配有效的函数签名
+    fn regular_function() {
+        // 函数实现
+    }
+
+    // 要接收 Aleo Credits，使用 credits.aleo 程序
+    fn receive_credits(public amount: u64) -> Final {
+        return credits.aleo::transfer_public(self.caller, self.address, amount);
+    }
+}
+```
+
+**关键差异：**
+
+- **无 Fallback**：Leo 要求所有函数调用匹配有效的函数签名
+- **无 Receive**：程序不需要特殊函数来接收 Aleo Credits
+- **程序地址**：每个 Leo 程序都有唯一地址（与用户控制的地址相同）
+- **私密记录**：程序不能花费发送给它们的私密记录（记录实际上被"销毁"）
+- **Credits 转账**：使用 `credits.aleo` 程序的转账函数发送/接收 credits
+
+## 密码学与内置功能
+
+### 哈希函数
+
+虽然 Solidity 提供基本的哈希函数，但 Leo 提供了丰富的密码学工具包：
+
+**Solidity 的有限选项：**
+
+```solidity
+function hashData(bytes memory data) public pure returns (bytes32) {
+    return keccak256(data);           // 最常用
+    // sha256(data);                  // 也可用
+    // ripemd160(data);               // 较少使用
+}
+```
+
+**Leo 的丰富选项：**
+
+```leo
+fn hash_examples(data: u32) -> (field, field, field) {
+    // Poseidon 哈希（ZK 友好）
+    let poseidon_hash: field = Poseidon4::hash_to_field(data);
+
+    // BHP 哈希
+    let bhp_hash: field = BHP256::hash_to_field(data);
+
+    // 传统哈希
+    let keccak_hash: field = Keccak256::hash_to_field(data);
+    let sha3_hash: field = SHA3_256::hash_to_field(data);
+
+    return (poseidon_hash, bhp_hash, keccak_hash);
+}
+
+// 承诺方案
+fn commit_example(value: u32, randomness: field) -> (field, field) {
+    let pedersen_commit: field = Pedersen64::commit_to_field(value, randomness);
+    let bhp_commit: field = BHP256::commit_to_field(value, randomness);
+    return (pedersen_commit, bhp_commit);
+}
+```
+
+### 随机数
+
+Solidity 没有内置随机性，必须依赖 Chainlink VRF 或外部预言机等第三方解决方案。
+
+**Leo 的内置方案：**
+
+```leo
+fn secure_random() -> Final {
+    return final {
+        // 支持 ChaCha 随机，仅在 final 块中可用
+        let random_value: u32 = ChaCha::rand_u32();
+    };
+}
+```
+
+### 内置属性和全局变量
+
+**Solidity 的丰富内置功能：**
+
+```solidity
+contract GlobalAccess {
+    function getBlockInfo() public view returns (uint256, uint256, address, uint256) {
+        return (
+            block.number,        // 当前区块号
+            block.timestamp,     // 当前区块时间戳
+            msg.sender,          // 直接调用者
+            tx.origin           // 交易发起者
+        );
+    }
+
+    function getNetworkInfo() public view returns (uint256, uint256) {
+        return (
+            block.chainid,       // 当前链 ID
+            gasleft()           // 剩余 gas
+        );
+    }
+}
+```
+
+**Leo 的有限内置功能：**
+
+```leo
+program global_access.aleo {
+    fn get_block_info() -> Final {
+        return final {
+            // 仅在 final 块中可用
+            let current_height: u32 = block.height;      // 等同于 block.number
+            let current_timestamp: i64 = block.timestamp; // 等同于 block.timestamp
+            let network: u32 = network.id;               // 等同于 block.chainid
+        };
+    }
+
+    fn get_caller_info() {
+        let immediate_caller: address = self.caller;  // 等同于 msg.sender
+        let origin_caller: address = self.signer;     // 等同于 tx.origin
+        let program_address: address = self.address;  // 等同于 address(this)
+    }
+}
+```
+
+**关键差异：**
+
+- **有限作用域**：Leo 的区块属性仅在 `final {}` 块（finalization 作用域）中可用
+- **时间戳可用**：Leo 提供 `block.timestamp`，返回 `i64` 类型的 unix 时间戳
+- **无 Gas 追踪**：Leo 不向程序暴露 gas/费用信息
+- **程序上下文**：Leo 提供 `self.address` 表示当前程序地址
+
+### 货币单位
+
+**Solidity 的以太单位：**
+
+```solidity
+contract EtherUnits {
+    function demonstrateUnits() public pure returns (uint256, uint256, uint256) {
+        uint256 oneWei = 1;
+        uint256 oneGwei = 1 gwei;       // 1e9 wei
+        uint256 oneEther = 1 ether;     // 1e18 wei
+
+        return (oneWei, oneGwei, oneEther);
+    }
+}
+```
+
+**Leo 的 Credit 单位：**
+
+```leo
+program credit_units.aleo {
+    fn demonstrate_units() -> (u64, u64, u64) {
+        let one_microcredit: u64 = 1u64;
+        let one_millicredit: u64 = 1000u64;     // 1e3 microcredits
+        let one_credit: u64 = 1000000u64;       // 1e6 microcredits
+
+        return (one_microcredit, one_millicredit, one_credit);
+    }
+}
+```
+
+**关键差异：**
+
+- **Aleo Credits**：microcredits（基础）、millicredits（1e3）、credits（1e6）
+- **Ethereum**：wei（基础）、gwei（1e9）、ether（1e18）
+- **无内置单位**：Leo 没有像 Solidity 那样的内置单位字面量
+
+### 地址功能和原生代币转账
+
+**Solidity 的地址成员：**
+Solidity 中的 Address 有成员可访问其关联状态：
+
+```solidity
+contract AddressExample {
+    function demonstrateAddressMembers(address payable target) public view returns (uint256, bytes32) {
+        // 访问地址属性
+        uint256 balance = target.balance;           // 以 Wei 为单位的余额
+        bytes memory code = target.code;            // 地址处的代码（可能为空）
+        bytes32 codeHash = target.codehash;         // 地址的 codehash
+
+        return (balance, codeHash);
+    }
+
+    function transferMethods(address payable target, uint256 amount) public {
+        // 不同的转账方法
+        target.transfer(amount);                    // 失败时回退，2300 gas 津贴
+        bool success = target.send(amount);         // 失败时返回 false，2300 gas 津贴
+
+        // 可调整 gas 的底层调用
+        (bool callSuccess, bytes memory data) = target.call{value: amount}("");
+        (bool delegateSuccess, bytes memory delegateData) = target.delegatecall("");
+        (bool staticSuccess, bytes memory staticData) = target.staticcall("");
+    }
+}
+```
+
+**Leo 的方式：**
+Leo 地址没有成员函数。Aleo credits 在 Aleo 上被定义为一个程序（`credits.aleo`），因此要进行转账和访问余额，使用与查询 Aleo 上任何程序相同的方法 — 通过映射公开查询或通过扫描拥有的记录私密查询。
+
+```leo
+import credits.aleo;
+
+program address_example.aleo {
+    // 通过 credits.aleo 程序映射访问余额（公开余额）
+    fn get_public_balance(user: address) -> Final {
+        return final {
+            // 从 credits.aleo account 映射查询公开余额
+            let balance: u64 = credits.aleo::account.get_or_use(user, 0u64);
+        };
+    }
+
+    // 使用 credits.aleo 程序函数转账 credits
+    fn transfer_public_credits(
+        to: address,
+        amount: u64
+    ) -> Final {
+        return credits.aleo::transfer_public(self.caller, to, amount);
+    }
+
+    fn transfer_private_credits(
+        input: credits.aleo::credits,
+        to: address,
+        amount: u64
+    ) -> (credits.aleo::credits, credits.aleo::credits) {
+        return credits.aleo::transfer_private(input, to, amount);
+    }
+}
+```
+
+**关键差异：**
+
+- **无地址成员**：Leo 地址没有 `.balance`、`.code`、`.codehash` 属性
+- **无内置转账方法**：地址上没有 `.transfer()`、`.send()`、`.call()` 方法
+- **基于程序的转账**：原生代币转账通过 `credits.aleo` 程序进行
+- **公开与私密**：余额可以是公开的（映射）或私密的（记录）
+- **统一接口**：所有程序交互使用相同的调用语法，无论是代币还是其他功能
+
+### 数学运算和溢出处理
+
+**Solidity 的方式：**
+
+```solidity
+contract MathOperations {
+    function checkedMath(uint256 a, uint256 b) public pure returns (uint256) {
+        return a + b;  // 默认溢出时回退（自 0.8.0 起）
+    }
+
+    function uncheckedMath(uint256 a, uint256 b) public pure returns (uint256) {
+        unchecked {
+            return a + b;  // 溢出时回绕
+        }
+    }
+
+    function modularMath(uint256 a, uint256 b, uint256 n) public pure returns (uint256, uint256) {
+        return (addmod(a, b, n), mulmod(a, b, n));
+    }
+}
+```
+
+**Leo 的方式：**
+
+```leo
+program math_operations.aleo {
+    fn checked_math(a: u64, b: u64) -> u64 {
+        return a + b;  // 默认溢出时回退
+    }
+
+    fn wrapped_math(a: u64, b: u64) -> u64 {
+        return a.add_wrap(b);  // 使用回绕算术，溢出时回绕
+    }
+
+    fn modular_math(a: u64, b: u64, n: u64) -> (u64, u64) {
+        let add_result: u64 = (a + b) % n;
+        let mul_result: u64 = (a * b) % n;
+        return (add_result, mul_result);
+    }
+}
+```
+
+**关键差异：**
+
+- **回绕运算**：Leo 使用 `.add_wrap()`、`.sub_wrap()`、`.mul_wrap()` 代替 `unchecked` 块
+- **无内置模运算**：Leo 没有 `addmod`/`mulmod` 内置函数
+- **显式运算符**：Leo 要求显式使用回绕运算符
+
+### 时间和时序操作
+
+**Solidity 的时间支持：**
+
+```solidity
+contract TimeOperations {
+    function timeUnits() public pure returns (uint256, uint256, uint256) {
+        return (
+            1 seconds,    // 1
+            1 minutes,    // 60 秒
+            1 hours       // 3600 秒
+        );
+    }
+
+    function getCurrentTime() public view returns (uint256) {
+        return block.timestamp;
+    }
+}
+```
+
+**Leo 的方式：**
+
+- **无时间单位**：没有 `seconds`、`minutes`、`hours` 等等效单位
+- **区块时间戳**：`block.timestamp` 在 `final {}` 块中可用，返回 `i64` 类型的 Unix 时间戳。用于基于时间的访问控制或过期逻辑。
+- **区块高度**：`block.height` 也在 `final {}` 块中可用，当区块级粒度足够时可替代基于时间的逻辑。
+
+```leo
+fn check_expiry(expires_at: i64) -> Final {
+    return final {
+        assert(block.timestamp < expires_at);
+    };
+}
+```
+
+## 错误处理
+
+**Solidity 的错误处理：**
+
+```solidity
+contract ErrorHandling {
+    ExternalContract public externalContract;
+    error InsufficientBalance(uint256 requested, uint256 available);
+
+    function transfer(uint256 amount) public {
+        require(amount > 0, "Amount must be positive");
+
+        if (balance < amount) {
+            revert InsufficientBalance(amount, balance);
+        }
+
+        try externalContract.riskyCall() returns (string memory) {
+            // 成功路径
+        } catch Error(string memory reason) {
+            // 带原因处理
+        } catch {
+            // 无原因处理
+        }
+    }
+}
+```
+
+**Leo 的错误处理：**
+
+```leo
+program error_handling.aleo {
+    fn transfer(amount: u64, balance: u64) -> u64 {
+        // 简单断言（由于不支持 string，无自定义消息）
+        assert(amount > 0u64);
+        assert_neq(amount, 0u64);      // 替代语法
+        assert(balance >= amount);
+
+        // 无 try/catch，所有外部调用必须成功
+        let result: u64 = external_program.aleo/safe_operation(amount);
+        return result;
+    }
+}
+```
+
+## 循环与条件
+
+**Solidity 的控制流：**
+
+```solidity
+function controlFlow(uint256[] memory items) public pure returns (uint256) {
+    uint256 sum = 0;
+
+    // While 循环
+    uint256 i = 0;
+    while (i < items.length) {
+        if (items[i] > 10) {
+            continue;  // 跳过此项
+        }
+
+        sum += items[i];
+
+        if (sum > 100) {
+            break;     // 提前退出
+        }
+
+        i++;
+    }
+
+    // For 循环
+    for (uint256 j = 0; j < items.length; j++) {
+        // 处理项目
+    }
+
+    return sum;
+}
+```
+
+**Leo 的控制流：**
+
+```leo
+fn control_flow(items: [u32; 5]) -> u32 {
+    let sum: u32 = 0u32;
+
+    // 仅支持 for 循环（无 while、do-while）
+    for i: u32 in 0u32..5u32 {
+        sum += items[i as u8];
+        // 无 continue 和 break 语句
+    }
+
+    // 三元运算符用法相同
+    let result: u32 = sum > 100u32 ? 100u32 : sum;
+    return result;
+}
+```
+
+**重要限制**：Leo 目前会执行条件语句的所有分支，然后选择正确的结果。这与通常只执行一个分支的典型条件执行不同。此行为可能导致意外问题，特别是对于可能停止的操作（如除以零）。[ARC-0004](https://github.com/ProvableHQ/ARCs/discussions/89) 提出了带标志操作来解决此限制，实现正确的 if-then-else 语义。
+
+## 跨程序调用
+
+**Solidity 的动态方式：**
+
+```solidity
+interface IERC20 {
+    function transfer(address to, uint256 amount) external returns (bool);
+}
+
+contract DynamicCalls {
+    function transferTokens(address tokenAddress, address to, uint256 amount) public {
+        // 使用接口进行动态合约交互
+        IERC20 token = IERC20(tokenAddress);
+        bool success = token.transfer(to, amount);
+        require(success, "Transfer failed");
+
+        // 底层调用
+        (bool callSuccess, bytes memory data) = tokenAddress.call(
+            abi.encodeWithSignature("transfer(address,uint256)", to, amount)
+        );
+        require(callSuccess, "Call failed");
+    }
+}
+```
+
+**Leo 的静态调用：**
+
+静态调用（`call`）要求目标程序在编译时导入：
+
+```leo
+import credits.aleo;
+
+program static_calls.aleo {
+    fn transfer_credits(
+        input: credits.aleo::credits,
+        to: address,
+        amount: u64
+    ) -> (credits.aleo::credits, Final) {
+        let tuple: (credits.aleo::credits, Final) = credits.aleo::transfer_private(
+            input,
+            to,
+            amount
+        );
+
+        return (tuple.0, final { tuple.1.run(); });
+    }
+}
+```
+
+**Leo 的动态调用（[ARC-0009](https://github.com/ProvableHQ/ARCs/tree/master/arc-0009)）：**
+
+动态调用（`call.dynamic`）在运行时解析目标程序，无需编译时导入。Leo 还支持接口强制语法，实现类型安全的动态分派：
+
+```leo
+program dex.aleo {
+    // 使用接口语法在运行时调用任何 ARC-20 兼容代币
+    fn swap(
+        public token_in: identifier,
+        public token_out: identifier,
+        public amount_in: u128,
+        public amount_out: u128,
+    ) -> Final {
+        let pull: Final = ARC20@(token_in)/transfer_from_public(
+            self.signer, self.address, amount_in
+        );
+        let push: Final = ARC20@(token_out)/transfer_public(
+            self.signer, amount_out
+        );
+        return final { pull.run(); push.run(); };
+    }
+}
+```
+
+目标程序和函数名是**公开**线路输入，避免使用敏感的私密数据来选择动态调用目标。完整详情请参阅[动态分派指南](../aleo/03_language.md#dynamic-dispatch)。
+
+## 继承
+
+**Solidity 的继承系统：**
+
+```solidity
+abstract contract Animal {
+    string public name;
+
+    constructor(string memory _name) {
+        name = _name;
+    }
+
+    function speak() public virtual returns (string memory);
+}
+
+contract Dog is Animal {
+    constructor(string memory _name) Animal(_name) {}
+
+    function speak() public pure override returns (string memory) {
+        return "Woof!";
+    }
+
+    function wagTail() public pure returns (string memory) {
+        return "Wagging tail";
+    }
+}
+
+contract Cat is Animal {
+    constructor(string memory _name) Animal(_name) {}
+
+    function speak() public pure override returns (string memory) {
+        return "Meow!";
+    }
+
+    function purr() public pure returns (string memory) {
+        return "Purring";
+    }
+}
+```
+
+**Leo 的组合方式：**
+
+Leo 不像 Solidity 那样支持继承。相反，Leo 使用组合和程序导入来实现类似功能。
+
+```leo
+program animal_behaviors.aleo {
+    struct AnimalData {
+        name: field,
+        species: u8, // 1 为狗，2 为猫
+    }
+
+    fn speak(animal: AnimalData) -> field {
+        // 不同物种不同叫声
+        return animal.species == 1u8 ? 100field : 200field; // 狗: "Woof!", 猫: "Meow!"
+    }
+
+    fn species_behavior(animal: AnimalData) -> bool {
+        // 狗摇尾巴，猫打呼噜
+        return animal.species == 1u8 ? true : false; // 狗: 摇尾巴, 猫: 打呼噜
+    }
+}
+```
+
+```leo
+import animal_behaviors.aleo;
+
+program my_pets.aleo {
+    // 导入程序中的结构体必须以完全相同的成员重新定义
+    struct AnimalData {
+        name: field,
+        species: u8,
+    }
+
+    record Pet {
+        data: AnimalData,
+    }
+
+    fn create_dog(name: field) -> Pet {
+        return Pet {
+            data: AnimalData {
+                name: name,
+                species: 1u8, // 狗
+            },
+        };
+    }
+
+    fn create_cat(name: field) -> Pet {
+        return Pet {
+            data: AnimalData {
+                name: name,
+                species: 2u8, // 猫
+            },
+        };
+    }
+
+    fn make_sound(pet: Pet) -> field {
+        // 从 animal_behaviors 获取声音
+        return animal_behaviors.aleo::speak(pet.data);
+    }
+
+    fn check_behavior(pet: Pet) -> bool {
+        // 检查物种特定行为
+        return animal_behaviors.aleo::species_behavior(pet.data);
+    }
+}
+```
+
+### 抽象合约和接口
+
+**Solidity 的抽象类型：**
+
+```solidity
+// 抽象合约 — 部分函数未实现
+abstract contract Animal {
+    string public name;
+
+    constructor(string memory _name) {
+        name = _name;
+    }
+
+    function speak() public virtual returns (string memory);  // 必须被实现
+
+    function eat() public pure returns (string memory) {
+        return "Eating...";  // 默认实现
+    }
+}
+
+// 接口 — 无函数实现
+interface IERC20 {
+    function totalSupply() external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    // 所有函数必须是 external
+}
+
+contract Token is IERC20 {
+    function totalSupply() external pure override returns (uint256) {
+        return 1000000;
+    }
+
+    function transfer(address to, uint256 amount) external pure override returns (bool) {
+        return true;
+    }
+}
+```
+
+**Leo 的方式：**
+Leo 不支持 Solidity 意义上的抽象合约，但现在通过 [ARC-0009](https://github.com/ProvableHQ/ARCs/tree/master/arc-0009) 支持**接口**用于动态分派：
+
+- **无抽象合约**：不能定义部分实现的合约
+- **通过动态分派实现接口**：Leo 程序可以声明和实现命名接口（如 `ARC20`），调用者可以在运行时使用 `Interface@(program_id)/function(args)` 语法调用任何符合的程序，无需编译时导入
+- **静态调用的替代方案**：使用组合和程序导入实现模块化
+
+```leo
+// 任何实现 ARC20 的程序都可以在不导入的情况下被调用
+interface ARC20 {
+    fn transfer_public(public recipient: address, public amount: u128) -> Final;
+    // ...
+}
+
+// 在 DeFi 程序中：
+ARC20@(token_id)/transfer_public(recipient, amount);
+```
+
+### 库
+
+**Solidity 的库：**
+
+```solidity
+library SafeMath {
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+        return c;
+    }
+}
+
+contract UsingLibrary {
+    using SafeMath for uint256;
+
+    function calculate(uint256 a, uint256 b) public pure returns (uint256) {
+        return a.add(b);  // 附加到类型的库函数
+    }
+}
+```
+
+**Leo 的方式：**
+Leo 支持原生库 — 类型、常量和 `fn` 函数的可复用包，**在编译时完全内联**。库没有 transition、没有映射、没有链上足迹。使用 `leo new --lib` 创建；入口点是 `lib.leo`：
+
+```leo
+// lib.leo  （包：math）
+const OVERFLOW_GUARD: u64 = 0u64;
+
+fn safe_add(a: u64, b: u64) -> u64 {
+    let result: u64 = a + b;
+    assert(result >= a);  // 检查溢出
+    return result;
+}
+```
+
+在 `program.json` 中声明：
+
+```json
+{
+  "program": "using_library.aleo",
+  "dependencies": [{ "name": "math", "location": "local", "path": "../math" }]
+}
+```
+
+然后通过库名作为命名空间访问所有库项目 — 不需要 `import` 语句：
+
+```leo
+program using_library.aleo {
+    fn calculate(a: u64, b: u64) -> u64 {
+        return math::safe_add(a, b);
+    }
+}
+```
+
+编译器内联每个调用并折叠所有常量。生成的字节码不包含 `math` 的任何痕迹。
+
+**关键差异：**
+
+- **无委托**：Leo 不支持在当前上下文中执行外部代码
+- **无类型附加**：不能像 Solidity 的 `using` 指令那样将函数附加到类型
+- **编译时内联**：Leo 库在编译时完全解析 — 无跨程序调用开销、无 ABI 边界、无链上部署
+- **库与程序**：库（`lib.leo`）包含共享工具和数据结构；程序（`.aleo`）包含 transition、映射和链上状态
+
+|                         | **库**        | **程序** |
+| ----------------------- | ------------- | -------- |
+| 编译为字节码            | 否 — 完全内联 | 是       |
+| 结构体（含 const 泛型） | ✓             | ✓        |
+| 常量                    | ✓             | ✓        |
+| 函数                    | 仅 `fn`       | 所有变体 |
+| 映射 / 存储             | —             | ✓        |
+| 部署在链上              | 否            | 是       |
+
+## 事件和日志
+
+**Solidity 的事件系统：**
+
+```solidity
+contract EventExample {
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Debug(string message, uint256 value);
+
+    function transfer(address to, uint256 amount) public {
+        // 发出事件用于外部监控
+        emit Transfer(msg.sender, to, amount);
+        emit Debug("Transfer executed", amount);
+    }
+}
+```
+
+**Leo 的限制：**
+Leo 不支持事件或日志：
+
+- **无事件**：不能发出事件用于外部监控
+- **无日志**：没有内置日志功能
+- **替代方案**：使用程序输出或外部状态跟踪进行监控
+- **最佳实践**：在注释中记录重要的状态变更
+
+## ABI 编码和解码
+
+**Solidity 的 ABI 函数：**
+
+```solidity
+contract ABIExample {
+    function encodeData(uint256 value, string memory text) public pure returns (bytes memory) {
+        return abi.encode(value, text);
+    }
+
+    function encodePacked(uint256 a, uint256 b) public pure returns (bytes memory) {
+        return abi.encodePacked(a, b);
+    }
+
+    function decodeData(bytes memory data) public pure returns (uint256, string memory) {
+        return abi.decode(data, (uint256, string));
+    }
+}
+```
+
+**Leo 的限制：**
+Leo 没有 ABI 编码/解码功能：
+
+- **无 bytes 类型**：Leo 不支持 ABI 操作所需的 `bytes` 类型
+- **无动态编码**：不能动态编码/解码复杂数据结构
+- **替代方案**：使用固定大小数据结构，必要时手动序列化
+- **静态调用**：所有跨程序调用使用静态定义的接口
+
+## 合约创建和动态部署
+
+**Solidity 的合约创建：**
+
+```solidity
+contract Factory {
+    function createContract(uint256 initialValue) public returns (address) {
+        // 使用构造函数参数创建新合约
+        MyContract newContract = new MyContract(initialValue);
+        return address(newContract);
+    }
+
+    function createWithSalt(uint256 initialValue, bytes32 salt) public returns (address) {
+        // 使用 CREATE2 创建确定性地址
+        MyContract newContract = new MyContract{salt: salt}(initialValue);
+        return address(newContract);
+    }
+}
+```
+
+**Leo 的限制：**
+Leo 程序不能创建新程序：
+
+- **无动态创建**：程序不能部署其他程序
+- **静态部署**：所有程序必须通过外部工具部署
+- **无 CREATE2**：无确定性地址生成，但 Aleo 上的程序已有开发者定义的人类可读名称
+- **固定架构**：程序关系必须在部署时建立
+
+:::info
+CREATE2 是 Solidity 中用于确定性计算创建合约地址的特殊操作码，请参阅 [Solidity 文档](https://docs.soliditylang.org/en/v0.8.30/control-structures.html#salted-contract-creations-create2) 了解更多信息。
+:::
+
+## 作用域规则
+
+**Solidity 和 Leo 的相似性：**
+两种语言遵循相似的作用域规则：
+
+```solidity
+// Solidity
+contract ScopeExample {
+    uint256 globalVar = 100;
+
+    function scopeDemo() public view returns (uint256) {
+        uint256 localVar = 200;
+        {
+            uint256 blockVar = 300;
+            return globalVar + localVar + blockVar;  // 全部可访问
+        }
+        // blockVar 在此处不可访问
+        return globalVar + localVar;
+    }
+}
+```
+
+```leo
+// Leo
+program scope_example.aleo {
+    fn scope_demo() -> u32 {
+        let local_var: u32 = 200u32;
+
+        {
+            let block_var: u32 = 300u32;
+            local_var = local_var + block_var;  // 两者都可访问
+        }
+
+        // block_var 在此处不可访问
+        return local_var;
+    }
+}
+```
+
+**关键相似性：**
+
+- 变量从声明处到其包含的 `{}` 块结束都可见
+
+## 内联汇编
+
+**Solidity 的内联汇编：**
+
+```solidity
+contract AssemblyExample {
+    function efficientHash(uint256 a, uint256 b) public pure returns (uint256 result) {
+        assembly {
+            let hash := keccak256(add(a, b), 0x40)
+            result := hash
+        }
+    }
+}
+```
+
+**Leo 的限制：**
+Leo 不支持内联汇编：
+
+- **无类 Yul 集成**：不能插入低级汇编代码
+- **独立 IR**：Aleo 指令作为独立语言存在，不能嵌入 Leo 中。
+- **独立程序**：Aleo 指令可以作为独立程序编写在 `.aleo` 文件中，实现对程序执行和线路设计的细粒度低级控制。有关 Aleo 指令的更多详情，请参阅 [Aleo 指令概述](../../guides/aleo/00_aleo_overview.md)。

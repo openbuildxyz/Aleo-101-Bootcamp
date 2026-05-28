@@ -1,7 +1,26 @@
 ---
-title: Comparison Table
+title: 对照表
 ---
 
-# Comparison Table
+# 对照表
 
-Coming soon.
+**Leo**（Aleo）与 **Solidity**（Ethereum/EVM）的并排对比。
+
+| 特性 | Leo | Solidity |
+|------|-----|----------|
+| **执行模型** | 链下执行 + 链上证明验证，链上执行为可选项 | 完全链上执行 |
+| **状态模型** | 公开的键值 `mapping` 存储与私有的 `record` 存储 | 键值合约 `storage`、临时 `transient` 存储、临时 `memory` 以及只读 `calldata` |
+| **隐私性** | 内置隐私，支持私有输入（消息）、私有输出（状态变更）以及私有用户身份 | 无隐私保护——所有状态和 calldata 均公开 |
+| **执行成本** | 存储费用 + finalize 费用（基于指令的链上计算费用） | 基于操作码的 Gas 费用 |
+| **支持的类型** | `bool`、`u8…u128`、`i8…i128`，以及 `field`、`group`、`scalar`；不支持 `bytes`、动态数组和 `string` | `bool`、`(u)int8…256`、`bytes`、动态数组、`string` 等 |
+| **开发工具** | leo CLI、Leo 调试器、IDE 插件、DokoJS、Amareleo | Hardhat、Foundry、Remix、Truffle 等 |
+| **随机数** | ChaCha 随机函数 | 依赖第三方链下预言机（如 Chainlink VRF） |
+| **错误处理** | `assert`、`assert_eq`、`assert_neq`（不支持自定义错误信息） | `assert`、`require`、`revert`，`revert` 可附带自定义回滚说明 |
+| **调用类型** | 通过 ARC-0009 支持静态调用（`call`）和动态调用（`call.dynamic`） | 动态调用 |
+| **内置函数** | `block.height`、`block.timestamp`、`self.signer`、`self.caller`、`self.address`、`network.id`、`signature::verify`、`group::GEN`、`aleo::GENERATOR`、`aleo::GENERATOR_POWERS`、BHP 哈希与承诺、Keccak 哈希、Pedersen 哈希与承诺、Poseidon 哈希、SHA3 哈希等 | `keccak256`、`sha256`、`ripemd160`、`ecrecover`、`address.`（成员函数）、`abi.encode`、`abi.decode`、`block.`（元数据）等 |
+| **Token 标准** | ARC-21（现行）、ARC-20 / ARC-22（草案） | ERC-20 |
+| **NFT 标准** | ARC-721 | ERC-721 |
+| **可升级性** | 即将通过 ARC-6 推出原生合约升级 | 通过代理模式实现（Transparent、UUPS、Beacon） |
+| **区块浏览器** | Provable Explorer（测试版）、VXB.ai（原 Aleo123.io）、Aleoscan 等 | Etherscan、Blockscout 等 
+
+

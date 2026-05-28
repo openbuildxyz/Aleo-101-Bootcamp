@@ -1,0 +1,6 @@
+{
+    "program": "credential.aleo",
+    "version": "0.0.1",
+    "description": "Private Credential Vault - 隐私凭证保险库",
+    "license": "MIT"
+}

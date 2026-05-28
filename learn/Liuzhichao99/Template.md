@@ -1,0 +1,6 @@
+- 昵称：Theo
+- GitHub 用户名：Liuzhichao99
+- 微信：Theo_Liu_Dec
+- Aleo 钱包地址：aleo1c46ulvvagk05zck6zy2ujcgtddhu95zf52q6p2273tpu30sdqsqs87c6v4
+- 技术栈：Web3开发、区块链、零知识证明
+- 自我介绍：对隐私计算和零知识证明技术有浓厚兴趣，希望通过Aleo Bootcamp系统学习隐私应用开发，为Web3隐私赛道贡献力量。

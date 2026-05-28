@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task3 - Leo Real Execution Demo</title>
+  <style>
+    :root {
+      --bg: #f7f4ee;
+      --card: #fffdfa;
+      --text: #1e293b;
+      --muted: #64748b;
+      --accent: #0f766e;
+      --accent-2: #14b8a6;
+      --line: #e2e8f0;
+      --danger: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, #d1fae5 0%, transparent 35%),
+        radial-gradient(circle at 85% 90%, #bfdbfe 0%, transparent 35%),
+        var(--bg);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(760px, 100%);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p { margin: 0 0 16px; color: var(--muted); line-height: 1.6; font-size: 14px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+      font-size: 15px; outline: none; background: #fff;
+    }
+    input:focus { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15); }
+    .actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+    button {
+      border: 0; border-radius: 10px; padding: 10px 14px; font-size: 14px; cursor: pointer;
+    }
+    .primary { background: var(--accent); color: #fff; }
+    .ghost { background: #e2e8f0; color: #0f172a; }
+    .result {
+      margin-top: 16px; padding: 14px; border: 1px dashed #94a3b8; border-radius: 10px;
+      background: #f8fafc; font-size: 14px; line-height: 1.6; white-space: pre-wrap;
+    }
+    .error { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Leo Real Execution Demo</h1>
+    <p>
+      这个页面不再做前端假计算，而是调用本地后端接口，后端执行
+      <span class="mono">leo run private_add a b</span> 并返回真实输出。
+    </p>
+
+    <div class="grid">
+      <div>
+        <label for="apiBase">后端地址</label>
+        <input id="apiBase" value="http://127.0.0.1:8787" />
+      </div>
+      <div>
+        <label for="a">输入 a (u32)</label>
+        <input id="a" type="number" value="7" min="0" />
+      </div>
+      <div>
+        <label for="b">输入 b (u32)</label>
+        <input id="b" type="number" value="11" min="0" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="ghost" id="healthBtn">检查后端</button>
+      <button class="primary" id="runBtn">真实执行 Leo</button>
+      <button class="ghost" id="resetBtn">重置</button>
+    </div>
+
+    <div class="result" id="result">等待执行...</div>
+  </main>
+
+  <script>
+    const apiBaseEl = document.getElementById('apiBase');
+    const aEl = document.getElementById('a');
+    const bEl = document.getElementById('b');
+    const healthBtn = document.getElementById('healthBtn');
+    const runBtn = document.getElementById('runBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const resultEl = document.getElementById('result');
+
+    function base() {
+      return apiBaseEl.value.trim().replace(/\/$/, '');
+    }
+
+    function setText(text, isError = false) {
+      resultEl.textContent = text;
+      resultEl.classList.toggle('error', isError);
+    }
+
+    async function checkHealth() {
+      setText('检查中...');
+      try {
+        const r = await fetch(base() + '/health');
+        const j = await r.json();
+        if (!r.ok || !j.ok) {
+          setText('后端不可用: ' + JSON.stringify(j, null, 2), true);
+          return;
+        }
+        setText('后端正常\n' + JSON.stringify(j, null, 2));
+      } catch (e) {
+        setText('无法连接后端: ' + e.message, true);
+      }
+    }
+
+    async function runLeo() {
+      const a = Number(aEl.value);
+      const b = Number(bEl.value);
+
+      if (!Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b < 0) {
+        setText('请输入非负整数。', true);
+        return;
+      }
+
+      setText('执行中，请稍候...');
+      try {
+        const r = await fetch(base() + '/api/private-add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ a, b })
+        });
+        const j = await r.json();
+
+        if (!r.ok || !j.ok) {
+          setText('执行失败\n' + JSON.stringify(j, null, 2), true);
+          return;
+        }
+
+        const resultLine = j.result ? ('result = ' + j.result) : 'result 未解析到，请看 stdout';
+        setText(
+          '执行成功\n' +
+          'transition: ' + j.transition + '\n' +
+          'inputs: ' + j.inputs.join(', ') + '\n' +
+          resultLine + '\n\n' +
+          'stdout:\n' + (j.stdout || '(empty)') + '\n' +
+          'stderr:\n' + (j.stderr || '(empty)')
+        );
+      } catch (e) {
+        setText('请求失败: ' + e.message, true);
+      }
+    }
+
+    function reset() {
+      aEl.value = '7';
+      bEl.value = '11';
+      setText('等待执行...');
+    }
+
+    healthBtn.addEventListener('click', checkHealth);
+    runBtn.addEventListener('click', runLeo);
+    resetBtn.addEventListener('click', reset);
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "program": "private_calc.aleo",
+  "version": "0.0.1",
+  "description": "Task3 private add demo",
+  "license": "MIT",
+  "dependencies": []
+}

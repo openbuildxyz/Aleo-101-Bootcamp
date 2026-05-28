@@ -1,0 +1,6 @@
+- 昵称：Kaylia   
+- GitHub 用户名：   RubySeven7
+- 微信： 19830518493
+- Aleo 钱包地址： aleo10clssauhxly4hx8k0vk4eezaaz484ptyukmcknjgh6rdj0ja9v8sl3kc5u (不明白的可以学完基础知识后再填，参考 [Shield Wallet 指南](Shield_Wallet_guide.md))
+- 技术栈：  Rust智能合约
+- 自我介绍：   大家好，我是Kaylia，之前是芯片系统测试工程师，目前主攻AI+智能合约，目前正在往agent、合约安全发展，我的行业领域跨度很大，欢迎大家来玩

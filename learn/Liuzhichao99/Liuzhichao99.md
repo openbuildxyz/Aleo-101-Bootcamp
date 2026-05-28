@@ -1,0 +1,6 @@
+- 昵称：Theo
+- GitHub 用户名：Liuzhichao99
+- 微信：Theo_Liu_Dec
+- Aleo 钱包地址：aleo1c46ulvvagk05zck6zy2ujcgtddhu95zf52q6p2273tpu30sdqsqs87c6v4
+- 技术栈：Rust, TypeScript, Python
+- 自我介绍：对Web3和隐私计算感兴趣的开发者

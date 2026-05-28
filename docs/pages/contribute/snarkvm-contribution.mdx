@@ -1,7 +1,52 @@
----
-title: SnarkVM Contribution
----
+# SnarkVM 贡献指南
 
-# SnarkVM Contribution
+本指南详述了更新 snarkVM 并将这些变更传播到 Aleo 网络所需的步骤。
 
-Coming soon.
+## 分支概览[​](#branches-overview "Direct link to Branches Overview")
+
+[**staging 分支**](https://github.com/AleoNet/snarkVM)
+
+*   该分支作为集成和初步测试变更的暂存环境，在将变更推升到主网分支之前使用。
+
+[**mainnet 分支**](https://github.com/AleoNet/snarkVM/tree/mainnet)
+
+*   生产环境分支，仅合并经过充分验证的稳定变更。它直接镜像通过验证的 staging 分支。用于创建生产版本发布。
+
+## snarkVM 拉取请求（PR）的影响[​](#implications-of-a-snarkvm-pull-request-pr "Direct link to Implications of a snarkVM Pull Request (PR)")
+
+*   当新的 PR 合并到 snarkVM 的 staging 分支时，snarkOS 也必须更新以反映更新后的 snarkVM 依赖。这需要为 snarkOS 创建单独的 PR，确保通过 snarkOS 贡献指南中指定的所有检查。
+*   在某些情况下，snarkVM PR 可能在 snarkOS 中有对应的"姊妹 PR"，这对 snarkOS 的成功编译是必需的。始终检查 PR README 中是否有"姊妹 PR"字样。
+
+## snarkVM PR 的审核与合并流程[​](#review-and-merge-process-for-snarkvm-prs "Direct link to Review and Merge Process for snarkVM PRs")
+
+**1. 审核 snarkVM PR：**
+
+*   仔细审核 snarkVM 的 PR，考虑其状态和任何评论。
+
+**2. 在 snarkVM PR 上运行 CI：**
+
+*   执行持续集成（CI）以验证已审核的 PR。
+
+**3. 检出并推送 snarkVM 分支：**
+
+*   检出相关的 snarkVM 分支并将其推送到仓库。
+
+**4. 合并 snarkVM PR：**
+
+*   合并已审核并获得批准的 snarkVM PR。
+
+## 创世块和参数重新生成[​](#genesis-block-and-parameter-re-generation "Direct link to Genesis Block and Parameter Re-generation")
+
+*   重新生成创世块和参数：
+    *   要确定参数是否需要重新生成和上传，运行位于 snarkVM/parameters/scripts/ 中的脚本。
+    *   运行脚本后，执行 git status。如果未检测到任何变更（git diff），则无需上传任何内容。
+    *   首次使用参数 CDN：
+        *   如果这是首次使用参数 CDN，还需上传 .usrs 文件。这些文件是固定的，不会在 git diff 中显示任何变更，但必须存在于参数 CDN 中。
+    *   重新采样创世块：
+        *   您可能需要使用 snarkup 工具重新采样创世块。
+
+## 更新 snarkOS 以引用最新的 snarkVM 提交[​](#update-snarkos-to-reference-the-latest-snarkvm-commit "Direct link to Update snarkOS to Reference the Latest snarkVM Commit")
+
+*   创建 snarkOS PR：
+    *   为 snarkOS 创建 PR，更新 Cargo.toml 和 Cargo.lock 文件以指向最新的 snarkVM 提交哈希。
+    *   遵循 snarkOS 贡献指南中列出的流程以确保适当的集成。

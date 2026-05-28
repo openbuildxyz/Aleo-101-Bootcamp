@@ -1,7 +1,110 @@
----
-title: SnarkOS Contribution
----
+# SnarkOS 贡献指南
 
-# SnarkOS Contribution
+本清单提供了使用合并的新功能重启 Aleo 网络的分步指南。遵循这些步骤以确保流程顺利进行。
 
-Coming soon.
+## 分支概览[​](#branches-overview "Direct link to Branches Overview")
+
+[**staging 分支**](https://github.com/AleoNet/snarkOS)
+
+*   该分支作为集成和初步测试变更的暂存区域，在将变更推升到主网分支之前使用。
+
+[**mainnet 分支**](https://github.com/AleoNet/snarkOS/tree/mainnet)
+
+*   生产环境分支，仅合并经过充分验证的稳定变更。用于创建生产版本发布。始终是某个 staging 提交的直接镜像。
+
+## 网络概览[​](#networks-overview "Direct link to Networks Overview")
+
+### 开发网络（DevNet）[​](#devnets "Direct link to DevNet(s)")
+
+*   初步提议的变更在开发网络上实现和测试。
+*   Snarkops — 旨在为 SnarkOS 管理和参与 ANF 的 CanaryNet 提供指南和脚本。
+
+### CanaryNet（运行 staging 分支）[​](#canarynet-running-staging-branch "Direct link to CanaryNet (running staging branch)")
+
+*   变更从开发网络合并到 CanaryNet 进行测试和验证。
+*   CanaryNet 用于在可能将验证者绑定到测试网 Beta 版/主网之前进行额外验证者的启用。
+*   验证者由 ANF 绑定。
+*   snarkOS GitHub 标签标准：`canary-v*`。[查看标签](https://github.com/AleoNet/snarkOS/tags)。
+*   [CanaryNet 浏览器](https://vision.snarkos.net/?blocks)
+
+### 测试网 Beta 版（运行 mainnet 分支）[​](#testnet-beta-running-mainnet-branch "Direct link to Testnet Beta (running mainnet branch)")
+
+*   开放的公共网络，用于在类似生产的环境中测试应用程序而无需产生成本。
+*   验证者由 Aleo 网络基金会绑定。
+*   ANF 和 Provable 最初运行验证者。
+*   Demox Labs 和 Puzzle 运行公共水龙头。
+*   snarkOS GitHub 标签标准：`testnet-beta-v*` [查看标签](https://github.com/AleoNet/snarkOS/tags)。
+*   [测试网 Beta 版浏览器](https://vision.snarkos.net/?blocks)
+
+### 主网（运行 mainnet 分支）[​](#mainnet-running-mainnet-branch "Direct link to Mainnet (running mainnet branch)")
+
+*   完整生产部署前的最后测试阶段。
+*   旨在成为新代码和/或验证者启用的"最后一站"。
+*   将与测试网 Beta 版并行运行，直至成为规范主网。
+*   snarkOS GitHub 标签标准：`mainnet-v*` [查看标签](https://github.com/AleoNet/snarkOS/tags)。
+*   [主网浏览器](https://vision.snarkos.net/?blocks)
+
+## 贡献工作流[snarkOS][​](#contribution-workflow--snarkos- "Direct link to Contribution Workflow [ snarkOS ]")
+
+![snarkOS 贡献流程图](https://developer.aleo.org/assets/images/snarkos_contribute_flow-27e629c71a985fe466be9b5817a74c0f.png)
+
+**1. Fork 仓库**
+
+*   从 staging 分支 Fork 仓库到自己的 GitHub 账户。
+*   在本地克隆 Fork 后的仓库。
+
+```
+git clone git@github.com:AleoNet/snarkOS.gitgit remote add upstream git@github.com:AleoNet/snarkOS.git
+```
+
+**2. 切换到基础分支**
+
+```
+git switch staging
+```
+
+**3. 创建功能分支**
+
+*   从 Fork 仓库的主分支创建功能分支。
+
+```
+git checkout -b feat/my-branch
+```
+
+**4. 开发你的功能/修复并测试**
+
+*   在 Fork 的仓库中开发你的功能或修复。
+*   运行 `./snarkOS/devnet.sh`
+*   确保批准重新安装 snarkOS 二进制文件的选项，这样你可以使用当前本地的 snarkOS 代码进行测试。
+*   查看网络是否正常生成区块，发送一些交易以进一步确认网络稳定性。
+*   运行针对你的功能/修复的任何特定测试。
+
+**5. 推送代码到功能分支**
+
+*   提交包含有意义的提交信息的变更，清楚地描述变更及其目的。
+*   推送变更到你的 Fork。
+
+```
+git add .git commit -m "Add detailed description of the changes"git push
+```
+
+**6. 提交 PR 到 Fork 的主分支**
+
+*   从功能分支提交拉取请求（PR）到 Fork 仓库的主分支。
+*   这将触发 Fork 中的 CI 流程管道以运行自动化测试。
+
+**7. 内部代码审核**
+
+*   在 Fork 仓库内向团队请求内部代码审核。
+*   团队成员审核代码、提出建议，如果符合质量标准则批准 PR。
+*   CI 流程管道再次运行以确保在审核过程中未引入新问题。
+
+**8. 提交 PR 到主 AleoNet/snarkOS 仓库**
+
+*   获得内部批准后，从 Fork 的主分支向主 AleoNet/snarkOS 仓库的 staging 分支提交 PR。
+*   这将触发主 CI 流程管道运行所有相关测试和检查，再次确保代码的稳定性和兼容性。
+
+**9. 核心团队审核**
+
+*   核心团队成员在主 AleoNet/snarkOS 仓库中审核 PR。
+*   如果 CI 流程管道通过且审核成功，PR 将被批准。

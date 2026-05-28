@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Private Allocation Proof</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="card">
+        <p class="eyebrow">Aleo 101 Bootcamp · Task 3</p>
+        <h1>Private Allocation Proof</h1>
+        <p class="intro">
+          一个受 ZKGames“公开规则、隐藏策略”启发的 Aleo 小 demo：玩家私下把 10 点资源分配到
+          Scout / Shield / Research，Leo 程序证明分配没有超预算，但不公开完整策略。
+          同一模式也可映射到贷款预审、暗标竞价、供应商准入和企业预算。
+        </p>
+
+        <div class="wallet-box">
+          <div>
+            <span class="label">钱包状态</span>
+            <strong id="walletStatus">未连接</strong>
+          </div>
+          <button id="connectBtn">连接演示钱包</button>
+        </div>
+
+        <form id="allocationForm" class="allocation-form">
+          <label for="address">Owner Aleo 地址</label>
+          <input
+            id="address"
+            name="address"
+            spellcheck="false"
+            value="aleo1gddjky60sr43w3mts7zqpjztekylkhzgtfaua8ys870h7x75hsrqgvkrnk"
+          />
+
+          <fieldset>
+            <legend>私有资源分配，总预算 ≤ 10</legend>
+            <div class="grid-inputs">
+              <label>
+                Scout 侦察
+                <input type="number" name="scout" min="0" max="10" value="4" />
+              </label>
+              <label>
+                Shield 防御
+                <input type="number" name="shield" min="0" max="10" value="3" />
+              </label>
+              <label>
+                Research 研究
+                <input type="number" name="research" min="0" max="10" value="3" />
+              </label>
+            </div>
+            <p class="budget" id="budgetText">Budget: 10 / 10</p>
+          </fieldset>
+
+          <label for="lane">选择性公开一个 lane</label>
+          <select id="lane" name="lane">
+            <option value="1">Scout</option>
+            <option value="2">Shield</option>
+            <option value="3">Research</option>
+          </select>
+
+          <button type="submit" class="primary">生成 Aleo 证明调用预览</button>
+        </form>
+
+        <section class="result">
+          <span class="label">交互结果</span>
+          <pre id="resultBox">请先连接钱包并生成一次 private allocation proof。</pre>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

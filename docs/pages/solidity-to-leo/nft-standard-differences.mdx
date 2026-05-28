@@ -1,7 +1,371 @@
 ---
-title: NFT Standard Differences
+title: NFT 标准差异对比
 ---
 
-# NFT Standard Differences
+# NFT 标准差异对比
 
-Coming soon.
+## 简介
+
+ERC-721 是以太坊上非同质化代币（NFT）的标准协议，但其所有状态（所有者、元数据、价格）均公开可见。
+
+ARC-721 是 Aleo 平台上以 Leo 语言实现的 NFT 变体标准，在保持与 ERC-721 相同操作体验的同时，允许开发者自主选择哪些部分保持私密、哪些部分存储在链上。该标准源自 [ARC-721 提案](https://github.com/ProvableHQ/ARCs/discussions/79)，并通过 [Aleo 治理平台](https://vote.aleo.org/p/721)的社区投票正式获批。ARC-721 充分利用 Aleo 独特的隐私特性，相较于 ERC-721 提供了更强大的功能。例如，ARC-721 中的每个 NFT 都具备两套独立的隐私控制机制：一套用于控制所有权的可见性，另一套用于控制 NFT 数据本身的可见性，两者均支持灵活配置。有关 NFT 标准及实现细节的更多信息，请参阅 [NFT 标准文档](../standard-programs/nft_standards.mdx)。
+
+Aleo 上的程序可组合性（Program Composability）历史上依赖中央注册表模式（类似同质化代币所使用的 [代币注册表程序](../standard-programs/token_registry.mdx)）。随着[动态分发机制（ARC-0009）](https://github.com/ProvableHQ/ARCs/tree/master/arc-0009)的正式落地，程序无需在编译期导入即可在运行时调用其他程序，从而为更灵活的 NFT 可组合性模式打开了大门。目前有一个拟议中的 [NFT 注册表程序（ARC-722）](https://github.com/ProvableHQ/ARCs/discussions/80)，旨在以 `(registry_program_id, collection_id)` 键值对来标识各 NFT 系列，并作为中央枢纽使用，但该提案仍处于讨论阶段，尚未进行投票或正式批准。
+
+## 快速对比一览
+
+| 功能                     | **ERC-721（以太坊）**              | **ARC-721（Aleo）**                                                                                            |
+| ------------------------ | ---------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **所有者可见性**         | 始终公开                           | 可选 —— 私有记录（record）*或*公开映射（mapping）                                                              |
+| **元数据可见性**         | 发布内容完全可见                   | 私密、公开或混合（链上/链下混合存储）                                                                          |
+| **唯一标识符**           | 递增的 `tokenId uint256`           | 承诺值（Commitment）：`field = hash(data) ⊕ edition`（不透明）                                                 |
+| **转移函数**             | `transferFrom`、`safeTransferFrom` | `transfer_private`、`transfer_private_to_public`、`transfer_public_as_signer`、`transfer_public_to_private`    |
+| **授权机制**             | `approve`、`setApprovalForAll`     | `approve_public`、`set_for_all_approval`                                                                        |
+| **私密销毁与重铸**       | 无法实现，必留链上痕迹             | `update_edition_private` 可重新混淆承诺值                                                                       |
+
+## 架构差异
+
+### 状态管理
+
+**ERC-721**
+```solidity
+contract ERC721 {
+    // 代币名称
+    string private _name;
+
+    // 代币符号
+    string private _symbol;
+
+    // tokenId => 所有者地址的映射
+    mapping(uint256 => address) private _owners;
+
+    // 所有者地址 => 持有数量的映射
+    mapping(address => uint256) private _balances;
+
+    // tokenId => 被授权地址的映射
+    mapping(uint256 => address) private _tokenApprovals;
+}
+```
+
+**ARC-721**
+
+以下是 ARC-721 NFT 程序的示例数据结构，使用 `record`（记录）作为私有存储，使用 `mapping`（映射）作为公开存储。结构体的名称不必与 `data`、`attribute` 完全一致，这样可以导入多个 NFT 系列程序而不会产生命名冲突：
+
+```leo
+record NFT {
+    private owner: address,   // 未披露时不可见
+    private data: data,       // 链上结构体（可映射链下 JSON）
+    private edition: scalar,  // 用于混淆，将 NFT 承诺值存储在链上
+}
+
+// 即使所有权公开，NFT 数据始终保持私密并存储在 NFTView 中
+// is_view 始终为 true，用于在记录的明文表示中区分 NFTView 与 NFT
+record NFTView {
+    private owner: address,
+    private data: data,
+    private edition: scalar,
+    public is_view: bool
+}
+
+// 示例属性结构体（可选）
+struct attribute {
+    trait_type: [field; 4],
+    _value: [field; 4],
+}
+
+struct data {
+    metadata: [field; 4], // 链下元数据 JSON 的 URI
+    // （可选）name: [field; 4],
+    // （可选）image: [field; 16],
+    // （可选）attributes: [attribute; 4],
+    // （可选）...
+}
+
+// 所有权公开时的链上 NFT 数据存储
+struct nft_content {
+    data: data,
+    edition: scalar
+}
+mapping nft_contents: field => nft_content; // commit(data, edition) => (data, edition)
+
+// 授权数据结构
+struct Approval {
+    collection_id: field,
+    approver: address,
+    spender: address,
+}
+mapping for_all_approvals: field => bool     // 授权哈希 => 布尔值
+mapping nft_approvals:     field => field    // 承诺值 => 授权哈希
+```
+
+### 字符串管理
+
+由于 Leo 语言没有原生字符串类型，字符串通过 `field`（域元素）数组来管理（如上文 [ARC-721 数据结构](#状态管理) 中的 `attribute` 和 `data` 结构体所示）。
+
+Leo 字符串管理的要点：
+- 数组长度可根据所需最大字符数灵活调整
+- 使用 `field` 而非 `u128`，原因是在相同约束条件下，`field` 能存储约两倍的数据量
+- 此方案特别适用于在 NFT 中存储元数据 URI 及其他字符串数据
+- 对于 JavaScript/TypeScript 应用，ARC-721 实现中提供了示例[工具函数](https://github.com/zsociety-io/aleo-standard-programs/blob/main/arc721/utils/strings.js)，用于在 JavaScript 字符串与 Aleo 明文之间进行转换
+
+### NFT 标识符
+
+**ERC-721**
+
+在 ERC-721 中，NFT 通过简单的递增 `uint256 tokenId` 来标识。
+
+**ARC-721**
+
+ARC-721 使用 NFT 承诺值（Commitment）来唯一标识每个 NFT：
+
+```leo
+mapping nft_commits: field => bool; // NFT 承诺值 => NFT 是否存在或曾经存在
+
+fn commit_nft(
+    nft_data: data,
+    nft_edition: scalar
+) -> field {
+    let data_hash: field = BHP256::hash_to_field(nft_data);
+    let commitment: field = BHP256::commit_to_field(data_hash, nft_edition);
+    return commitment;
+}
+```
+
+### NFT 创建与结构
+
+**ERC-721**
+
+ERC-721 提供标准的铸造函数，并支持自定义扩展。
+
+```solidity
+contract MyNFT is ERC721 {
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
+    
+    function mint(address to, uint256 tokenId) public {
+        _mint(to, tokenId);
+    }
+}
+```
+
+**ARC-721**
+
+由于 NFT 程序由开发者自行部署，ARC-721 在自定义 NFT 创建逻辑方面更加灵活。标准实现包含多个支持不同隐私模式的铸造函数：
+
+```leo
+// 铸造私有 NFT
+// 返回代表所有权并包含 NFT 数据的 NFT 记录
+fn mint_private(
+    admin_nft: nft_records.aleo::NFT,
+    private recipient: address,
+    private nft_data: Data,
+    private nft_edition: scalar,
+) -> (nft_records.aleo::NFT, Final)
+
+// 铸造私有 NFT，在结算（finalization）阶段公开验证管理员权限
+// 返回代表所有权并包含 NFT 数据的 NFT 记录
+fn mint_private_as_public(
+    private recipient: address,
+    private collection_id: field,
+    private nft_data: Data,
+    private nft_edition: scalar,
+) -> (nft_records.aleo::NFT, Final)
+
+// 铸造公开 NFT，以私有管理员身份作为授权凭证
+// 返回包含私有 NFT 数据的 NFTView 记录，所有权公开存储在链上
+fn mint_public_as_private(
+    admin_nft: nft_records.aleo::NFT,
+    public recipient: address,
+    private nft_data: Data,
+    private nft_edition: scalar,
+) -> (nft_records.aleo::NFTView, Final)
+
+// 铸造公开 NFT
+// 返回包含私有 NFT 数据的 NFTView 记录，所有权公开存储在链上
+fn mint_public(
+    public recipient: address,
+    public collection_id: field,
+    private nft_data: Data,
+    private nft_edition: scalar,
+) -> (nft_records.aleo::NFTView, Final)
+
+// 将 NFT 数据公开发布
+fn publish_nft_content(
+    public nft_data: Data,
+    public nft_edition: scalar,
+) -> Final
+```
+
+### 转移机制
+
+**ERC-721**
+```solidity
+function transferFrom(address from, address to, uint256 tokenId) public
+function safeTransferFrom(address from, address to, uint256 tokenId) public
+```
+
+**ARC-721**
+```leo
+// 私有转移
+fn transfer_private(
+    private nft: NFT,
+    private to: address,
+) -> NFT
+
+// 由函数调用者（msg.sender）发起的公开转移
+fn transfer_public(
+    private nft_data: data,
+    private nft_edition: scalar,
+    public to: address,
+) -> (NFTView, Final)
+
+// 由交易签名者（tx.origin）发起的公开转移
+fn transfer_public_as_signer(
+    private collection_id: field,
+    private nft_data: Data,
+    private nft_edition: scalar,
+    public recipient: address,
+) -> (NFTView, Final)
+
+// 由已授权的代花费者（spender）发起的公开转移
+fn transfer_from_public(
+    public from: address,
+    public to: address,
+    private nft_data: data,
+    private nft_edition: scalar,
+) -> (NFTView, Final)
+
+// 将私有 NFT 所有权转换为公开 NFT 所有权
+fn transfer_private_to_public(
+    nft: nft_records.aleo::NFT,
+    public recipient: address,
+) -> (nft_records.aleo::NFTView, Final)
+
+// 将公开 NFT 所有权转换为私有 NFT 所有权
+fn transfer_public_to_private(
+    private nft_data: data,
+    private nft_edition: scalar,
+    private to: address,
+) -> (NFT, Final)
+
+// 由已授权的发送者将公开 NFT 所有权转换为私有 NFT 所有权
+fn transfer_from_public_to_private(
+    private collection_id: field,
+    public from: address,
+    public recipient: address,
+    private nft_data: Data,
+    private nft_edition: scalar,
+) -> (NFT, Final)
+```
+
+#### 转移流程对比
+
+| **转移模式**            | **ERC-721（Solidity）**             | **ARC-721（Leo）**                                                                                       | **隐私级别**                                                   |
+| ----------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **私有 → 私有**         | ❌ 不支持                            | `transfer_private`                                                                                       | 完全私密，链上无任何痕迹                                       |
+| **私有 → 公开**         | ❌ 不支持                            | `transfer_private_to_public`                                                                             | 所有权变为可见，数据仍在 `NFTView` 中保持私密                  |
+| **公开 → 公开**         | `transferFrom` / `safeTransferFrom` | `transfer_public`（通过 `self.caller`）<br />`transfer_public_as_signer`（通过 `self.signer`）          | 与 ERC-721 行为一致，灵活性更高                                |
+| **公开 → 私有**         | ❌ 不支持                            | `transfer_public_to_private`<br />`transfer_from_public_to_private`                                     | 所有权变为私密，资产从公开注册表中消失                         |
+| **公开（代花费者操作）** | 通过 `approve()` 的 `transferFrom`  | `transfer_from_public`<br />`transfer_from_public_to_private`                                            | 支持授权委托转移，可选公开或私有模式                           |
+
+### 授权系统
+
+**ERC-721**
+```solidity
+function approve(address to, uint256 tokenId) public
+function setApprovalForAll(address operator, bool approved) public
+```
+
+**ARC-721**
+```leo
+// 系列级别的全局授权
+fn set_for_all_approval(
+    private spender: address,
+    public new_value: bool,
+) -> Final
+
+// 单个 NFT 的授权
+fn approve_public(
+    private spender: address,
+    private nft_data: data,
+    private nft_edition: scalar,
+) -> Final
+
+// 撤销授权
+fn unapprove_public(
+    private collection_id: field,
+    private nft_data: Data,
+    private nft_edition: scalar,
+) -> Final
+```
+
+## 设置项
+
+ARC-721 还为系列推荐了以下标准设置项：
+
+```leo
+mapping general_settings: u8 => field;  // 设置项索引 => 设置值
+```
+
+- `0u8` —— 可铸造 NFT 总量（含所有版本）
+- `1u8` —— 可铸造的第一版本 NFT 总量
+- `2u8` —— NFT 系列符号
+- `3u8` —— NFT 基础 URI，第 1 段
+- `4u8` —— NFT 基础 URI，第 2 段
+- `5u8` —— NFT 基础 URI，第 3 段
+- `6u8` —— NFT 基础 URI，第 4 段
+- `7u8` —— 管理员地址哈希
+
+## 版本号（Edition）
+
+ARC-721 在每个 NFT 记录中引入了 `edition`（版本号）字段，类型为 `scalar`（标量），该字段为必填项。引入 `edition` 的原因体现在以下三个方面：
+
+**隐私盐值（Privacy Salt）** —— `edition` 与 NFT `data` 的 BHP256 哈希混合，生成：
+`nft_commit = BHP256::commit_to_field(BHP256::hash_to_field(data), edition)`。
+该盲化因子（Blinding Factor）可防止暴力破解攻击，使攻击者无法判断两个承诺值是否包含相同的底层数据。
+
+**唯一性锚点（Uniqueness Anchor）** —— 由于承诺值依赖于 `edition`，任何变化（即使 `data` 完全相同）都会产生全新的 `nft_commit`，从而保证每个代币的非同质性。
+
+**重新混淆（Re-obfuscation）** ——
+持有者可通过选择一个新的随机标量并调用 `update_edition_private` 来"轮换"隐私状态，切断与链上历史转移记录的关联。
+
+## 内容发布与重新隐藏
+
+当 NFT 的数据需要公开时，持有者调用：
+
+```leo
+fn publish_nft_content(nft_data, nft_edition)
+```
+
+该函数将明文结构体复制至：
+
+```leo
+mapping nft_contents: field => nft_content;
+```
+
+若此后需要重新隐藏数据：
+
+1. 通过 `transfer_public_to_private` 将 NFT 转为**私有**状态。
+2. 调用 `update_edition_private` 滚动承诺值。
+
+## 隐私特性
+
+ARC-721 标准提供了多项隐私增强特性：
+
+1. **私有所有权**
+   - NFT 可通过 Aleo 记录（Record）私密持有
+   - 所有权可在不暴露持有者身份的前提下完成验证
+   - 支持在私有与公开所有权状态之间灵活转换
+
+2. **私有数据**
+   - NFT 数据默认保持私密
+   - 支持通过 `publish_nft_content` 选择性公开数据
+
+3. **基于版本号的隐私保护**
+   - 每个 NFT 都持有唯一的版本号（`scalar` 类型）
+   - 版本号在保证唯一性的同时实现隐私保护
+   - 支持通过更新版本号进行重新混淆
+
+4. **灵活的可见性控制**
+   - `NFTView` 记录类型：公开所有权 + 私有数据
+   - `NFT` 记录类型：完全私有所有权
+   - 内置状态间转换函数

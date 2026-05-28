@@ -1,0 +1,6 @@
+- 昵称：yzy
+- GitHub 用户名：yuzhiyang1
+- 微信：wxid_gbyr083ki0oe22
+- Aleo 钱包地址：aleo1fymf85ullghvzd7av3ajhgfen0875kz9knq7tgna9hr2fswjqsfqxdtvze
+- 技术栈：前端开发、Node.js、Web3 基础学习中
+- 自我介绍：正在学习 Aleo、Leo 语言和隐私应用开发，希望通过本次 Bootcamp 完成从基础概念到 dApp 部署的完整练习。
