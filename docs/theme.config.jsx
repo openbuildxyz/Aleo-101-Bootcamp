@@ -1,9 +1,9 @@
 export default {
   logo: <span style={{ fontWeight: 700 }}>Aleo 中文文档</span>,
   project: {
-    link: 'https://github.com/AleoHQ/Aleo-101-Bootcamp',
+    link: 'https://github.com/openbuildxyz/Aleo-101-Bootcamp',
   },
-  docsRepositoryBase: 'https://github.com/AleoHQ/Aleo-101-Bootcamp/tree/main/docs',
+  docsRepositoryBase: 'https://github.com/openbuildxyz/Aleo-101-Bootcamp/tree/main/docs',
   useNextSeoProps() {
     return {
       titleTemplate: '%s – Aleo 中文文档',

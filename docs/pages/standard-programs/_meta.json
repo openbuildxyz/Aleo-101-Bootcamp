@@ -1,6 +1,6 @@
 {
-  "token-registry": "Token Registry",
-  "nft-standards": "NFT Standards",
-  "aleo-name-service": "Aleo Name Service",
-  "private-stablecoin": "Private Stablecoin"
+  "token-registry": "代币注册表",
+  "nft-standards": "NFT 标准",
+  "aleo-name-service": "Aleo 域名服务",
+  "private-stablecoin": "隐私稳定币"
 }

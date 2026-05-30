@@ -1,0 +1,6 @@
+{
+  "program": "privacy_vote.aleo",
+  "version": "0.1.0",
+  "description": "A privacy-preserving voting application on Aleo",
+  "license": "MIT"
+}

@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'docs/**'
+      - 'docs_v2/**'
+      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
 permissions:
@@ -29,20 +31,40 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies
+      - name: Install docs dependencies
         working-directory: docs
         run: npm install
 
-      - name: Build
+      - name: Build docs
         working-directory: docs
         run: npm run build
         env:
           GITHUB_ACTIONS: true
+          BASE_PATH: /Aleo-101-Bootcamp
+          NEXT_PUBLIC_BASE_PATH: /Aleo-101-Bootcamp
+
+      - name: Install docs_v2 dependencies
+        working-directory: docs_v2
+        run: npm install
+
+      - name: Build docs_v2
+        working-directory: docs_v2
+        run: npm run build
+        env:
+          GITHUB_ACTIONS: true
+          BASE_PATH: /Aleo-101-Bootcamp/v2
+          NEXT_PUBLIC_BASE_PATH: /Aleo-101-Bootcamp/v2
+
+      - name: Assemble Pages artifact
+        run: |
+          mkdir -p pages-artifact/v2
+          cp -a docs/out/. pages-artifact/
+          cp -a docs_v2/out/. pages-artifact/v2/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/out
+          path: pages-artifact
 
   deploy:
     environment:

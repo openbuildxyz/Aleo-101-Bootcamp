@@ -1,0 +1,13 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "execute": "Execute",
+  "deploy": "Deploy",
+  "sign": "Sign",
+  "records": "Records",
+  "decrypt": "Decrypt",
+  "view-keys": "View Keys",
+  "transaction-history": "Transaction History"
+}

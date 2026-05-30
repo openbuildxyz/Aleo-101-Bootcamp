@@ -1,10 +1,10 @@
 {
-  "introduction": "Introduction",
-  "aleo-instructions": "Aleo Instructions",
-  "standard-programs": "Standard Programs",
-  "solidity-to-leo": "Solidity to Leo",
-  "node-operators": "Node Operators",
+  "introduction": "简介",
+  "aleo-instructions": "Aleo 指令",
+  "standard-programs": "标准程序",
+  "solidity-to-leo": "从 Solidity 到 Leo",
+  "node-operators": "节点运营者",
   "faqs": "常见问题",
   "how-to-get-help": "如何获取帮助",
-  "contribute": "Contribute"
+  "contribute": "参与贡献"
 }

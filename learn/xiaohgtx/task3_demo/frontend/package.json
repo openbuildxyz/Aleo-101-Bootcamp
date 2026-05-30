@@ -1,0 +1,24 @@
+{
+  "name": "aleo-private-notes",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Aleo 隐私笔记应用 - Task 3",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@provablehq/sdk": "^0.10.5",
+    "comlink": "^4.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.4.2",
+    "vite-plugin-top-level-await": "^1.4.4",
+    "vite-plugin-wasm": "^3.3.0"
+  }
+}

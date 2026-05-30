@@ -1,0 +1,13 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "wallets": "Wallets",
+  "getting-tokens": "Getting Tokens",
+  "staking": "Staking",
+  "run-a-node": "Run a Node",
+  "governance": "Governance",
+  "community-calls": "Community Calls",
+  "contributing": "Contributing"
+}

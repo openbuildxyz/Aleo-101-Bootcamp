@@ -1,0 +1,18 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "getting-started": "Getting Started",
+  "leo": "Leo",
+  "aleo-instructions": "Aleo Instructions",
+  "sdk": "SDK",
+  "wallets": "Wallets",
+  "standards": "Standards",
+  "common-uses": "Common Uses",
+  "api": {
+    "title": "API ↗",
+    "href": "https://docs.explorer.provable.com/",
+    "newWindow": true
+  }
+}

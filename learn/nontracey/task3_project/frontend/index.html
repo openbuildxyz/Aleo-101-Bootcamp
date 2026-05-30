@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aleo Privacy Vote - 隐私投票</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Aleo Privacy Vote</h1>
+      <p class="subtitle">基于零知识证明的隐私投票 dApp</p>
+    </header>
+
+    <main>
+      <!-- Account Section -->
+      <section id="account-section" class="card">
+        <h2>账户</h2>
+        <div id="account-info">
+          <p class="loading-text">正在初始化 Aleo 账户...</p>
+        </div>
+        <button id="btn-create-account" class="btn btn-primary">创建新账户</button>
+      </section>
+
+      <!-- Proposal Section -->
+      <section id="proposal-section" class="card">
+        <h2>创建提案</h2>
+        <div class="form-group">
+          <label for="proposal-id">提案 ID</label>
+          <input type="number" id="proposal-id" placeholder="输入提案 ID (如: 1)" min="0" />
+        </div>
+        <div class="form-group">
+          <label for="proposal-name">提案名称</label>
+          <input type="text" id="proposal-name" placeholder="输入提案名称 (如: 社区基金分配方案)" />
+        </div>
+        <button id="btn-create-proposal" class="btn btn-secondary">创建提案</button>
+        <div id="proposal-status" class="status-msg"></div>
+      </section>
+
+      <!-- Vote Section -->
+      <section id="vote-section" class="card">
+        <h2>隐私投票</h2>
+        <p class="privacy-hint">你的投票将通过零知识证明保护，任何人都无法看到你投了什么</p>
+        <div class="form-group">
+          <label for="vote-proposal-id">提案 ID</label>
+          <input type="number" id="vote-proposal-id" placeholder="输入要投票的提案 ID" min="0" />
+        </div>
+        <div class="vote-buttons">
+          <button id="btn-vote-yes" class="btn btn-yes">
+            <span class="vote-icon">&#10003;</span>
+            <span>赞成</span>
+          </button>
+          <button id="btn-vote-no" class="btn btn-no">
+            <span class="vote-icon">&#10007;</span>
+            <span>反对</span>
+          </button>
+        </div>
+        <div id="vote-status" class="status-msg"></div>
+      </section>
+
+      <!-- Results Section -->
+      <section id="results-section" class="card">
+        <h2>查看结果</h2>
+        <div class="form-group">
+          <label for="result-proposal-id">提案 ID</label>
+          <input type="number" id="result-proposal-id" placeholder="输入提案 ID 查看结果" min="0" />
+        </div>
+        <button id="btn-get-results" class="btn btn-primary">查询结果</button>
+        <div id="results-display" class="results-container">
+          <p class="hint-text">输入提案 ID 并点击查询</p>
+        </div>
+      </section>
+
+      <!-- Activity Log -->
+      <section id="log-section" class="card">
+        <h2>操作日志</h2>
+        <div id="activity-log" class="log-container">
+          <p class="log-item">系统就绪，等待操作...</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Aleo 101 Bootcamp Task 3 | 隐私投票 dApp | 基于 @provablehq/sdk</p>
+    </footer>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+.aleo-logo-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.aleo-logo-text {
+  display: block;
+  width: 5rem;
+  aspect-ratio: 16 / 9;
+  background-color: currentColor;
+}
+
+.aleo-logo-nav a {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: inherit;
+  opacity: 0.72;
+  text-decoration: none;
+}
+
+.aleo-logo-nav a:hover {
+  opacity: 1;
+}

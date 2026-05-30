@@ -1,0 +1,6 @@
+{
+  "program": "private_notes.aleo",
+  "version": "0.1.0",
+  "description": "A private notes application on Aleo - users can create and manage private notes.",
+  "license": "MIT"
+}

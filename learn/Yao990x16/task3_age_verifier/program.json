@@ -1,0 +1,9 @@
+{
+  "program": "task3_age_verifier.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "4.0.2",
+  "dependencies": null,
+  "dev_dependencies": null
+}

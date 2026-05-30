@@ -1,0 +1,15 @@
+{
+  "index": {
+    "title": "Leo",
+    "display": "hidden"
+  },
+  "getting-started": "Getting Started",
+  "language": "Language",
+  "cli": "CLI",
+  "guides": "Guides",
+  "examples": {
+    "title": "Examples ↗",
+    "href": "https://github.com/ProvableHQ/leo-examples",
+    "newWindow": true
+  }
+}

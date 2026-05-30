@@ -1,0 +1,10 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "multisig": "Multisig",
+  "private-stablecoins": "Private Stablecoins",
+  "record-autojoin": "Record Autojoin",
+  "batch-payments": "Batch Payments"
+}

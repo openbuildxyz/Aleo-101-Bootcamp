@@ -1,0 +1,11 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "project-layout": "Project Layout",
+  "data-types": "Data Types",
+  "operators-expressions": "Operators & Expressions",
+  "programs-in-practice": "Programs In Practice",
+  "leo-syntax-cheatsheet": "Leo Syntax Cheatsheet"
+}

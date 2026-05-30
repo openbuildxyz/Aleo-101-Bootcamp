@@ -1,6 +1,7 @@
 *.vscode
 .idea
 .DS_Store
+.claude
 
 # Learn directory
 learn/**/node_modules/
@@ -18,3 +19,15 @@ learn/**/dist/
 learn/**/.cache/
 learn/**/coverage/
 
+# Docs v2
+docs_v2/node_modules/
+docs_v2/.next/
+docs_v2/out/
+docs_v2/.env
+docs_v2/.env.local
+docs_v2/.env.development.local
+docs_v2/.env.test.local
+docs_v2/.env.production.local
+docs_v2/npm-debug.log*
+docs_v2/yarn-debug.log*
+docs_v2/yarn-error.log*

@@ -1,0 +1,15 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "creating-accounts": "Creating Accounts",
+  "deploying-programs": "Deploying Programs",
+  "executing-programs": "Executing Programs",
+  "transferring-tokens": "Transferring Tokens",
+  "managing-state": "Managing State",
+  "querying-the-network": "Querying the Network",
+  "hash-functions": "Hash Functions",
+  "delegated-proving": "Delegated Proving",
+  "record-scanning": "Record Scanning"
+}

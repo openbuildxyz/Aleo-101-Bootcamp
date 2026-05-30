@@ -1,0 +1,8 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "wallet-adapter": "Wallet Adapter",
+  "embedded-wallets": "Embedded Wallets"
+}

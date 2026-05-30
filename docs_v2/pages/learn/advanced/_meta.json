@@ -1,0 +1,7 @@
+{
+  "cryptography": "Cryptography",
+  "key-derivation": "Key Derivation",
+  "transitions": "Transitions",
+  "record-scanning": "Record Scanning",
+  "delegated-proving": "Delegated Proving"
+}

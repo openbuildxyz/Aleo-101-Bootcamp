@@ -1,0 +1,11 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "programs": "Programs",
+  "types": "Types",
+  "standard-operations": "Standard Operations",
+  "cryptographic-operations": "Cryptographic Operations",
+  "finalize-operations": "Finalize Operations"
+}

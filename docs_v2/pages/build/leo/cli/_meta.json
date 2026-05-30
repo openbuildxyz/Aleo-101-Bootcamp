@@ -1,0 +1,26 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "abi": "Abi",
+  "account": "Account",
+  "add": "Add",
+  "build": "Build",
+  "clean": "Clean",
+  "debug": "Debug",
+  "deploy": "Deploy",
+  "devnet": "Devnet",
+  "devnode": "Devnode",
+  "execute": "Execute",
+  "fmt": "Fmt",
+  "new": "New",
+  "plugins": "Plugins",
+  "query": "Query",
+  "remove": "Remove",
+  "run": "Run",
+  "synthesize": "Synthesize",
+  "test": "Test",
+  "update": "Update",
+  "upgrade": "Upgrade"
+}

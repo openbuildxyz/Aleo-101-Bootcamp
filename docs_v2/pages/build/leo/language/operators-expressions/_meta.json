@@ -1,0 +1,9 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "standard-operators": "Standard Operators",
+  "cryptographic-operators": "Cryptographic Operators",
+  "intrinsics": "Intrinsics"
+}

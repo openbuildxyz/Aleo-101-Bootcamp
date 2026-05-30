@@ -1,0 +1,21 @@
+{
+  "index": {
+    "title": "Aleo Documentation",
+    "display": "hidden"
+  },
+  "learn": {
+    "title": "Learn",
+    "type": "page",
+    "display": "hidden"
+  },
+  "build": {
+    "title": "Build",
+    "type": "page",
+    "display": "hidden"
+  },
+  "participate": {
+    "title": "Participate",
+    "type": "page",
+    "display": "hidden"
+  }
+}

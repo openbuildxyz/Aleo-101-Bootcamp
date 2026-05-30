@@ -1,0 +1,15 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "account": "Account",
+  "aleo-network-client": "Aleo Network Client",
+  "program-manager": "Program Manager",
+  "record-provider": "Record Provider",
+  "offline-key-provider": "Offline Key Provider",
+  "function-key-provider": "Function Key Provider",
+  "record-scanner": "Record Scanner",
+  "sealance-merkle-tree": "Sealance Merkle Tree",
+  "wasm": "WASM"
+}

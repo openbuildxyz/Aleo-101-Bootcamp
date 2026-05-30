@@ -1,0 +1,12 @@
+{
+  "index": {
+    "title": "Overview",
+    "display": "hidden"
+  },
+  "manifest": "Manifest",
+  "program": "Program",
+  "tests": "Tests",
+  "modules": "Modules",
+  "libraries": "Libraries",
+  "workspaces": "Workspaces"
+}
