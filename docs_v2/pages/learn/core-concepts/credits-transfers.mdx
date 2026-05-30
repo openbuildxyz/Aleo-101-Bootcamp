@@ -1,0 +1,132 @@
+---
+title: 积分与转账
+---
+
+# 积分与转账
+
+**Aleo Credits（AC）** 是 Aleo 网络的原生代币，用于支付网络费用、质押保护网络安全以及购买零知识计算服务。
+
+## Aleo Credits 概述
+
+Aleo Credits 是 Aleo 生态系统的核心经济单元，具有以下主要用途：
+
+### 1. 质押保护网络安全
+
+- 验证者和质押者通过锁定 Credits 参与网络共识
+- 质押的 Credits 作为安全保证金，防止恶意行为
+- 诚实的参与者获得区块奖励和交易费用作为回报
+
+### 2. 购买零知识计算
+
+- 用户支付 Credits 来委托证明者（Prover）生成零知识证明
+- 证明者通过提供计算资源赚取 Credits
+- 形成了去中心化的零知识计算市场
+
+## 转账类型
+
+Aleo 提供了四种灵活的转账方式，满足不同的隐私和透明性需求：
+
+### 1. 公开转账（transfer_public）
+
+直接更新链上公开映射中的余额：
+
+- **公开透明**：转账金额和双方地址对所有人可见
+- **状态更新**：修改 `credits.aleo` 中的 `account` 映射
+- **适用场景**：需要公开审计或透明度的转账
+
+```leo
+transition transfer_public(
+    public receiver: address,
+    public amount: u64
+)
+```
+
+### 2. 私有转账（transfer_private）
+
+使用加密记录进行完全私密的转账：
+
+- **完全私密**：转账金额和双方身份均加密保护
+- **UTXO 模型**：消费旧记录，产生新记录
+- **适用场景**：需要最大程度隐私保护的转账
+
+```leo
+transition transfer_private(
+    sender_record: credits,
+    receiver: address,
+    amount: u64
+) -> (credits, credits)
+```
+
+### 3. 公开转私有（transfer_public_to_private）
+
+将公开余额转换为私有记录：
+
+- **来源公开**：从公开映射中扣除余额
+- **目标私有**：生成加密的私有记录给接收方
+- **适用场景**：将公开资产转为隐私资产
+
+### 4. 私有转公开（transfer_private_to_public）
+
+将私有记录转换为公开余额：
+
+- **来源私有**：消费加密的私有记录
+- **目标公开**：增加公开映射中的余额
+- **适用场景**：将隐私资产转为公开资产，便于公开使用
+
+## 获取测试积分
+
+### 水龙头（Faucet）
+
+在 Aleo 测试网上，开发者可以通过水龙头免费获取测试积分：
+
+- **网址**：[faucet.aleo.org](https://faucet.aleo.org)
+- **用途**：用于测试应用开发和网络功能
+- **限制**：每个地址有领取频率和数量限制
+
+> **注意**：测试网积分仅用于开发测试，没有实际价值，不能转移到主网。
+
+## 余额查询
+
+用户可以通过以下方式查询 Aleo Credits 余额：
+
+### 1. 区块浏览器
+
+使用 Aleo 官方或第三方区块浏览器：
+
+- 输入地址查询公开余额
+- 使用查看密钥查询私有记录余额
+- 查看交易历史和状态
+
+### 2. SDK
+
+通过 Aleo SDK 以编程方式查询余额：
+
+```javascript
+import { AleoNetworkClient } from '@aleohq/sdk';
+
+const networkClient = new AleoNetworkClient('https://api.explorer.aleo.org/v1');
+
+// 查询公开余额
+const publicBalance = await networkClient.getMappingValue(
+    'credits.aleo',
+    'account',
+    userAddress
+);
+
+// 使用查看密钥查询私有记录
+const privateRecords = await networkClient.getRecords(
+    userViewKey,
+    { program: 'credits.aleo', type: 'unspent' }
+);
+```
+
+## 转账方式对比
+
+| 转账类型 | 发送方可见性 | 接收方可见性 | 金额可见性 | 使用场景 |
+|---------|-----------|-----------|----------|---------|
+| transfer_public | 公开 | 公开 | 公开 | 公开支付、透明审计 |
+| transfer_private | 加密 | 加密 | 加密 | 隐私转账、资产保护 |
+| transfer_public_to_private | 公开 | 加密 | 加密 | 资产隐私化 |
+| transfer_private_to_public | 加密 | 公开 | 公开 | 资产公开化 |
+
+Aleo 灵活的转账机制使用户能够根据具体需求，在透明性和隐私性之间自由选择和切换。
