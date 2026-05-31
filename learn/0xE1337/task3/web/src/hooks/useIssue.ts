@@ -4,7 +4,9 @@ import { useCallback, useState } from "react";
 import { useWallet } from "@provablehq/aleo-wallet-adaptor-react";
 import { PROGRAM_ID, ISSUE_FEE_MICROCREDITS } from "@/lib/constants";
 import { nameToField, randomFieldValue, toField, currentEpoch } from "@/lib/field";
-import { DEMO_MODE, DEMO_TX_ID, sleep } from "@/lib/demo";
+import { DEMO_MODE, REAL_MODE, DEMO_TX_ID, sleep } from "@/lib/demo";
+import { getServerAddress, executeReal } from "@/lib/realExec";
+import { addCred } from "@/lib/credStore";
 import { pollTransaction, terminalPhase, type TxPhase } from "@/lib/txpoll";
 
 export type IssueInput = {
@@ -44,6 +46,26 @@ export function useIssue() {
         const secret = randomFieldValue();
         const expiry = currentEpoch() + validityDays;
         setResult({ issuerField, secret, expiry });
+
+        if (REAL_MODE) {
+          // The server signs with its .env key; the credential is minted to
+          // that same account (self-issued for the demo).
+          const holder = await getServerAddress();
+          setPhase("pending"); // local ZK proving + broadcast (~1 min)
+          const { txId: id, record } = await executeReal("issue", [
+            holder,
+            toField(issuerField),
+            `${tier}u8`,
+            `${expiry}u32`,
+            toField(secret),
+          ]);
+          setTxId(id);
+          if (record) {
+            addCred({ record, tier, issuerField, issuerName, expiry, txId: id });
+          }
+          setPhase("accepted");
+          return;
+        }
 
         if (DEMO_MODE) {
           setPhase("signing");

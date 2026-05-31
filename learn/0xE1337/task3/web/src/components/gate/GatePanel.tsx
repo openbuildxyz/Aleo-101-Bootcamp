@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useWallet } from "@provablehq/aleo-wallet-adaptor-react";
 import { GATES, DEMO_ISSUER_NAME, EXPLORER_TX, tierLabel } from "@/lib/constants";
-import { DEMO_MODE } from "@/lib/demo";
+import { DEMO_MODE, REAL_MODE } from "@/lib/demo";
 import { useCredentials } from "@/hooks/useCredentials";
 import { useProveAccess } from "@/hooks/useProveAccess";
 import { WalletButton } from "@/components/wallet/WalletButton";
@@ -13,7 +13,9 @@ import styles from "./GatePanel.module.css";
 const PHASE_LABEL: Record<string, string> = {
   building: "构造证明…",
   signing: "等待钱包签名…",
-  pending: "已提交，钱包出证 + 链上确认中…",
+  pending: REAL_MODE
+    ? "本地零知识出证 + 广播上链中（约 1 分钟，请稍候）…"
+    : "已提交，钱包出证 + 链上确认中…",
   accepted: "通行已记录上链",
   failed: "交易失败",
   rejected: "已取消",
@@ -35,7 +37,7 @@ export function GatePanel() {
   const [bumps, setBumps] = useState<Record<string, number>>({});
 
   const gate = GATES[gateIdx];
-  const ready = DEMO_MODE || connected;
+  const ready = DEMO_MODE || REAL_MODE || connected;
   const sel = selected != null ? creds[selected] : null;
   const credTier = sel?.tier ?? null;
   const eligible = sel ? sel.tier == null || sel.tier >= gate.minTier : false;
@@ -96,7 +98,9 @@ export function GatePanel() {
                   {loading ? "解密中…" : loaded ? "刷新凭证" : "加载我的凭证"}
                 </button>
                 {loaded && (
-                  <span className={styles.count}>{creds.length} 张（钱包内解密）</span>
+                  <span className={styles.count}>
+                    {creds.length} 张（{REAL_MODE ? "本会话签发的私密 record" : "钱包内解密"}）
+                  </span>
                 )}
               </div>
               {credErr && <p className={styles.err}>{credErr}</p>}

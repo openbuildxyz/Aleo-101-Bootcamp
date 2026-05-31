@@ -1,9 +1,9 @@
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 
-const OUT = "/Users/yijingguo/code/zkai-web/screenshots";
+const OUT = new URL("../screenshots", import.meta.url).pathname;
 mkdirSync(OUT, { recursive: true });
-const BASE = "http://localhost:3100";
+const BASE = process.env.BASE_URL || "http://localhost:3100";
 
 const log = (m) => console.log(`[shots] ${m}`);
 

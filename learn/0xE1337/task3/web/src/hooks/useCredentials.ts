@@ -3,7 +3,8 @@
 import { useCallback, useState } from "react";
 import { useWallet } from "@provablehq/aleo-wallet-adaptor-react";
 import { PROGRAM_ID } from "@/lib/constants";
-import { DEMO_MODE, DEMO_CREDENTIALS, sleep } from "@/lib/demo";
+import { DEMO_MODE, REAL_MODE, DEMO_CREDENTIALS, sleep } from "@/lib/demo";
+import { useStoredCreds } from "@/lib/credStore";
 
 export type RawRecord = Record<string, unknown> | string;
 
@@ -48,6 +49,7 @@ function recordPlaintext(rec: RawRecord): string {
 // API cannot see these records at all.
 export function useCredentials() {
   const { connected, requestRecords } = useWallet();
+  const stored = useStoredCreds();
   const [creds, setCreds] = useState<ParsedCredential[]>([]);
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -57,6 +59,22 @@ export function useCredentials() {
     setError(null);
     setLoading(true);
     try {
+      // REAL mode: the records were minted by the server this session and kept
+      // in the in-memory store (the public API can't read private records).
+      if (REAL_MODE) {
+        setCreds(
+          stored.map((s) => ({
+            raw: s.record,
+            plaintext: s.record,
+            issuer: s.issuerField,
+            tier: s.tier,
+            expiry: s.expiry,
+          })),
+        );
+        setLoaded(true);
+        return;
+      }
+
       let recs: RawRecord[];
       if (DEMO_MODE) {
         await sleep(700);
@@ -92,7 +110,7 @@ export function useCredentials() {
     } finally {
       setLoading(false);
     }
-  }, [connected, requestRecords]);
+  }, [connected, requestRecords, stored]);
 
   return { creds, load, loading, loaded, error };
 }

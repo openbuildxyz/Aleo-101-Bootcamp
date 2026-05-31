@@ -4,7 +4,8 @@ import { useCallback, useState } from "react";
 import { useWallet } from "@provablehq/aleo-wallet-adaptor-react";
 import { PROGRAM_ID, PROVE_FEE_MICROCREDITS } from "@/lib/constants";
 import { nameToField, toField, currentEpoch } from "@/lib/field";
-import { DEMO_MODE, DEMO_TX_ID, sleep } from "@/lib/demo";
+import { DEMO_MODE, REAL_MODE, DEMO_TX_ID, sleep } from "@/lib/demo";
+import { executeReal } from "@/lib/realExec";
 import { pollTransaction, terminalPhase, type TxPhase } from "@/lib/txpoll";
 
 export type ProveInput = {
@@ -35,6 +36,20 @@ export function useProveAccess() {
         const issuerField = await nameToField(issuerName);
         const gateField = await nameToField(gateName);
         const epoch = currentEpoch();
+
+        if (REAL_MODE) {
+          setPhase("pending"); // local ZK proving + broadcast (~1 min)
+          const { txId: id } = await executeReal("prove_access", [
+            credentialPlaintext,
+            toField(issuerField),
+            `${minTier}u8`,
+            toField(gateField),
+            `${epoch}u32`,
+          ]);
+          setTxId(id);
+          setPhase("accepted");
+          return true;
+        }
 
         if (DEMO_MODE) {
           setPhase("signing");

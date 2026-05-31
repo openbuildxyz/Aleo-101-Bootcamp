@@ -220,6 +220,13 @@ a {
   background: #fdecec;
 }
 
+/* LIVE — real on-chain mode. Leaf green, slightly louder than tag--private. */
+.tag--live {
+  color: #3c6a17;
+  border-color: var(--leaf);
+  background: #eef7e2;
+}
+
 .dot {
   width: 0.55rem;
   height: 0.55rem;

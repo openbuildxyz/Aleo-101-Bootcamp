@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWallet } from "@provablehq/aleo-wallet-adaptor-react";
 import { Network } from "@provablehq/aleo-types";
 import { WalletReadyState } from "@provablehq/aleo-wallet-standard";
 import { getShortAddress } from "@provablehq/aleo-wallet-adaptor-core";
-import { DEMO_MODE, DEMO_ADDRESS } from "@/lib/demo";
+import { DEMO_MODE, REAL_MODE, DEMO_ADDRESS } from "@/lib/demo";
+import { getServerAddress } from "@/lib/realExec";
 import styles from "./WalletButton.module.css";
 
 export function WalletButton() {
@@ -21,6 +22,21 @@ export function WalletButton() {
   } = useWallet();
   const [open, setOpen] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [serverAddr, setServerAddr] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (REAL_MODE) getServerAddress().then(setServerAddr).catch(() => {});
+  }, []);
+
+  // REAL mode: the server signs with its .env key — show that live account.
+  if (REAL_MODE) {
+    return (
+      <span className="tag tag--live">
+        <span className="dot" /> LIVE ·{" "}
+        {serverAddr ? getShortAddress(serverAddr) : "连接中…"}
+      </span>
+    );
+  }
 
   if (DEMO_MODE) {
     return (

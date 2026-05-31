@@ -85,13 +85,15 @@ fn prove_access(cred, issuer_req, min_tier, gate_id, epoch) -> (Credential, Fina
 | `issue`（签发 Gold 凭证，发证方 = "Aleo Builders DAO"） | `at1gvl4kvsfl5ysvyp6yxh2yqsdadvcr4y9v25ehggksjut0v7xtvyqqq9xqr` |
 | `prove_access`（过 "VIP Lounge" 门禁，证明 tier ≥ 2） | `at1vd4jfcl3p6l7vcnfex2fy2q6wvx8r7dwd5pjm3hp3r4rklj6pczsytzyvh` |
 
+**REAL_MODE 前端实测**（在浏览器点按钮 → 服务器 Leo CLI → 真实上链；§五 截图里的 `at1…` 交易号即按钮当场产生）：连续触发使「VIP Lounge」公开计数器**真实从 1 递增到 5**，例如后端实测 `issue at1hkh9wsu5r5mykqsfawxzktn370xnjy3h0v2mkuvcmmh7pw76avyqegwpy2`、`prove_access at1dy4x7046z8l3yfhenvwq06fu3mkzsvrme8jq4mctt5fppatd5cgskj3wex`（计数 2 → 3）。
+
 ```bash
 # 程序源码在链上
 curl -s https://api.provable.com/v2/testnet/program/private_gate_pass.aleo
 
-# "VIP Lounge" 门禁累计通行数：prove_access 后 null -> 1（也是前端 Hero 实时读的那个数）
+# "VIP Lounge" 门禁累计通行数（也是前端 Hero 实时读的那个数）——每次 prove_access +1
 curl -s https://api.provable.com/v2/testnet/program/private_gate_pass.aleo/mapping/gate_access_count/115482402605128702247352604933780178879204752660839134036984060969250666327field
-# => "1u64"
+# => 累计值，如 "5u64"（首笔 prove_access 由 null -> 1，其后每次通行 +1）
 ```
 
 `leo run` 还逐项验证了逻辑：tier 不足 / issuer 不符 / 已过期 → 正确 revert；
@@ -107,9 +109,14 @@ nullifier 在「同输入→同值、换门禁/周期→不同值」上确定且
   Gold(tier 3) 凭证够格进前两个、进不了 Founders(需 tier 4)，直观演示选择性披露的 `tier ≥ N`。
 - 每个门禁的累计通行数都**实时从链上读**（`api.provable.com/v2/testnet`，无需钱包）。
 - 浏览器只用原生 Web Crypto 把名字映射成 `field`、生成随机 secret——**无 WASM / SDK**。
+- **真实执行后端**（`web/src/app/api/`）：`/api/execute` 把 `issue` / `prove_access` 交给服务器端
+  Leo CLI 真实广播上链并回传 tx id（issue 还回传新铸的私密 record 供下一步花用）；`/api/address`
+  暴露签名账户地址。**私钥只在服务器 `.env`，浏览器永不接触**。开启 `NEXT_PUBLIC_REAL_MODE=true`
+  后，页面顶部显示 `LIVE · aleo1…`，点击即真实上链。
 - 也接了 `@provablehq/aleo-wallet-adaptor`（Shield/Puzzle/Leo/Fox）；`requestRecords` 钱包内解密读取私密凭证实测可用。
 
-截图见 `screenshots/`：`01-hero` · `02-compare` · `03-issue` · `04-gate`（三门禁 + 揭示框）· `06-hero-mobile`。
+截图（均为 **REAL_MODE** 实拍，页头显示 `LIVE · aleo1…`，按钮结果带真实 `at1…` 浏览器交易链接）见
+`screenshots/`：`01-hero` · `02-compare` · `03-issue`（已签发上链 + tx）· `04-gate`（三门禁 + 真实通行 + 揭示框）· `06-hero-mobile`。
 
 ---
 
@@ -118,10 +125,17 @@ nullifier 在「同输入→同值、换门禁/周期→不同值」上确定且
 1. **发证未做访问控制**：本 demo 任何人可 `issue`（自发自持）；真实场景应 `assert` 签发者属于
    授权发证方。选择性披露 / 不可关联性不依赖这一点。
 2. **状态级 ≠ 网络级匿名**：提供地址↔凭证的状态级不可关联；fee 付费方、交易时序、IP 仍可被相关。
-3. **UI 走 DEMO_MODE**：本机实测中，当前 alpha 钱包适配器（`@provablehq/aleo-wallet-adaptor@0.3.0-alpha.4`）
-   的浏览器**广播**对着 testnet RPC 不稳定（`executeTransaction` 返回临时 id 但常因基建抖动不落链，
-   CLI 也需多次重试）。为保证可演示，前端默认 `NEXT_PUBLIC_DEMO_MODE=true`（桩签名 + 固定凭证），
-   而**真实执行路径由上面那几笔 CLI 链上 tx 证明**，且 demo 里的「VIP Lounge」计数读的就是真链数据 = 1。
+3. **两种运行模式，都不需要用户在浏览器里管私钥：**
+   - **DEMO_MODE（提交默认）**——桩签名 + 固定凭证，**无需任何本地依赖**即可走完整 UI 流程，
+     用于截图与离线演示；页面上「VIP Lounge」实时计数读的仍是**真链数据**。
+   - **REAL_MODE（`NEXT_PUBLIC_REAL_MODE=true`）**——点击按钮 = **当场真实上链**。浏览器把
+     `函数 + 输入` POST 给服务器端 Leo CLI 后端（`web/src/app/api/execute`），服务器执行
+     `leo execute --broadcast`，**签名私钥只在服务器 `.env`，永不进浏览器**。实测从前端按钮
+     连续触发，链上公开计数器 `gate_access_count["VIP Lounge"]` 真实递增 **1 → 2 → 3**（见
+     §四的可复核读法）。
+   之所以走服务器 CLI 而非浏览器钱包：当前 alpha 钱包适配器（`@provablehq/aleo-wallet-adaptor@0.3.0-alpha.4`）
+   的浏览器**广播**对 testnet RPC 不稳定（返回临时 id 但常因基建抖动不落链）；Leo CLI 用原生
+   snarkVM + 重试，稳定可靠。REAL_MODE 因需本机 `leo` + 签名 key + 专属 RPC，故非提交默认。
 
 ---
 
@@ -132,8 +146,14 @@ nullifier 在「同输入→同值、换门禁/周期→不同值」上确定且
 cd leo && leo build
 leo run issue <holder> <issuer>field <tier>u8 <expiry>u32 <secret>field
 
-# 前端（默认 DEMO_MODE，无需钱包即可走完整流程）
+# 前端（默认 DEMO_MODE，无需钱包/无需 leo 即可走完整流程）
 cd web && npm install --legacy-peer-deps && npm run dev   # http://localhost:3000
+
+# 可选 · REAL_MODE：点击按钮 = 真实上链（需本机已装 leo + 程序 .env 有签名 key）
+#   cp .env.example .env.local   然后取消注释：
+#   NEXT_PUBLIC_REAL_MODE=true
+#   LEO_DIR=/abs/path/to/private_gate_pass
+#   ALEO_ENDPOINT=https://<你的专属节点>/...   # 可选，公共 RPC 抖动时强烈建议
 ```
 
 ```

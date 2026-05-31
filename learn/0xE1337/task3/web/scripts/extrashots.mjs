@@ -1,0 +1,18 @@
+import { chromium } from "playwright";
+const OUT = new URL("../screenshots-real", import.meta.url).pathname;
+const BASE = process.env.BASE_URL || "http://localhost:3100";
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
+const p = await ctx.newPage();
+await p.goto(BASE, { waitUntil: "networkidle" });
+await p.waitForTimeout(1500);
+await p.locator("#why").scrollIntoViewIfNeeded();
+await p.waitForTimeout(400);
+await p.locator("#why").screenshot({ path: `${OUT}/05-compare.png` });
+console.log("✓ compare");
+await p.setViewportSize({ width: 390, height: 844 });
+await p.goto(BASE, { waitUntil: "networkidle" });
+await p.waitForTimeout(1500);
+await p.screenshot({ path: `${OUT}/06-hero-mobile.png` });
+console.log("✓ mobile");
+await b.close();
