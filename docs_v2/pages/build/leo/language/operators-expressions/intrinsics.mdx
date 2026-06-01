@@ -1,0 +1,210 @@
+---
+title: 内置函数（Intrinsics）
+---
+
+# 内置函数（Intrinsics）
+
+内置函数（Intrinsics）是编译器内置的底层操作，用于补充 Leo 的高层抽象，在高层抽象无法满足特定需求时提供支持。它们以 `_` 为前缀，以便与用户自定义函数在视觉上加以区分。
+
+---
+
+## `_dynamic_call`
+
+在运行时调用另一个程序上的函数，无需接口定义。目标程序、网络和函数名均作为运行时值传入，完整的类型签名在泛型类型参数中声明。
+
+只在 transition 上下文中有效——不能在 `final fn` 函数或 `final {}` 块中使用。
+
+### 语法
+
+```
+_dynamic_call::[TYPE_PARAMS](prog, net, func, ...args)
+```
+
+- `prog` — 目标程序名，类型为 `identifier` 或表示标识符的 `field` 值
+- `net` — 网络，类型为 `identifier` 或表示标识符的 `field` 值；目前仅 `'aleo'` 有效
+- `func` — 要调用的函数名，类型为 `identifier` 或表示标识符的 `field` 值
+- `...args` — 函数参数，与 `TYPE_PARAMS` 中声明的输入类型匹配
+
+### 类型参数
+
+类型参数遵循一条规则：**最后一项为返回类型；其余所有项均为输入类型**，可附加可见性修饰符（`public` 或 `private`）。完全省略类型参数表示无返回值，编译器自动推断输入可见性。
+
+#### 无类型参数——无返回值
+
+```leo
+_dynamic_call(prog, net, func, x);
+```
+
+#### 仅返回类型——输入默认为 `private`
+
+```leo
+let result: u64 = _dynamic_call::[u64](prog, net, func, x);
+```
+
+#### 显式指定输入可见性
+
+最后一个类型参数之前的所有参数均为输入类型，每个参数可带可见性修饰符：
+
+```leo
+// 一个 public 输入，然后是返回类型
+let result: u64 = _dynamic_call::[public u64, u64](prog, net, func, x);
+```
+
+#### 多个输入
+
+```leo
+let (a, b): (u32, u32) = _dynamic_call::[public u32, public u32, (u32, u32)](prog, net, func, x, y);
+```
+
+#### 无返回值且带输入注解
+
+使用 `()` 作为返回类型：
+
+```leo
+_dynamic_call::[public u64, ()](prog, net, func, x);
+```
+
+#### `Final` 返回值
+
+当被调用函数返回 `Final` 时，将其包含在元组中：
+
+```leo
+let (val, f): (u32, Final) = _dynamic_call::[(u32, Final)](target, 'aleo', 'increment', val);
+return (val, final {
+    f.run();
+});
+```
+
+#### `dyn record` 输入和输出
+
+```leo
+let result: dyn record = _dynamic_call::[dyn record, dyn record](prog, net, func, token);
+```
+
+### 限制
+
+`_dynamic_call` **不能**在 `final fn` 函数或 `final {}` 块中使用。
+
+---
+
+## `_dynamic_contains`
+
+在运行时检查某个键是否存在于另一个程序的 mapping 中。只能在 `final fn` 函数或 `final {}` 块中使用。
+
+### 语法
+
+```leo
+let exists: bool = _dynamic_contains(prog, net, mapping, key);
+```
+
+- `prog` — 目标程序名，类型为 `identifier` 或表示标识符的 `field` 值
+- `net` — 网络，类型为 `identifier` 或表示标识符的 `field` 值；目前仅 `'aleo'` 有效
+- `mapping` — 目标程序上的 mapping 名，类型为 `identifier` 或表示标识符的 `field` 值
+- `key` — 类型与目标 mapping 的键类型匹配的值
+
+如果 `key` 存在则返回 `true`，否则返回 `false`。
+
+### 示例
+
+```leo showLineNumbers
+program checker.aleo {
+    mapping seen: address => bool;
+
+    fn check(prog: field, net: field, map: field, key: address) -> Final {
+        return final { finalize_check(prog, net, map, key); };
+    }
+
+    @noupgrade
+    constructor() {}
+}
+
+final fn finalize_check(prog: field, net: field, map: field, key: address) {
+    let exists: bool = _dynamic_contains(prog, net, map, key);
+    Mapping::set(seen, key, exists);
+}
+```
+
+---
+
+## `_dynamic_get`
+
+在运行时从另一个程序的 mapping 中读取值。只能在 `final fn` 函数或 `final {}` 块中使用。
+
+如果键不存在，运行时将失败——当键可能不存在时请使用 [`_dynamic_get_or_use`](#_dynamic_get_or_use)。
+
+### 语法
+
+```leo
+let val: T = _dynamic_get::[T](prog, net, mapping, key);
+```
+
+- `prog` — 目标程序名，类型为 `identifier` 或表示标识符的 `field` 值
+- `net` — 网络，类型为 `identifier` 或表示标识符的 `field` 值；目前仅 `'aleo'` 有效
+- `mapping` — 目标程序上的 mapping 名，类型为 `identifier` 或表示标识符的 `field` 值
+- `key` — 类型与目标 mapping 的键类型匹配的值
+- `T` — 必须与目标 mapping 的值类型匹配
+
+### 示例
+
+```leo showLineNumbers
+program reader.aleo {
+    mapping result: address => u64;
+
+    fn read(prog: field, net: field, map: field, key: address) -> Final {
+        return final { finalize_read(prog, net, map, key); };
+    }
+
+    @noupgrade
+    constructor() {}
+}
+
+final fn finalize_read(prog: field, net: field, map: field, key: address) {
+    let val: u64 = _dynamic_get::[u64](prog, net, map, key);
+    Mapping::set(result, key, val);
+}
+```
+
+也可以使用标识符字面量：
+
+```leo
+let val: u64 = _dynamic_get::[u64]('some_program', 'aleo', 'balances', key);
+```
+
+---
+
+## `_dynamic_get_or_use`
+
+在运行时从另一个程序的 mapping 中读取值，如果键不存在则返回默认值。只能在 `final fn` 函数或 `final {}` 块中使用。
+
+### 语法
+
+```leo
+let val: T = _dynamic_get_or_use::[T](prog, net, mapping, key, default);
+```
+
+- `prog` — 目标程序名，类型为 `identifier` 或表示标识符的 `field` 值
+- `net` — 网络，类型为 `identifier` 或表示标识符的 `field` 值；目前仅 `'aleo'` 有效
+- `mapping` — 目标程序上的 mapping 名，类型为 `identifier` 或表示标识符的 `field` 值
+- `key` — 类型与目标 mapping 的键类型匹配的值
+- `default` — 当 `key` 不存在时返回的默认值，类型必须与 `T` 相同
+- `T` — 必须与目标 mapping 的值类型匹配
+
+### 示例
+
+```leo showLineNumbers
+program reader.aleo {
+    mapping result: address => u64;
+
+    fn read(prog: field, net: field, map: field, key: address) -> Final {
+        return final { finalize_read(prog, net, map, key); };
+    }
+
+    @noupgrade
+    constructor() {}
+}
+
+final fn finalize_read(prog: field, net: field, map: field, key: address) {
+    let val: u64 = _dynamic_get_or_use::[u64](prog, net, map, key, 0u64);
+    Mapping::set(result, key, val);
+}
+```
