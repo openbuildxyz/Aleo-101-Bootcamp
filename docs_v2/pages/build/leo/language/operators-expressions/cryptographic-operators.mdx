@@ -1,0 +1,1034 @@
+---
+title: 密码学运算符
+---
+
+# 密码学运算符
+
+## 哈希 vs 承诺
+
+许多密码学运算符同时提供 `hash`（哈希）和 `commit`（承诺）两种变体。
+
+`hash` 变体是单向函数，接受输入并产生固定大小的输出，称为"哈希值"或"摘要"。其特性是：输入中哪怕有一个比特发生变化，输出哈希值也会完全不同，因此可以轻松检测数据是否被篡改。
+
+`commit` 变体是对 `hash` 变体的封装，额外接受一个称为盲化因子的参数，也称为**盐**（salt）。**盐**会附加到输入值之后再进行哈希，确保输出与直接对原始输入取哈希的结果不同。只要每次使用不同的盐，用户就可以对同一个值多次承诺，而不会暴露自己重复承诺了相同的值。
+
+## 目录
+
+| 名称                                                      | 描述                                         |
+| --------------------------------------------------------- | :------------------------------------------- |
+| [BHP256::hash_to_TYPE](#bhp256hash_to_type)               | 256 位输入 BHP 哈希                          |
+| [BHP256::commit_to_TYPE](#bhp256commit_to_type)           | 256 位输入 BHP 承诺                          |
+| [BHP512::hash_to_TYPE](#bhp512hash_to_type)               | 512 位输入 BHP 哈希                          |
+| [BHP512::commit_to_TYPE](#bhp512commit_to_type)           | 512 位输入 BHP 承诺                          |
+| [BHP768::hash_to_TYPE](#bhp768hash_to_type)               | 768 位输入 BHP 哈希                          |
+| [BHP768::commit_to_TYPE](#bhp768commit_to_type)           | 768 位输入 BHP 承诺                          |
+| [BHP1024::hash_to_TYPE](#bhp1024hash_to_type)             | 1024 位输入 BHP 哈希                         |
+| [BHP1024::commit_to_TYPE](#bhp1024commit_to_type)         | 1024 位输入 BHP 承诺                         |
+| [Pedersen64::hash_to_TYPE](#pedersen64hash_to_type)       | 64 位输入 Pedersen 哈希                      |
+| [Pedersen64::commit_to_TYPE](#pedersen64commit_to_type)   | 64 位输入 Pedersen 承诺                      |
+| [Pedersen128::hash_to_TYPE](#pedersen128hash_to_type)     | 128 位输入 Pedersen 哈希                     |
+| [Pedersen128::commit_to_TYPE](#pedersen128commit_to_type) | 128 位输入 Pedersen 承诺                     |
+| [Poseidon2::hash_to_TYPE](#poseidon2hash_to_type)         | 输入速率为 2 的 Poseidon 哈希                |
+| [Poseidon4::hash_to_TYPE](#poseidon4hash_to_type)         | 输入速率为 4 的 Poseidon 哈希                |
+| [Poseidon8::hash_to_TYPE](#poseidon8hash_to_type)         | 输入速率为 8 的 Poseidon 哈希                |
+| [Keccak256::hash_to_bits](#keccak256hash_to_bits)         | 256 位输入/输出 Keccak 哈希                  |
+| [Keccak256::hash_to_TYPE](#keccak256hash_to_type)         | 256 位输入 Keccak 哈希                       |
+| [Keccak384::hash_to_bits](#keccak384hash_to_bits)         | 384 位输入/输出 Keccak 哈希                  |
+| [Keccak384::hash_to_TYPE](#keccak384hash_to_type)         | 384 位输入 Keccak 哈希                       |
+| [Keccak512::hash_to_bits](#keccak512hash_to_bits)         | 512 位输入/输出 Keccak 哈希                  |
+| [Keccak512::hash_to_TYPE](#keccak512hash_to_type)         | 512 位输入 Keccak 哈希                       |
+| [SHA3_256::hash_to_bits](#sha3_256hash_to_bits)           | 256 位输入/输出 SHA3 哈希                    |
+| [SHA3_256::hash_to_TYPE](#sha3_256hash_to_type)           | 256 位输入 SHA3 哈希                         |
+| [SHA3_384::hash_to_bits](#sha3_384hash_to_bits)           | 384 位输入/输出 SHA3 哈希                    |
+| [SHA3_384::hash_to_TYPE](#sha3_384hash_to_type)           | 384 位输入 SHA3 哈希                         |
+| [SHA3_512::hash_to_bits](#sha3_512hash_to_bits)           | 512 位输入/输出 SHA3 哈希                    |
+| [SHA3_512::hash_to_TYPE](#sha3_512hash_to_type)           | 512 位输入 SHA3 哈希                         |
+| [ChaCha::rand_TYPE](#chacharand_type)                     | ChaCha 随机数生成器                          |
+| [signature::verify](#signatureverify)                     | 验证 Schnorr 签名                            |
+| [ECDSA::verify_digest](#ecdsaverify_digest)               | 验证针对预哈希摘要的 ECDSA 签名              |
+| [ECDSA::verify_keccak256](#ecdsaverify_keccak256)         | 使用 Keccak256 验证 ECDSA 签名               |
+| [ECDSA::verify_keccak384](#ecdsaverify_keccak384)         | 使用 Keccak384 验证 ECDSA 签名               |
+| [ECDSA::verify_keccak512](#ecdsaverify_keccak512)         | 使用 Keccak512 验证 ECDSA 签名               |
+| [ECDSA::verify_sha3_256](#ecdsaverify_sha3_256)           | 使用 SHA3_256 验证 ECDSA 签名                |
+| [ECDSA::verify_sha3_384](#ecdsaverify_sha3_384)           | 使用 SHA3_384 验证 ECDSA 签名                |
+| [ECDSA::verify_sha3_512](#ecdsaverify_sha3_512)           | 使用 SHA3_512 验证 ECDSA 签名                |
+| [Snark::verify](#snarkverify)                             | 在链上验证单个 Varuna ZK 证明                |
+| [Snark::verify_batch](#snarkverify_batch)                 | 在链上批量验证多个 Varuna ZK 证明            |
+
+## Bowe-Hopwood-Pedersen (BHP)
+
+### `BHP256::hash_to_TYPE`
+
+```leo
+let result: address = BHP256::hash_to_address(1u8);
+let result: field = BHP256::hash_to_field(2i64);
+let result: group = BHP256::hash_to_group(1field);
+let result: scalar = BHP256::hash_to_scalar(1field);
+let result: i8 = BHP256::hash_to_i8(1field);
+let result: i16 = BHP256::hash_to_i16(1field);
+let result: i32 = BHP256::hash_to_i32(1field);
+let result: i64 = BHP256::hash_to_i64(1field);
+let result: i128 = BHP256::hash_to_i128(1field);
+let result: u8 = BHP256::hash_to_u8(1field);
+let result: u16 = BHP256::hash_to_u16(1field);
+let result: u32 = BHP256::hash_to_u32(1field);
+let result: u64 = BHP256::hash_to_u64(1field);
+let result: u128 = BHP256::hash_to_u128(1field);
+
+// 原始哈希变体
+let result: address = BHP256::hash_to_address_raw(1u8);
+let result: field = BHP256::hash_to_field_raw(2i64);
+                        ...
+```
+
+对 `first` 中以 256 位为一组的输入计算 Bowe-Hopwood-Pedersen 哈希，结果存储在 `destination` 中。输出哈希将是算术类型（`u8`、`u16`、`u32`、`u64`、`u128`、`i8`、`i16`、`i32`、`i64`、`i128`、`field`、`group` 或 `scalar`）或 `address` 值，具体由函数末尾的 `hash_to_TYPE` 指定。
+
+在函数末尾追加 `_raw` 后，哈希函数将省略变量的元数据，直接对输入比特进行哈希。
+
+如果给定输入小于 129 位，指令将停止。
+
+#### 支持的类型
+
+| 输入      | 目标类型                                                                                                    |
+| --------- | :---------------------------------------------------------------------------------------------------------- |
+| `address` | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `bool`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `field`   | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `group`   | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i8`      | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i16`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i32`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i64`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i128`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u8`      | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u16`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u32`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u64`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u128`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `scalar`  | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `struct`  | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+
+[返回目录](#目录)
+
+---
+
+### `BHP256::commit_to_TYPE`
+
+```leo
+let salt: scalar = ChaCha::rand_scalar();
+let a: address = BHP256::commit_to_address(1u8, salt);
+let b: field = BHP256::commit_to_field(2i64, salt);
+let c: group = BHP256::commit_to_group(1field, salt);
+```
+
+对 `first` 中以 256 位为一组的输入以及 `second` 中的随机数计算 Bowe-Hopwood-Pedersen 承诺，结果存储在 `destination` 中。随机数必须为 `scalar` 类型，输出承诺可以是 `address`、`field` 或 `group` 值。
+
+如果给定输入小于 129 位，指令将停止。
+
+#### 支持的类型
+
+| 输入      | 第二操作数 | 目标类型                        |
+| --------- | -------- | :---------------------------- |
+| `address` | `scalar` | `address`、`field`、`group`   |
+| `bool`    | `scalar` | `address`、`field`、`group`   |
+| `field`   | `scalar` | `address`、`field`、`group`   |
+| `group`   | `scalar` | `address`、`field`、`group`   |
+| `i8`      | `scalar` | `address`、`field`、`group`   |
+| `i16`     | `scalar` | `address`、`field`、`group`   |
+| `i32`     | `scalar` | `address`、`field`、`group`   |
+| `i64`     | `scalar` | `address`、`field`、`group`   |
+| `i128`    | `scalar` | `address`、`field`、`group`   |
+| `u8`      | `scalar` | `address`、`field`、`group`   |
+| `u16`     | `scalar` | `address`、`field`、`group`   |
+| `u32`     | `scalar` | `address`、`field`、`group`   |
+| `u64`     | `scalar` | `address`、`field`、`group`   |
+| `u128`    | `scalar` | `address`、`field`、`group`   |
+| `scalar`  | `scalar` | `address`、`field`、`group`   |
+| `struct`  | `scalar` | `address`、`field`、`group`   |
+
+[返回目录](#目录)
+
+---
+
+### `BHP512::hash_to_TYPE`
+
+```leo
+let result: address = BHP512::hash_to_address(1u8);
+let result: field = BHP512::hash_to_field(2i64);
+...
+```
+
+对 `first` 中以 512 位为一组的输入计算 Bowe-Hopwood-Pedersen 哈希，结果存储在 `destination` 中。在函数末尾追加 `_raw` 后，将省略元数据直接对输入比特哈希。如果输入小于 171 位，指令将停止。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同（支持所有标准类型及 `struct`）。
+
+[返回目录](#目录)
+
+---
+
+### `BHP512::commit_to_TYPE`
+
+```leo
+let salt: scalar = ChaCha::rand_scalar();
+let a: address = BHP512::commit_to_address(1u8, salt);
+let b: field = BHP512::commit_to_field(2i64, salt);
+let c: group = BHP512::commit_to_group(1field, salt);
+```
+
+对 `first` 中以 512 位为一组的输入及随机数 `second` 计算承诺，如果输入小于 171 位则停止。
+
+#### 支持的类型
+
+与 `BHP256::commit_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+### `BHP768::hash_to_TYPE`
+
+```leo
+let result: address = BHP768::hash_to_address(1u8);
+let result: field = BHP768::hash_to_field(2i64);
+...
+```
+
+对 `first` 中以 768 位为一组的输入计算 Bowe-Hopwood-Pedersen 哈希，结果存储在 `destination` 中。在函数末尾追加 `_raw` 后，将省略元数据直接对输入比特哈希。如果输入小于 129 位，指令将停止。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+### `BHP768::commit_to_TYPE`
+
+```leo
+let salt: scalar = ChaCha::rand_scalar();
+let a: address = BHP768::commit_to_address(1u8, salt);
+let b: field = BHP768::commit_to_field(2i64, salt);
+let c: group = BHP768::commit_to_group(1field, salt);
+```
+
+对 `first` 中以 768 位为一组的输入及随机数 `second` 计算承诺，如果输入小于 129 位则停止。
+
+#### 支持的类型
+
+与 `BHP256::commit_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+### `BHP1024::hash_to_TYPE`
+
+```leo
+let result: address = BHP1024::hash_to_address(1u8);
+let result: field = BHP1024::hash_to_field(2i64);
+...
+```
+
+对 `first` 中以 1024 位为一组的输入计算 Bowe-Hopwood-Pedersen 哈希，结果存储在 `destination` 中。在函数末尾追加 `_raw` 后，将省略元数据直接对输入比特哈希。如果输入小于 171 位，指令将停止。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+### `BHP1024::commit_to_TYPE`
+
+```leo
+let salt: scalar = ChaCha::rand_scalar();
+let a: address = BHP1024::commit_to_address(1u8, salt);
+let b: field = BHP1024::commit_to_field(2i64, salt);
+let c: group = BHP1024::commit_to_group(1field, salt);
+```
+
+对 `first` 中以 1024 位为一组的输入及随机数 `second` 计算承诺，如果输入小于 171 位则停止。
+
+#### 支持的类型
+
+与 `BHP256::commit_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+## Pedersen
+
+### `Pedersen64::hash_to_TYPE`
+
+```leo
+let result: address = Pedersen64::hash_to_address(1u8);
+let result: field = Pedersen64::hash_to_field(2i64);
+let result: group = Pedersen64::hash_to_group(1field);
+let result: scalar = Pedersen64::hash_to_scalar(1field);
+let result: i8 = Pedersen64::hash_to_i8(1field);
+...
+```
+
+对 `first` 中不超过 64 位的输入计算 Pedersen 哈希，结果存储在 `destination` 中。输出哈希为算术类型或 `address`，由函数末尾的 `hash_to_TYPE` 指定。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。如果给定的 `struct` 值超过 64 位限制，指令将停止。
+
+#### 支持的类型
+
+| 输入     | 目标类型                                                                                                    |
+| -------- | :---------------------------------------------------------------------------------------------------------- |
+| `bool`   | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i8`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i16`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i32`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u8`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u16`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u32`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `struct` | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+
+[返回目录](#目录)
+
+---
+
+### `Pedersen64::commit_to_TYPE`
+
+```leo
+let salt: scalar = ChaCha::rand_scalar();
+let a: address = Pedersen64::commit_to_address(1u8, salt);
+let b: field = Pedersen64::commit_to_field(2i64, salt);
+let c: group = Pedersen64::commit_to_group(1field, salt);
+```
+
+对 `first` 中不超过 64 位的输入及随机数 `second` 计算 Pedersen 承诺，结果存储在 `destination` 中。随机数为 `scalar` 类型，输出承诺为 `group` 值。如果 `struct` 值超过 64 位限制则停止。
+
+#### 支持的类型
+
+| 输入     | 第二操作数 | 目标类型                      |
+| -------- | -------- | :---------------------------- |
+| `bool`   | `scalar` | `address`、`field`、`group`   |
+| `i8`     | `scalar` | `address`、`field`、`group`   |
+| `i16`    | `scalar` | `address`、`field`、`group`   |
+| `i32`    | `scalar` | `address`、`field`、`group`   |
+| `u8`     | `scalar` | `address`、`field`、`group`   |
+| `u16`    | `scalar` | `address`、`field`、`group`   |
+| `u32`    | `scalar` | `address`、`field`、`group`   |
+| `struct` | `scalar` | `address`、`field`、`group`   |
+
+[返回目录](#目录)
+
+---
+
+### `Pedersen128::hash_to_TYPE`
+
+```leo
+let result: address = Pedersen128::hash_to_address(1u8);
+let result: field = Pedersen128::hash_to_field(2i64);
+...
+```
+
+对 `first` 中不超过 128 位的输入计算 Pedersen 哈希，结果存储在 `destination` 中。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。如果 `struct` 值超过 64 位限制则停止。
+
+#### 支持的类型
+
+| 输入     | 目标类型                                                                                                    |
+| -------- | :---------------------------------------------------------------------------------------------------------- |
+| `bool`   | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i8`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i16`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i32`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `i64`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u8`     | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u16`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u32`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `u64`    | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+| `struct` | `address`、`field`、`group`、`scalar`、`i8`、`i16`、`i32`、`i64`、`i128`、`u8`、`u16`、`u32`、`u64`、`u128` |
+
+[返回目录](#目录)
+
+---
+
+### `Pedersen128::commit_to_TYPE`
+
+```leo
+let salt: scalar = ChaCha::rand_scalar();
+let a: address = Pedersen128::commit_to_address(1u8, salt);
+let b: field = Pedersen128::commit_to_field(2i64, salt);
+let c: group = Pedersen128::commit_to_group(1field, salt);
+```
+
+对 `first` 中不超过 128 位的输入及随机数 `second` 计算 Pedersen 承诺，结果存储在 `destination` 中。如果 `struct` 值超过 128 位限制则停止。
+
+#### 支持的类型
+
+| 输入     | 第二操作数 | 目标类型                      |
+| -------- | -------- | :---------------------------- |
+| `bool`   | `scalar` | `address`、`field`、`group`   |
+| `i8`     | `scalar` | `address`、`field`、`group`   |
+| `i16`    | `scalar` | `address`、`field`、`group`   |
+| `i32`    | `scalar` | `address`、`field`、`group`   |
+| `i64`    | `scalar` | `address`、`field`、`group`   |
+| `u8`     | `scalar` | `address`、`field`、`group`   |
+| `u16`    | `scalar` | `address`、`field`、`group`   |
+| `u32`    | `scalar` | `address`、`field`、`group`   |
+| `u64`    | `scalar` | `address`、`field`、`group`   |
+| `struct` | `scalar` | `address`、`field`、`group`   |
+
+[返回目录](#目录)
+
+---
+
+## Poseidon
+
+### `Poseidon2::hash_to_TYPE`
+
+```leo
+let result: address = Poseidon2::hash_to_address(1u8);
+let result: field = Poseidon2::hash_to_field(2i64);
+...
+```
+
+以输入速率为 2 计算 `first` 的 Poseidon 哈希，结果存储在 `destination` 中。输出哈希为算术类型或 `address`，由函数末尾的 `hash_to_TYPE` 指定。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同（支持所有标准类型及 `struct`）。
+
+[返回目录](#目录)
+
+---
+
+### `Poseidon4::hash_to_TYPE`
+
+```leo
+let result: address = Poseidon4::hash_to_address(1u8);
+let result: field = Poseidon4::hash_to_field(2i64);
+...
+```
+
+以输入速率为 4 计算 `first` 的 Poseidon 哈希，结果存储在 `destination` 中。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+### `Poseidon8::hash_to_TYPE`
+
+```leo
+let result: address = Poseidon8::hash_to_address(1u8);
+let result: field = Poseidon8::hash_to_field(2i64);
+...
+```
+
+以输入速率为 8 计算 `first` 的 Poseidon 哈希，结果存储在 `destination` 中。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+## Keccak
+
+### `Keccak256::hash_to_bits`
+
+```leo
+let result: [bool; 256] = Keccak256::hash_to_bits(1u8);
+let result: [bool; 256] = Keccak256::hash_to_bits(2i64);
+let result: [bool; 256] = Keccak256::hash_to_bits(1field);
+...
+
+// 原始哈希变体
+let result: [bool; 256] = Keccak256::hash_to_bits_raw(1u8);
+...
+```
+
+对 `first` 中以 256 位为一组的输入计算 Keccak256 哈希，结果存储在 `destination` 中，输出为比特数组。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+| 输入      | 目标类型      |
+| --------- | :------------ |
+| `address` | `[bool; 256]` |
+| `bool`    | `[bool; 256]` |
+| `field`   | `[bool; 256]` |
+| `group`   | `[bool; 256]` |
+| `i8`      | `[bool; 256]` |
+| `i16`     | `[bool; 256]` |
+| `i32`     | `[bool; 256]` |
+| `i64`     | `[bool; 256]` |
+| `i128`    | `[bool; 256]` |
+| `u8`      | `[bool; 256]` |
+| `u16`     | `[bool; 256]` |
+| `u32`     | `[bool; 256]` |
+| `u64`     | `[bool; 256]` |
+| `u128`    | `[bool; 256]` |
+| `scalar`  | `[bool; 256]` |
+| `struct`  | `[bool; 256]` |
+
+[返回目录](#目录)
+
+---
+
+### `Keccak256::hash_to_TYPE`
+
+```leo
+let result: address = Keccak256::hash_to_address(1u8);
+let result: field = Keccak256::hash_to_field(2i64);
+...
+```
+
+对 `first` 中以 256 位为一组的输入计算 Keccak256 哈希，结果存储在 `destination` 中，输出为算术类型或 `address`。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同（支持所有标准类型及 `struct`）。
+
+[返回目录](#目录)
+
+---
+
+### `Keccak384::hash_to_bits`
+
+```leo
+let result: [bool; 384] = Keccak384::hash_to_bits(1u8);
+...
+```
+
+对 `first` 中以 384 位为一组的输入计算 Keccak384 哈希，输出为比特数组。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+| 输入      | 目标类型      |
+| --------- | :------------ |
+| `address` | `[bool; 384]` |
+| `bool`    | `[bool; 384]` |
+| `field`   | `[bool; 384]` |
+| `group`   | `[bool; 384]` |
+| `i8`      | `[bool; 384]` |
+| `i16`     | `[bool; 384]` |
+| `i32`     | `[bool; 384]` |
+| `i64`     | `[bool; 384]` |
+| `i128`    | `[bool; 384]` |
+| `u8`      | `[bool; 384]` |
+| `u16`     | `[bool; 384]` |
+| `u32`     | `[bool; 384]` |
+| `u64`     | `[bool; 384]` |
+| `u128`    | `[bool; 384]` |
+| `scalar`  | `[bool; 384]` |
+| `struct`  | `[bool; 384]` |
+
+[返回目录](#目录)
+
+---
+
+### `Keccak384::hash_to_TYPE`
+
+```leo
+let result: address = Keccak384::hash_to_address(1u8);
+let result: field = Keccak384::hash_to_field(2i64);
+...
+```
+
+对 `first` 中以 384 位为一组的输入计算 Keccak384 哈希，输出为算术类型或 `address`。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+### `Keccak512::hash_to_bits`
+
+```leo
+let result: [bool; 512] = Keccak512::hash_to_bits(1u8);
+...
+```
+
+对 `first` 中以 512 位为一组的输入计算 Keccak512 哈希，输出为比特数组。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+| 输入      | 目标类型      |
+| --------- | :------------ |
+| `address` | `[bool; 512]` |
+| `bool`    | `[bool; 512]` |
+| `field`   | `[bool; 512]` |
+| `group`   | `[bool; 512]` |
+| `i8`      | `[bool; 512]` |
+| `i16`     | `[bool; 512]` |
+| `i32`     | `[bool; 512]` |
+| `i64`     | `[bool; 512]` |
+| `i128`    | `[bool; 512]` |
+| `u8`      | `[bool; 512]` |
+| `u16`     | `[bool; 512]` |
+| `u32`     | `[bool; 512]` |
+| `u64`     | `[bool; 512]` |
+| `u128`    | `[bool; 512]` |
+| `scalar`  | `[bool; 512]` |
+| `struct`  | `[bool; 512]` |
+
+[返回目录](#目录)
+
+---
+
+### `Keccak512::hash_to_TYPE`
+
+```leo
+let result: address = Keccak512::hash_to_address(1u8);
+let result: field = Keccak512::hash_to_field(2i64);
+...
+```
+
+对 `first` 中以 512 位为一组的输入计算 Keccak512 哈希，输出为算术类型或 `address`。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+## SHA3
+
+### `SHA3_256::hash_to_bits`
+
+```leo
+let result: [bool; 256] = SHA3_256::hash_to_bits(1u8);
+...
+
+// 原始哈希变体
+let result: [bool; 256] = SHA3_256::hash_to_bits_raw(1u8);
+...
+```
+
+从 `first` 的输入计算 SHA3_256 哈希，结果存储在 `destination` 中，输出为比特数组。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+| 输入      | 目标类型      |
+| --------- | :------------ |
+| `address` | `[bool; 256]` |
+| `bool`    | `[bool; 256]` |
+| `field`   | `[bool; 256]` |
+| `group`   | `[bool; 256]` |
+| `i8`      | `[bool; 256]` |
+| `i16`     | `[bool; 256]` |
+| `i32`     | `[bool; 256]` |
+| `i64`     | `[bool; 256]` |
+| `i128`    | `[bool; 256]` |
+| `u8`      | `[bool; 256]` |
+| `u16`     | `[bool; 256]` |
+| `u32`     | `[bool; 256]` |
+| `u64`     | `[bool; 256]` |
+| `u128`    | `[bool; 256]` |
+| `scalar`  | `[bool; 256]` |
+| `struct`  | `[bool; 256]` |
+
+[返回目录](#目录)
+
+---
+
+### `SHA3_256::hash_to_TYPE`
+
+```leo
+let result: address = SHA3_256::hash_to_address(1u8);
+let result: field = SHA3_256::hash_to_field(2i64);
+...
+```
+
+从 `first` 的输入计算 SHA3_256 哈希，输出为算术类型或 `address`。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+### `SHA3_384::hash_to_bits`
+
+```leo
+let result: [bool; 384] = SHA3_384::hash_to_bits(1u8);
+...
+```
+
+从 `first` 的输入计算 SHA3_384 哈希，输出为比特数组。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+| 输入      | 目标类型      |
+| --------- | :------------ |
+| `address` | `[bool; 384]` |
+| `bool`    | `[bool; 384]` |
+| `field`   | `[bool; 384]` |
+| `group`   | `[bool; 384]` |
+| `i8`      | `[bool; 384]` |
+| `i16`     | `[bool; 384]` |
+| `i32`     | `[bool; 384]` |
+| `i64`     | `[bool; 384]` |
+| `i128`    | `[bool; 384]` |
+| `u8`      | `[bool; 384]` |
+| `u16`     | `[bool; 384]` |
+| `u32`     | `[bool; 384]` |
+| `u64`     | `[bool; 384]` |
+| `u128`    | `[bool; 384]` |
+| `scalar`  | `[bool; 384]` |
+| `struct`  | `[bool; 384]` |
+
+[返回目录](#目录)
+
+---
+
+### `SHA3_384::hash_to_TYPE`
+
+```leo
+let result: address = SHA3_384::hash_to_address(1u8);
+let result: field = SHA3_384::hash_to_field(2i64);
+...
+```
+
+从 `first` 的输入计算 SHA3_384 哈希，输出为算术类型或 `address`。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+### `SHA3_512::hash_to_bits`
+
+```leo
+let result: [bool; 512] = SHA3_512::hash_to_bits(1u8);
+...
+```
+
+从 `first` 的输入计算 SHA3_512 哈希，输出为比特数组。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+| 输入      | 目标类型      |
+| --------- | :------------ |
+| `address` | `[bool; 512]` |
+| `bool`    | `[bool; 512]` |
+| `field`   | `[bool; 512]` |
+| `group`   | `[bool; 512]` |
+| `i8`      | `[bool; 512]` |
+| `i16`     | `[bool; 512]` |
+| `i32`     | `[bool; 512]` |
+| `i64`     | `[bool; 512]` |
+| `i128`    | `[bool; 512]` |
+| `u8`      | `[bool; 512]` |
+| `u16`     | `[bool; 512]` |
+| `u32`     | `[bool; 512]` |
+| `u64`     | `[bool; 512]` |
+| `u128`    | `[bool; 512]` |
+| `scalar`  | `[bool; 512]` |
+| `struct`  | `[bool; 512]` |
+
+[返回目录](#目录)
+
+---
+
+### `SHA3_512::hash_to_TYPE`
+
+```leo
+let result: address = SHA3_512::hash_to_address(1u8);
+let result: field = SHA3_512::hash_to_field(2i64);
+...
+```
+
+从 `first` 的输入计算 SHA3_512 哈希，输出为算术类型或 `address`。在函数末尾追加 `_raw` 后，将省略元数据直接哈希输入比特。
+
+#### 支持的类型
+
+与 `BHP256::hash_to_TYPE` 相同。
+
+[返回目录](#目录)
+
+---
+
+## ChaCha
+
+### `ChaCha::rand_TYPE`
+
+```leo
+let result: address = ChaCha::rand_address();
+let result: bool = ChaCha::rand_bool();
+let result: field = ChaCha::rand_field();
+let result: group = ChaCha::rand_group();
+let result: i8 = ChaCha::rand_i8();
+let result: i16 = ChaCha::rand_i16();
+let result: i32 = ChaCha::rand_i32();
+let result: i64 = ChaCha::rand_i64();
+let result: i128 = ChaCha::rand_i128();
+let result: u8 = ChaCha::rand_u8();
+let result: u16 = ChaCha::rand_u16();
+let result: u32 = ChaCha::rand_u32();
+let result: u64 = ChaCha::rand_u64();
+let result: u128 = ChaCha::rand_u128();
+let result: scalar = ChaCha::rand_scalar();
+```
+
+返回目标类型的随机值。
+
+:::info
+此操作只能在 `final { }` 块或 `final fn` 函数内使用。
+:::
+
+#### 支持的类型
+
+| 目标类型    |
+| ----------- |
+| `address`   |
+| `bool`      |
+| `field`     |
+| `group`     |
+| `i8`        |
+| `i16`       |
+| `i32`       |
+| `i64`       |
+| `i128`      |
+| `u8`        |
+| `u16`       |
+| `u32`       |
+| `u64`       |
+| `u128`      |
+| `scalar`    |
+
+[返回目录](#目录)
+
+---
+
+## Schnorr 签名
+
+### `signature::verify`
+
+```leo
+program example.aleo {
+    fn verify_field(s: signature, a: address, v: field) {
+        let first: bool = signature::verify(s, a, v);
+        let second: bool = s.verify(a, v);
+        assert_eq(first, second);
+    }
+}
+```
+
+验证签名 `first` 是否由地址 `second` 针对域元素 `third` 签名，结果存储在 `destination` 中。此验证遵循 [Schnorr 签名方案](https://en.wikipedia.org/wiki/Schnorr_signature)——签名者生成随机数并对其承诺，利用哈希函数计算挑战值，再将随机数、挑战值和私钥组合生成签名；验证方通过重建挑战值并检查与公钥和消息的一致性来验证签名的有效性。
+
+#### 支持的类型
+
+`Message` 可以是任何字面量或 `struct` 类型。
+
+| 第一操作数（签名）| 第二操作数（地址）| 第三操作数（消息）| 目标类型    |
+| ----------- | --------- | --------- | ----------- |
+| `signature` | `address` | `Message` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+## ECDSA 签名
+
+### `ECDSA::verify_digest`
+
+```leo
+let valid: bool = ECDSA::verify_digest(sig, addr, digest);
+let valid: bool = ECDSA::verify_digest_eth(sig, eth_addr, digest);
+```
+
+验证签名 `first` 是否由对应地址 `second` 的私钥针对域元素 `third` 签名，结果存储在 `destination` 中。该函数假定传入 `third` 的值是预先计算的哈希函数输出。标准版 `verify_digest` 假定 `second` 是 33 字节的 ECDSA 公钥，而 `verify_digest_eth` 版本假定 `second` 是 20 字节的以太坊地址。
+
+此验证遵循 [ECDSA 签名方案](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)，该算法被众多其他区块链和传统系统广泛使用。
+
+#### 支持的类型
+
+| 第一操作数  | 第二操作数  | 第二操作数（以太坊）| 第三操作数  | 目标类型    |
+| ---------- | ---------- | ------------ | ---------- | ----------- |
+| `[u8;65]`  | `[u8; 33]` | `[u8; 20]`   | `[u8; 32]` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `ECDSA::verify_keccak256`
+
+```leo
+let valid: bool = ECDSA::verify_keccak256(sig, addr, msg);
+let valid: bool = ECDSA::verify_keccak256_raw(sig, addr, msg);
+let valid: bool = ECDSA::verify_keccak256_eth(sig, eth_addr, msg);
+```
+
+验证签名 `first` 是否由地址 `second` 的私钥针对 `third` 签名，结果存储在 `destination` 中。该函数假定 `third` 是明文消息字节，将使用 Keccak256 算法进行哈希。标准版 `verify_keccak256` 会在输入中包含 Aleo 特定的元数据，`verify_keccak256_raw` 版本则排除元数据，`verify_keccak256_eth` 版本既排除元数据又假定 `second` 是 20 字节的以太坊地址。
+
+此验证遵循 [ECDSA 签名方案](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)。
+
+#### 支持的类型
+
+`Message` 是任何字节对齐的类型。
+
+| 第一操作数  | 第二操作数  | 第二操作数（以太坊）| 第三操作数  | 目标类型    |
+| ---------- | ---------- | ------------ | --------- | ----------- |
+| `[u8;65]`  | `[u8; 33]` | `[u8; 20]`   | `Message` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `ECDSA::verify_keccak384`
+
+```leo
+let valid: bool = ECDSA::verify_keccak384(sig, addr, msg);
+let valid: bool = ECDSA::verify_keccak384_raw(sig, addr, msg);
+let valid: bool = ECDSA::verify_keccak384_eth(sig, eth_addr, msg);
+```
+
+与 `verify_keccak256` 相同，但使用 Keccak384 算法对消息进行哈希。
+
+#### 支持的类型
+
+| 第一操作数  | 第二操作数  | 第二操作数（以太坊）| 第三操作数  | 目标类型    |
+| ---------- | ---------- | ------------ | --------- | ----------- |
+| `[u8;65]`  | `[u8; 33]` | `[u8; 20]`   | `Message` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `ECDSA::verify_keccak512`
+
+```leo
+let valid: bool = ECDSA::verify_keccak512(sig, addr, msg);
+let valid: bool = ECDSA::verify_keccak512_raw(sig, addr, msg);
+let valid: bool = ECDSA::verify_keccak512_eth(sig, eth_addr, msg);
+```
+
+与 `verify_keccak256` 相同，但使用 Keccak512 算法对消息进行哈希。
+
+#### 支持的类型
+
+| 第一操作数  | 第二操作数  | 第二操作数（以太坊）| 第三操作数  | 目标类型    |
+| ---------- | ---------- | ------------ | --------- | ----------- |
+| `[u8;65]`  | `[u8; 33]` | `[u8; 20]`   | `Message` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `ECDSA::verify_sha3_256`
+
+```leo
+let valid: bool = ECDSA::verify_sha3_256(sig, addr, msg);
+let valid: bool = ECDSA::verify_sha3_256_raw(sig, addr, msg);
+let valid: bool = ECDSA::verify_sha3_256_eth(sig, eth_addr, msg);
+```
+
+与 `verify_keccak256` 相同，但使用 SHA3_256 算法对消息进行哈希。
+
+#### 支持的类型
+
+| 第一操作数  | 第二操作数  | 第二操作数（以太坊）| 第三操作数  | 目标类型    |
+| ---------- | ---------- | ------------ | --------- | ----------- |
+| `[u8;65]`  | `[u8; 33]` | `[u8; 20]`   | `Message` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `ECDSA::verify_sha3_384`
+
+```leo
+let valid: bool = ECDSA::verify_sha3_384(sig, addr, msg);
+let valid: bool = ECDSA::verify_sha3_384_raw(sig, addr, msg);
+let valid: bool = ECDSA::verify_sha3_384_eth(sig, eth_addr, msg);
+```
+
+与 `verify_keccak256` 相同，但使用 SHA3_384 算法对消息进行哈希。
+
+#### 支持的类型
+
+| 第一操作数  | 第二操作数  | 第二操作数（以太坊）| 第三操作数  | 目标类型    |
+| ---------- | ---------- | ------------ | --------- | ----------- |
+| `[u8;65]`  | `[u8; 33]` | `[u8; 20]`   | `Message` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `ECDSA::verify_sha3_512`
+
+```leo
+let valid: bool = ECDSA::verify_sha3_512(sig, addr, msg);
+let valid: bool = ECDSA::verify_sha3_512_raw(sig, addr, msg);
+let valid: bool = ECDSA::verify_sha3_512_eth(sig, eth_addr, msg);
+```
+
+与 `verify_keccak256` 相同，但使用 SHA3_512 算法对消息进行哈希。
+
+#### 支持的类型
+
+| 第一操作数  | 第二操作数  | 第二操作数（以太坊）| 第三操作数  | 目标类型    |
+| ---------- | ---------- | ------------ | --------- | ----------- |
+| `[u8;65]`  | `[u8; 33]` | `[u8; 20]`   | `Message` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+## zk-SNARKs
+
+### `Snark::verify`
+
+```leo
+let valid: bool = Snark::verify(vk, version, inputs, proof);
+```
+
+在链上验证单个 Varuna ZK 证明。只能在 `final { }` 块内调用。
+
+| 参数      | 类型          | 描述                                       |
+| --------- | ------------- | ------------------------------------------ |
+| `vk`      | `[u8; N]`     | 序列化的验证密钥（一维字节数组）           |
+| `version` | `u8`          | Varuna 版本标识符                          |
+| `inputs`  | `[field; N]`  | 公开输入（一维域元素数组）                 |
+| `proof`   | `[u8; N]`     | 序列化的证明（一维字节数组）               |
+
+返回 `bool`。
+
+[返回目录](#目录)
+
+---
+
+### `Snark::verify_batch`
+
+```leo
+let valid: bool = Snark::verify_batch(vks, version, inputs, proof);
+```
+
+在链上批量验证多个 Varuna ZK 证明。只能在 `final { }` 块内调用。验证密钥数量（`M`）必须等于 `inputs` 中的电路数量（`K`）。
+
+| 参数      | 类型               | 描述                                                                        |
+| --------- | ------------------ | --------------------------------------------------------------------------- |
+| `vks`     | `[[u8; N]; M]`     | 序列化验证密钥的数组                                                        |
+| `version` | `u8`               | Varuna 版本标识符                                                           |
+| `inputs`  | `[[[field; N]; M]; K]` | 公开输入——外层维度为电路，中间维度为实例                               |
+| `proof`   | `[u8; N]`          | 序列化的证明（一维字节数组）                                                |
+
+返回 `bool`。
+
+[返回目录](#目录)
+
+---
