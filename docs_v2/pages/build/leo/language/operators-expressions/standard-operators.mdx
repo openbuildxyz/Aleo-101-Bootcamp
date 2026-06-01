@@ -1,0 +1,1612 @@
+---
+title: 标准运算符
+---
+
+# 标准运算符
+
+## 目录
+
+| 名称                                                        | 描述                                                      |
+| ----------------------------------------------------------- | :-------------------------------------------------------- |
+| [abs](#abs)                                                 | 绝对值                                                    |
+| [abs_wrapped](#abs_wrapped)                                 | 回绕绝对值                                                |
+| [add](#add)                                                 | 加法                                                      |
+| [add_wrapped](#add_wrapped)                                 | 回绕加法                                                  |
+| [and](#and)                                                 | 逻辑与                                                    |
+| [assert](#assert)                                           | 断言布尔值为真                                            |
+| [assert_eq](#assert_eq)                                     | 断言相等                                                  |
+| [assert_neq](#assert_neq)                                   | 断言不等                                                  |
+| [block.height](#blockheight)                                | 获取最新区块高度                                          |
+| [block.timestamp](#blocktimestamp)                          | 获取最新区块时间戳                                        |
+| [Deserialize::from_bits::[TYPE]](#deserializefrom_bitstype) | 将比特序列反序列化为数据类型                              |
+| [div](#div)                                                 | 除法                                                      |
+| [div_wrapped](#div_wrapped)                                 | 回绕除法                                                  |
+| [double](#double)                                           | 加倍                                                      |
+| [group::GEN](#groupgen)                                     | group 生成元                                              |
+| [Aleo::generator](#aleogenerator)                           | Aleo group 生成元常量                                     |
+| [Aleo::generator_powers](#aleogenerator_powers)             | 预计算的 Aleo 生成元幂次 `[group; 251]`                   |
+| [gt](#gt)                                                   | 大于比较                                                  |
+| [gte](#gte)                                                 | 大于等于比较                                              |
+| [inv](#inv)                                                 | 乘法逆元                                                  |
+| [eq](#eq)                                                   | 相等比较                                                  |
+| [neq](#neq)                                                 | 不等比较                                                  |
+| [lt](#lt)                                                   | 小于比较                                                  |
+| [lte](#lte)                                                 | 小于等于比较                                              |
+| [mod](#mod)                                                 | 取模                                                      |
+| [mul](#mul)                                                 | 乘法                                                      |
+| [mul_wrapped](#mul_wrapped)                                 | 回绕乘法                                                  |
+| [nand](#nand)                                               | 与非                                                      |
+| [neg](#neg)                                                 | 加法逆元（取反）                                          |
+| [nor](#nor)                                                 | 或非                                                      |
+| [not](#not)                                                 | 逻辑非                                                    |
+| [or](#or)                                                   | 逻辑或（含）                                              |
+| [pow](#pow)                                                 | 幂运算                                                    |
+| [pow_wrapped](#pow_wrapped)                                 | 回绕幂运算                                                |
+| [rem](#rem)                                                 | 求余                                                      |
+| [rem_wrapped](#rem_wrapped)                                 | 回绕求余                                                  |
+| [self.address](#selfaddress)                                | 当前程序的地址                                            |
+| [self.caller](#selfcaller)                                  | 调用方用户/程序的地址                                     |
+| [self.checksum](#selfcaller)                                | 程序的校验和                                              |
+| [self.edition](#selfedition)                                | 程序的版本号                                              |
+| [self.program_owner](#selfprogram_owner)                    | 提交程序部署交易的地址                                    |
+| [self.signer](#selfsigner)                                  | 顶层调用用户的地址                                        |
+| [Serialize::to_bits](#serializeto_bits)                     | 将数据序列化为比特序列                                    |
+| [shl](#shl)                                                 | 左移                                                      |
+| [shl_wrapped](#shl_wrapped)                                 | 回绕左移                                                  |
+| [shr](#shr)                                                 | 右移                                                      |
+| [shr_wrapped](#shr_wrapped)                                 | 回绕右移                                                  |
+| [square_root](#square_root)                                 | 平方根                                                    |
+| [square](#square)                                           | 平方                                                      |
+| [sub](#sub)                                                 | 减法                                                      |
+| [sub_wrapped](#sub_wrapped)                                 | 回绕减法                                                  |
+| [ternary](#ternary)                                         | 三元选择                                                  |
+| [to_x_coordinate](#to_x_coordinate)                         | 提取 group 元素的 x 坐标                                  |
+| [to_y_coordinate](#to_y_coordinate)                         | 提取 group 元素的 y 坐标                                  |
+| [xor](#xor)                                                 | 异或                                                      |
+
+## 算术运算符
+
+### `abs`
+
+```leo
+let a: i8 = -1i8;
+let b: i8 = a.abs(); // 1i8
+```
+
+计算输入的绝对值，检查溢出，并将结果存储在目标位置。
+
+注意，如果运算溢出，执行将停止。对于需要回绕语义的情况，请参阅 [abs_wrapped](#abs_wrapped)。当输入为有符号整数类型的最小值时会发生溢出，例如 `abs -128i8` 会导致溢出，因为 `128` 无法用 `i8` 表示。
+
+#### 支持的类型
+
+| 输入   | 目标类型    |
+| ------ | :---------- |
+| `i8`   | `i8`        |
+| `i16`  | `i16`       |
+| `i32`  | `i32`       |
+| `i64`  | `i64`       |
+| `i128` | `i128`      |
+
+[返回目录](#目录)
+
+---
+
+### `abs_wrapped`
+
+```leo
+let a: i8 = -128i8;
+let b: i8 = a.abs_wrapped(); // -128i8
+```
+
+计算输入的绝对值，在类型边界处回绕，并将结果存储在目标位置。
+
+#### 支持的类型
+
+| 输入   | 目标类型    |
+| ------ | :---------- |
+| `i8`   | `i8`        |
+| `i16`  | `i16`       |
+| `i32`  | `i32`       |
+| `i64`  | `i64`       |
+| `i128` | `i128`      |
+
+[返回目录](#目录)
+
+---
+
+### `add`
+
+```leo
+let a: u8 = 1u8;
+let b: u8 = a + 1u8; // 2u8
+let c: u8 = b.add(1u8); // 3u8
+```
+
+将 `first` 与 `second` 相加，结果存储在 `destination` 中。
+
+注意，如果运算溢出，执行将停止。对于整数类型需要回绕语义的情况，请参阅 [add_wrapped](#add_wrapped)。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| -------- | -------- | ----------- |
+| `field`  | `field`  | `field`     |
+| `group`  | `group`  | `group`     |
+| `i8`     | `i8`     | `i8`        |
+| `i16`    | `i16`    | `i16`       |
+| `i32`    | `i32`    | `i32`       |
+| `i64`    | `i64`    | `i64`       |
+| `i128`   | `i128`   | `i128`      |
+| `u8`     | `u8`     | `u8`        |
+| `u16`    | `u16`    | `u16`       |
+| `u32`    | `u32`    | `u32`       |
+| `u64`    | `u64`    | `u64`       |
+| `u128`   | `u128`   | `u128`      |
+| `scalar` | `scalar` | `scalar`    |
+
+[返回目录](#目录)
+
+---
+
+### `add_wrapped`
+
+```leo
+let a: u8 = 255u8;
+let b: u8 = a.add_wrapped(1u8); // 0u8
+```
+
+将 `first` 与 `second` 相加，在类型边界处回绕，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | :---------- |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `div`
+
+```leo
+let a: u8 = 4u8;
+let b: u8 = a / 2u8; // 2u8
+let c: u8 = b.div(2u8); // 1u8
+```
+
+将第一操作数除以第二操作数，结果存储在目标位置。如果尝试除以零，操作将停止。
+
+对于整数类型，此操作执行截断除法——向零取整，无论操作数的符号如何，即截掉小数部分，保留绝对值不超过结果的整数。
+
+例如：
+
+- `7 / 3` 的结果是 `2`，而不是 `2.3333`。
+- `-7 / 3` 的结果是 `-2`，而不是 `-2.3333`。
+
+如果发生下溢，操作将停止。下溢发生在有符号整数类型的最小值除以 -1 时。例如，`-128i8 / -1i8` 会下溢，因为 `128` 无法用 `i8` 表示。
+
+对于域类型，除法 `a / b` 在 `b = 0field` 时未定义，其他情况均定义。
+
+对于需要整数回绕语义的情况，请参阅 [div_wrapped](#div_wrapped)。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------- | ------- | :---------- |
+| `field` | `field` | `field`     |
+| `i8`    | `i8`    | `i8`        |
+| `i16`   | `i16`   | `i16`       |
+| `i32`   | `i32`   | `i32`       |
+| `i64`   | `i64`   | `i64`       |
+| `i128`  | `i128`  | `i128`      |
+| `u8`    | `u8`    | `u8`        |
+| `u16`   | `u16`   | `u16`       |
+| `u32`   | `u32`   | `u32`       |
+| `u64`   | `u64`   | `u64`       |
+| `u128`  | `u128`  | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `div_wrapped`
+
+```leo
+let a: i8 = -128i8;
+let b: i8 = a.div_wrapped(-1i8); // -128i8
+```
+
+将 `first` 除以 `second`，在类型边界处回绕，结果存储在 `destination` 中。如果 `second` 为零则停止。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | :---------- |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `mod`
+
+```leo
+let a: u8 = 3u8.mod(2u8); // 1u8
+```
+
+计算 `first` 对 `second` 取模的结果，存储在 `destination` 中。如果 `second` 为零则停止。
+
+此操作的语义与数学上取模运算的定义一致。
+
+`mod` 保证余数与 `second` 操作数同号，这与 [`rem`](#rem) 不同——后者遵循截断除法，余数与 `first` 操作数同号。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `mul`
+
+```leo
+let a: u8 = 2u8 * 2u8; // 4u8
+let b: u8 = a.mul(2u8); // 8u8
+```
+
+将 `first` 与 `second` 相乘，结果存储在 `destination` 中。
+
+注意，如果运算溢出或下溢，执行将停止。对于整数类型需要回绕语义的情况，请参阅 [mul_wrapped](#mul_wrapped)。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| -------- | -------- | ----------- |
+| `field`  | `field`  | `field`     |
+| `group`  | `scalar` | `group`     |
+| `scalar` | `group`  | `group`     |
+| `i8`     | `i8`     | `i8`        |
+| `i16`    | `i16`    | `i16`       |
+| `i32`    | `i32`    | `i32`       |
+| `i64`    | `i64`    | `i64`       |
+| `i128`   | `i128`   | `i128`      |
+| `u8`     | `u8`     | `u8`        |
+| `u16`    | `u16`    | `u16`       |
+| `u32`    | `u32`    | `u32`       |
+| `u64`    | `u64`    | `u64`       |
+| `u128`   | `u128`   | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `mul_wrapped`
+
+```leo
+let a: u8 = 128u8.mul_wrapped(2u8); // 0u8
+```
+
+将 `first` 与 `second` 相乘，在类型边界处回绕，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `neg`
+
+```leo
+let a: i8 = -1i8.neg(); // 1i8
+```
+
+对第一操作数取反，结果存储在目标位置。
+
+对于有符号整数类型，如果对最小值取反，操作将停止。例如，`-128i8.neg()` 会停止，因为 `128` 无法用 `i8` 表示。
+
+#### 支持的类型
+
+| 输入    | 目标类型    |
+| ------- | ----------- |
+| `field` | `field`     |
+| `group` | `group`     |
+| `i8`    | `i8`        |
+| `i16`   | `i16`       |
+| `i32`   | `i32`       |
+| `i64`   | `i64`       |
+| `i128`  | `i128`      |
+
+[返回目录](#目录)
+
+---
+
+### `pow`
+
+```leo
+let a: u8 = 2u8 ** 2u8; // 4u8
+let b: u8 = a.pow(2u8); // 16u8
+```
+
+将 `first` 的 `second` 次幂求值，结果存储在 `destination` 中。
+
+注意，如果运算溢出或下溢，执行将停止。对于整数类型需要回绕语义的情况，请参阅 [pow_wrapped](#pow_wrapped)。
+
+#### 支持的类型
+
+`Magnitude` 可以是 `u8`、`u16` 或 `u32`。
+
+| 第一操作数 | 第二操作数   | 目标类型    |
+| ------- | ----------- | ----------- |
+| `field` | `field`     | `field`     |
+| `i8`    | `Magnitude` | `i8`        |
+| `i16`   | `Magnitude` | `i16`       |
+| `i32`   | `Magnitude` | `i32`       |
+| `i64`   | `Magnitude` | `i64`       |
+| `i128`  | `Magnitude` | `i128`      |
+| `u8`    | `Magnitude` | `u8`        |
+| `u16`   | `Magnitude` | `u16`       |
+| `u32`   | `Magnitude` | `u32`       |
+| `u64`   | `Magnitude` | `u64`       |
+| `u128`  | `Magnitude` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `pow_wrapped`
+
+```leo
+let a: u8 = 16u8.pow_wrapped(2u8); // 0u8
+```
+
+将 `first` 的 `second` 次幂求值，在类型边界处回绕，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+`Magnitude` 可以是 `u8`、`u16` 或 `u32`。
+
+| 第一操作数 | 第二操作数   | 目标类型    |
+| ------ | ----------- | ----------- |
+| `i8`   | `Magnitude` | `i8`        |
+| `i16`  | `Magnitude` | `i16`       |
+| `i32`  | `Magnitude` | `i32`       |
+| `i64`  | `Magnitude` | `i64`       |
+| `i128` | `Magnitude` | `i128`      |
+| `u8`   | `Magnitude` | `u8`        |
+| `u16`  | `Magnitude` | `u16`       |
+| `u32`  | `Magnitude` | `u32`       |
+| `u64`  | `Magnitude` | `u64`       |
+| `u128` | `Magnitude` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `rem`
+
+```leo
+let a: u8 = 3u8 % 2u8; // 1u8
+let b: u8 = 4u8.rem(2u8); // 0u8
+```
+
+按照截断除法规则计算 `first` 除以 `second` 的余数，存储在 `destination` 中：
+
+其中 a 和 b 分别指 first 和 second
+
+`a % b = a - (a / b) * b`
+
+注意，如果运算下溢或除以零，执行将停止。下溢发生在相关除法操作 [div](#div) 下溢时。
+
+对于整数类型需要回绕语义的情况，请参阅 [rem_wrapped](#rem_wrapped)。
+
+`rem` 遵循截断除法，余数与 `a` 同号，这与 [mod](#mod) 不同——后者余数与 `b` 同号。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `rem_wrapped`
+
+```leo
+let a: i8 = -128i8;
+let b: i8 = a.rem_wrapped(-1i8); // 0i8
+```
+
+按照截断除法规则计算 `first` 除以 `second` 的余数，结果存储在 `destination` 中。除以零时停止。
+与 [`rem`](#rem) 不同，`rem_wrapped` 始终有定义，即使在 [`div`](#div) 会回绕的情况下也不会停止。
+
+值得注意的是，`rem_wrapped` 本身不引入回绕，而是确保在 `rem` 未定义的情况下操作仍然有效。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `sub`
+
+```leo
+let a: u8 = 2u8 - 1u8; // 1u8
+let b: u8 = a.sub(1u8); // 0u8
+```
+
+计算 `first - second`，结果存储在 `destination` 中。如果无符号类型的结果为负数，或超出有符号类型的最小可表示值，则操作停止。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------- | ------- | ----------- |
+| `field` | `field` | `field`     |
+| `group` | `group` | `group`     |
+| `i8`    | `i8`    | `i8`        |
+| `i16`   | `i16`   | `i16`       |
+| `i32`   | `i32`   | `i32`       |
+| `i64`   | `i64`   | `i64`       |
+| `i128`  | `i128`  | `i128`      |
+| `u8`    | `u8`    | `u8`        |
+| `u16`   | `u16`   | `u16`       |
+| `u32`   | `u32`   | `u32`       |
+| `u64`   | `u64`   | `u64`       |
+| `u128`  | `u128`  | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `sub_wrapped`
+
+```leo
+let a: u8 = 0u8.sub_wrapped(1u8); // 255u8
+```
+
+计算 `first - second`，在类型边界处回绕，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+## 布尔/位运算符
+
+### `and`
+
+```leo
+// 整数（按位）AND
+let a: i8 = 1i8 & 1i8;
+let b: i8 = 1i8.and(2i8);
+
+// 布尔（逻辑）AND
+let a: bool = true && true;
+let b: bool = true.and(false);
+```
+
+对整数（按位）或布尔类型的 `first` 和 `second` 执行 AND 运算，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | :---------- |
+| `bool` | `bool` | `bool`      |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `nand`
+
+```leo
+let a: bool = true.nand(false); // true
+```
+
+计算 `first` 和 `second` 的与非结果，存储在 `destination` 中。
+仅当 first 和 second 均为 true 时，结果才为 false。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `bool` | `bool` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `nor`
+
+```leo
+let a: bool = false.nor(false); // true
+```
+
+计算 `first` 和 `second` 的或非（含）结果，存储在 `destination` 中。仅当 `first` 和 `second` 均为 `false` 时，结果才为 `true`。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `bool` | `bool` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `not`
+
+```leo
+let a: bool = true.not(); // false
+```
+
+对整数（按位）或布尔输入执行 NOT 运算，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 输入   | 目标类型    |
+| ------ | ----------- |
+| `bool` | `bool`      |
+| `i8`   | `i8`        |
+| `i16`  | `i16`       |
+| `i32`  | `i32`       |
+| `i64`  | `i64`       |
+| `i128` | `i128`      |
+| `u8`   | `u8`        |
+| `u16`  | `u16`       |
+| `u32`  | `u32`       |
+| `u64`  | `u64`       |
+| `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `or`
+
+```leo
+// 整数（按位）OR
+let a: i8 = 1i8 | 2i8;
+let b: i8 = 1i8.or(2i8);
+
+// 布尔（逻辑）OR
+let a: bool = true || true;
+let b: bool = true.or(false);
+```
+
+对整数（按位）或布尔类型的 `first` 和 `second` 执行含 OR 运算，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `bool` | `bool` | `bool`      |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `shl`
+
+```leo
+let a: u8 = 1u8 << 1u8; // 2u8
+let b: u8 = a.shl(1u8); // 4u8
+```
+
+将 `first` 左移 `second` 位，结果存储在 `destination` 中。如果移位距离超出 `first` 的位宽，或移位后的结果超出 `first` 的类型范围，则操作停止。
+
+#### 支持的类型
+
+`Magnitude` 可以是 `u8`、`u16` 或 `u32`。
+
+| 第一操作数 | 第二操作数   | 目标类型    |
+| ------ | ----------- | ----------- |
+| `i8`   | `Magnitude` | `i8`        |
+| `i16`  | `Magnitude` | `i16`       |
+| `i32`  | `Magnitude` | `i32`       |
+| `i64`  | `Magnitude` | `i64`       |
+| `i128` | `Magnitude` | `i128`      |
+| `u8`   | `Magnitude` | `u8`        |
+| `u16`  | `Magnitude` | `u16`       |
+| `u32`  | `Magnitude` | `u32`       |
+| `u64`  | `Magnitude` | `u64`       |
+| `u128` | `Magnitude` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `shl_wrapped`
+
+```leo
+let a: u8 = 128u8.shl_wrapped(1u8); // 0u8
+let b: i8 = 64i8.shl_wrapped(2u8); // -128i8
+```
+
+将 `first` 左移 `second` 位，在类型边界处回绕，结果存储在 `destination` 中。移位距离对 `first` 的位宽取模，即移动 n 位等效于移动 `n % bit_size` 位。
+
+超出类型范围的位将被丢弃，对于有符号整数可能导致符号变化。
+
+#### 支持的类型
+
+`Magnitude` 可以是 `u8`、`u16` 或 `u32`。
+
+| 第一操作数 | 第二操作数   | 目标类型    |
+| ------ | ----------- | ----------- |
+| `i8`   | `Magnitude` | `i8`        |
+| `i16`  | `Magnitude` | `i16`       |
+| `i32`  | `Magnitude` | `i32`       |
+| `i64`  | `Magnitude` | `i64`       |
+| `i128` | `Magnitude` | `i128`      |
+| `u8`   | `Magnitude` | `u8`        |
+| `u16`  | `Magnitude` | `u16`       |
+| `u32`  | `Magnitude` | `u32`       |
+| `u64`  | `Magnitude` | `u64`       |
+| `u128` | `Magnitude` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `shr`
+
+```leo
+let a: u8 = 4u8 >> 1u8; // 2u8
+let b: u8 = a.shr(1u8); // 1u8
+```
+
+将 `first` 右移 `second` 位，结果存储在 `destination` 中。如果移位距离超出 `first` 的位宽，则操作停止。
+
+#### 支持的类型
+
+`Magnitude` 可以是 `u8`、`u16` 或 `u32`。
+
+| 第一操作数 | 第二操作数   | 目标类型    |
+| ------ | ----------- | ----------- |
+| `i8`   | `Magnitude` | `i8`        |
+| `i16`  | `Magnitude` | `i16`       |
+| `i32`  | `Magnitude` | `i32`       |
+| `i64`  | `Magnitude` | `i64`       |
+| `i128` | `Magnitude` | `i128`      |
+| `u8`   | `Magnitude` | `u8`        |
+| `u16`  | `Magnitude` | `u16`       |
+| `u32`  | `Magnitude` | `u32`       |
+| `u64`  | `Magnitude` | `u64`       |
+| `u128` | `Magnitude` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `shr_wrapped`
+
+```leo
+let a: u8 = 128u8.shr_wrapped(7u8); // 1u8
+```
+
+将 `first` 右移 `second` 位，在类型边界处回绕，结果存储在 `destination` 中。移位距离对 `first` 的位宽取模，即移动 `n` 位等效于移动 `n % bit_size` 位。
+
+#### 支持的类型
+
+`Magnitude` 可以是 `u8`、`u16` 或 `u32`。
+
+| 第一操作数 | 第二操作数   | 目标类型    |
+| ------ | ----------- | ----------- |
+| `i8`   | `Magnitude` | `i8`        |
+| `i16`  | `Magnitude` | `i16`       |
+| `i32`  | `Magnitude` | `i32`       |
+| `i64`  | `Magnitude` | `i64`       |
+| `i128` | `Magnitude` | `i128`      |
+| `u8`   | `Magnitude` | `u8`        |
+| `u16`  | `Magnitude` | `u16`       |
+| `u32`  | `Magnitude` | `u32`       |
+| `u64`  | `Magnitude` | `u64`       |
+| `u128` | `Magnitude` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+### `xor`
+
+```leo
+let a: bool = true.xor(false); // true
+```
+
+对整数（按位）或布尔类型的 `first` 和 `second` 执行 XOR 运算，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| ------ | ------ | ----------- |
+| `bool` | `bool` | `bool`      |
+| `i8`   | `i8`   | `i8`        |
+| `i16`  | `i16`  | `i16`       |
+| `i32`  | `i32`  | `i32`       |
+| `i64`  | `i64`  | `i64`       |
+| `i128` | `i128` | `i128`      |
+| `u8`   | `u8`   | `u8`        |
+| `u16`  | `u16`  | `u16`       |
+| `u32`  | `u32`  | `u32`       |
+| `u64`  | `u64`  | `u64`       |
+| `u128` | `u128` | `u128`      |
+
+[返回目录](#目录)
+
+---
+
+## 比较运算符
+
+### `gt`
+
+```leo
+let a: bool = 2u8 > 1u8; // true
+let b: bool = 1u8.gt(1u8); // false
+```
+
+检查 `first` 是否大于 `second`，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| -------- | -------- | ----------- |
+| `field`  | `field`  | `bool`      |
+| `i8`     | `i8`     | `bool`      |
+| `i16`    | `i16`    | `bool`      |
+| `i32`    | `i32`    | `bool`      |
+| `i64`    | `i64`    | `bool`      |
+| `i128`   | `i128`   | `bool`      |
+| `u8`     | `u8`     | `bool`      |
+| `u16`    | `u16`    | `bool`      |
+| `u32`    | `u32`    | `bool`      |
+| `u64`    | `u64`    | `bool`      |
+| `u128`   | `u128`   | `bool`      |
+| `scalar` | `scalar` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `gte`
+
+```leo
+let a: bool = 2u8 >= 1u8; // true
+let b: bool = 1u8.gte(1u8); // true
+```
+
+检查 `first` 是否大于等于 `second`，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| -------- | -------- | ----------- |
+| `field`  | `field`  | `bool`      |
+| `i8`     | `i8`     | `bool`      |
+| `i16`    | `i16`    | `bool`      |
+| `i32`    | `i32`    | `bool`      |
+| `i64`    | `i64`    | `bool`      |
+| `i128`   | `i128`   | `bool`      |
+| `u8`     | `u8`     | `bool`      |
+| `u16`    | `u16`    | `bool`      |
+| `u32`    | `u32`    | `bool`      |
+| `u64`    | `u64`    | `bool`      |
+| `u128`   | `u128`   | `bool`      |
+| `scalar` | `scalar` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `eq`
+
+```leo
+let a: bool = 1u8 == 1u8; // true
+let b: bool = 1u8.eq(2u8); // false
+```
+
+比较 `first` 和 `second` 是否相等，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数   | 第二操作数   | 目标类型    |
+| ----------- | ----------- | ----------- |
+| `address`   | `address`   | `bool`      |
+| `bool`      | `bool`      | `bool`      |
+| `field`     | `field`     | `bool`      |
+| `group`     | `group`     | `bool`      |
+| `i8`        | `i8`        | `bool`      |
+| `i16`       | `i16`       | `bool`      |
+| `i32`       | `i32`       | `bool`      |
+| `i64`       | `i64`       | `bool`      |
+| `i128`      | `i128`      | `bool`      |
+| `u8`        | `u8`        | `bool`      |
+| `u16`       | `u16`       | `bool`      |
+| `u32`       | `u32`       | `bool`      |
+| `u64`       | `u64`       | `bool`      |
+| `u128`      | `u128`      | `bool`      |
+| `scalar`    | `scalar`    | `bool`      |
+| `Signature` | `Signature` | `bool`      |
+| `struct`    | `struct`    | `bool`      |
+| `Record`    | `Record`    | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `neq`
+
+```leo
+let a: bool = 1u8 != 1u8; // false
+let b: bool = 1u8.neq(2u8); // true
+```
+
+比较 `first` 和 `second` 是否不等，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数   | 第二操作数   | 目标类型    |
+| ----------- | ----------- | ----------- |
+| `address`   | `address`   | `bool`      |
+| `bool`      | `bool`      | `bool`      |
+| `field`     | `field`     | `bool`      |
+| `group`     | `group`     | `bool`      |
+| `i8`        | `i8`        | `bool`      |
+| `i16`       | `i16`       | `bool`      |
+| `i32`       | `i32`       | `bool`      |
+| `i64`       | `i64`       | `bool`      |
+| `i128`      | `i128`      | `bool`      |
+| `u8`        | `u8`        | `bool`      |
+| `u16`       | `u16`       | `bool`      |
+| `u32`       | `u32`       | `bool`      |
+| `u64`       | `u64`       | `bool`      |
+| `u128`      | `u128`      | `bool`      |
+| `scalar`    | `scalar`    | `bool`      |
+| `Signature` | `Signature` | `bool`      |
+| `struct`    | `struct`    | `bool`      |
+| `Record`    | `Record`    | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `lt`
+
+```leo
+let a: bool = 1u8 < 2u8; // true
+let b: bool = 1u8.lt(1u8); // false
+```
+
+检查 `first` 是否小于 `second`，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| -------- | -------- | ----------- |
+| `field`  | `field`  | `bool`      |
+| `i8`     | `i8`     | `bool`      |
+| `i16`    | `i16`    | `bool`      |
+| `i32`    | `i32`    | `bool`      |
+| `i64`    | `i64`    | `bool`      |
+| `i128`   | `i128`   | `bool`      |
+| `u8`     | `u8`     | `bool`      |
+| `u16`    | `u16`    | `bool`      |
+| `u32`    | `u32`    | `bool`      |
+| `u64`    | `u64`    | `bool`      |
+| `u128`   | `u128`   | `bool`      |
+| `scalar` | `scalar` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+### `lte`
+
+```leo
+let a: bool = 1u8 <= 2u8; // true
+let b: bool = 1u8.lte(1u8); // true
+```
+
+检查 `first` 是否小于等于 `second`，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 第一操作数 | 第二操作数 | 目标类型    |
+| -------- | -------- | ----------- |
+| `field`  | `field`  | `bool`      |
+| `i8`     | `i8`     | `bool`      |
+| `i16`    | `i16`    | `bool`      |
+| `i32`    | `i32`    | `bool`      |
+| `i64`    | `i64`    | `bool`      |
+| `i128`   | `i128`   | `bool`      |
+| `u8`     | `u8`     | `bool`      |
+| `u16`    | `u16`    | `bool`      |
+| `u32`    | `u32`    | `bool`      |
+| `u64`    | `u64`    | `bool`      |
+| `u128`   | `u128`   | `bool`      |
+| `scalar` | `scalar` | `bool`      |
+
+[返回目录](#目录)
+
+---
+
+## 上下文相关表达式
+
+### `block.height`
+
+```leo
+program example.aleo {
+    fn matches(height: u32) -> Final {
+        return final {
+            assert_eq(height, block.height);
+        };
+    }
+}
+```
+
+`block.height` 运算符用于在 Leo 程序中获取最新区块高度，表示链上的区块总数。如上例所示，`block.height` 在 `final { }` 块中使用，用于获取程序中的最新区块高度。
+
+:::info
+
+- `block.height` 运算符只能在 `final { }` 块或 `final fn` 函数内使用，在其他位置使用会导致编译错误。
+- `block.height` 运算符不接受任何参数。
+  :::
+
+[返回目录](#目录)
+
+---
+
+### `block.timestamp`
+
+```leo
+program example.aleo {
+    fn matches(timestamp: i64) -> Final {
+        return final {
+            assert_eq(timestamp, block.timestamp);
+        };
+    }
+}
+```
+
+`block.timestamp` 运算符用于在 Leo 程序中获取最新区块的 UNIX 时间戳。如上例所示，`block.timestamp` 在 `final { }` 块中使用，用于获取程序中的最新区块时间戳。
+
+:::info
+
+- `block.timestamp` 运算符只能在 `final { }` 块或 `final fn` 函数内使用，在其他位置使用会导致编译错误。
+- `block.timestamp` 运算符不接受任何参数。
+  :::
+
+[返回目录](#目录)
+
+---
+
+### `self.address`
+
+```leo
+program example.aleo {
+    fn get_program_address() -> address {
+        return self.address;
+    }
+}
+```
+
+`self.address` 运算符返回调用它的程序地址。程序通过其名称（`{PROGRAM_NAME}.aleo`）来标识，但在底层拥有对应的 Aleo 地址。
+
+:::info
+
+- `self.address` 运算符不接受任何参数。
+  :::
+
+[返回目录](#目录)
+
+---
+
+### `self.caller`
+
+```leo
+program example.aleo {
+    fn matches(addr: address) -> bool {
+        return self.caller == addr;
+    }
+}
+```
+
+`self.caller` 运算符返回调用当前入口函数的账户/程序的地址。注意，如果该函数是作为外部程序的一部分被调用的，此操作将返回该程序的地址，而不是顶层用户的地址。
+
+:::info
+
+- `self.caller` 运算符不接受任何参数。
+  :::
+
+[返回目录](#目录)
+
+---
+
+### `self.checksum`
+
+```leo
+program example.aleo {
+    fn matches(checksum: [u8,32]) -> Final {
+        return final {
+            assert_eq(self.checksum, checksum);
+        };
+    }
+}
+```
+
+`self.checksum` 运算符返回程序的校验和，即程序代码的唯一标识符。
+
+也可以使用以下语法引用其他程序的校验和：
+
+```leo
+import credits.aleo;
+...
+let ext_checksum: [u8, 32] = Program::checksum(credits.aleo);
+```
+
+:::info
+
+- `self.checksum` 运算符只能在 `final { }` 块或 `final fn` 函数内使用，在其他位置使用会导致编译错误。
+- `self.checksum` 运算符不接受任何参数。
+- 若要引用其他程序的校验和，需要先导入该程序。
+  :::
+
+[返回目录](#目录)
+
+---
+
+### `self.edition`
+
+```leo
+program example.aleo {
+    fn matches(edition: u16) -> Final {
+        return final {
+            assert_eq(self.edition, edition);
+        };
+    }
+}
+```
+
+`self.edition` 运算符返回程序的版本号（edition）。程序版本从零开始，每次升级时递增一，版本号由网络自动追踪。
+
+也可以使用以下语法引用其他程序的版本号：
+
+```leo
+import credits.aleo;
+...
+let ext_edition: u16 = Program::edition(credits.aleo);
+```
+
+:::info
+
+- `self.edition` 运算符只能在 `final { }` 块或 `final fn` 函数内使用，在其他位置使用会导致编译错误。
+- `self.edition` 运算符不接受任何参数。
+- 若要引用其他程序的版本号，需要先导入该程序。
+  :::
+
+[返回目录](#目录)
+
+---
+
+### `self.program_owner`
+
+```leo
+program example.aleo {
+    fn matches(owner: address) -> Final {
+        return final {
+            assert_eq(self.program_owner, owner);
+        };
+    }
+}
+```
+
+`self.program_owner` 运算符返回提交程序部署交易的地址。
+也可以使用以下语法引用其他程序的所有者：
+
+```leo
+import credits.aleo;
+...
+let ext_owner: u16 = Program::owner(credits.aleo);
+```
+
+:::info
+
+- `self.program_owner` 运算符只能在 `final { }` 块或 `final fn` 函数内使用，在其他位置使用会导致编译错误。
+- `self.program_owner` 运算符不接受任何参数。
+- 若要引用其他程序的所有者，需要先导入该程序。
+  :::
+
+[返回目录](#目录)
+
+---
+
+### `self.signer`
+
+```leo
+program example.aleo {
+    fn matches(addr: address) -> bool {
+        return self.signer == addr;
+    }
+}
+```
+
+`self.signer` 运算符返回调用顶层入口函数的账户地址，即签署该交易的用户账户地址。
+
+:::info
+
+- `self.signer` 运算符不接受任何参数。
+  :::
+
+[返回目录](#目录)
+
+---
+
+## Group/Field 专用运算符
+
+### `group::GEN`
+
+```leo
+let g: group = group::GEN; // group 生成元
+```
+
+返回 `group` 类型所属代数群的生成元。
+
+Leo 的编译基于椭圆曲线，曲线上的点构成一个群，而该曲线上的某个特定点生成一个子群，其元素构成 `group` 类型。
+
+这是一个常量，而非函数，因此不接受输入，只返回一个输出。
+
+它是一个关联常量，名称为 `GEN`，关联类型为 `group`。
+
+#### 支持的类型
+
+| 目标类型    |
+| ----------- |
+| `group`     |
+
+[返回目录](#目录)
+
+---
+
+### `Aleo::generator`
+
+```leo
+let g: group = Aleo::generator;
+```
+
+返回 Aleo group 的生成元点。与 `group::GEN` 等价，但通过 `Aleo` 命名空间表达，与其他 `Aleo::*` 内置函数风格保持一致。
+
+---
+
+### `Aleo::generator_powers`
+
+```leo
+let powers: [group; 251] = Aleo::generator_powers;
+```
+
+返回预计算的 Aleo group 生成元前 251 个连续幂次组成的数组：`[G^0, G^1, G^2, ..., G^250]`。在 final 块中进行高效标量乘法时无需在运行时重新计算幂次，非常有用。
+
+仅在 `final { }` 块内可用。
+
+---
+
+### `double`
+
+```leo
+let a: group = 2group;
+let b: group = a.double();
+```
+
+将输入加上自身，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 输入    | 目标类型    |
+| ------- | ----------- |
+| `field` | `field`     |
+| `group` | `group`     |
+
+[返回目录](#目录)
+
+---
+
+### `inv`
+
+```leo
+let a: field = 1field.inv();
+```
+
+计算输入的乘法逆元，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 输入    | 目标类型    |
+| ------- | ----------- |
+| `field` | `field`     |
+
+[返回目录](#目录)
+
+---
+
+### `square`
+
+```leo
+let a: field = 1field.square(); // 1field
+```
+
+对输入求平方，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 输入    | 目标类型    |
+| ------- | ----------- |
+| `field` | `field`     |
+
+[返回目录](#目录)
+
+---
+
+### `square_root`
+
+```leo
+let a: field = 1field.square_root(); // 1field
+```
+
+计算输入的平方根，结果存储在 `destination` 中。如果输入是二次剩余，函数返回按模序较小的那个根；如果输入不是二次剩余，执行停止。
+
+#### 支持的类型
+
+| 输入    | 目标类型    |
+| ------- | ----------- |
+| `field` | `field`     |
+
+[返回目录](#目录)
+
+---
+
+### `to_x_coordinate`
+
+```leo
+let x: field = 0group.to_x_coordinate(); // 0field
+```
+
+将 group 元素的 x 坐标提取为域元素。
+
+#### 支持的类型
+
+| 输入    | 目标类型    |
+| ------- | ----------- |
+| `group` | `field`     |
+
+[返回目录](#目录)
+
+---
+
+### `to_y_coordinate`
+
+```leo
+let y: field = 0group.to_y_coordinate(); // 1field
+```
+
+将 group 元素的 y 坐标提取为域元素。
+
+#### 支持的类型
+
+| 输入    | 目标类型    |
+| ------- | ----------- |
+| `group` | `field`     |
+
+[返回目录](#目录)
+
+---
+
+## 序列化/反序列化
+
+### `Serialize::to_bits`
+
+```leo
+// 标准序列化（包含类型元数据）
+let bits: [bool; 58] = Serialize::to_bits(value);
+
+// 原始序列化（不含元数据，直接序列化原始比特）
+let bits: [bool; 32] = Serialize::to_bits_raw(value);
+
+// 同样支持数组
+let bits: [bool; 128] = Serialize::to_bits_raw([1u32, 2u32, 3u32, 4u32]);
+```
+
+在函数末尾追加 `_raw` 后，函数将省略类型的元数据，直接序列化输入比特。
+
+#### 支持的类型
+
+| 输入      | 目标类型（标准）| 目标类型（原始）|
+| --------- | :------------ | ----------------- |
+| `address` | `[bool; 279]` | `[bool; 253]`     |
+| `bool`    | `[bool; 27]`  | `[bool; 1]`       |
+| `field`   | `[bool; 279]` | `[bool; 253]`     |
+| `group`   | `[bool; 279]` | `[bool; 253]`     |
+| `i8`      | `[bool; 34]`  | `[bool; 8]`       |
+| `i16`     | `[bool; 42]`  | `[bool; 16]`      |
+| `i32`     | `[bool; 58]`  | `[bool; 32]`      |
+| `i64`     | `[bool; 90]`  | `[bool; 64]`      |
+| `i128`    | `[bool; 154]` | `[bool; 128]`     |
+| `u8`      | `[bool; 34]`  | `[bool; 8]`       |
+| `u16`     | `[bool; 42]`  | `[bool; 16]`      |
+| `u32`     | `[bool; 58]`  | `[bool; 32]`      |
+| `u64`     | `[bool; 90]`  | `[bool; 64]`      |
+| `u128`    | `[bool; 154]` | `[bool; 128]`     |
+| `scalar`  | `[bool; 277]` | `[bool; 251]`     |
+
+[返回目录](#目录)
+
+---
+
+### `Deserialize::from_bits::[TYPE]`
+
+```leo
+// 标准反序列化（包含类型元数据）
+let bits1: [bool; 58] = Serialize::to_bits(1u32);
+let value1: u32 = Deserialize::from_bits::[u32](bits1);
+
+// 原始反序列化（不含元数据，直接反序列化原始比特）
+let bits2: [bool; 32] = Serialize::to_bits_raw(1u32);
+let value2: u32 = Deserialize::from_bits_raw::[u32](bits2);
+
+// 同样支持数组
+let bits3: [bool; 128] = Serialize::to_bits_raw([1u32, 2u32, 3u32, 4u32]);
+let arr: [u32; 4] = Deserialize::from_bits_raw::[[u32; 4]](bits3);
+```
+
+在函数末尾追加 `_raw` 后，函数将省略类型的元数据，直接反序列化输入比特。
+
+#### 支持的类型
+
+| TYPE      | 输入（标准）  | 输入（原始）  | 目标类型    |
+| --------- | :------------ | ------------- | ----------- |
+| `address` | `[bool; 279]` | `[bool; 253]` | `address`   |
+| `bool`    | `[bool; 27]`  | `[bool; 1]`   | `bool`      |
+| `field`   | `[bool; 279]` | `[bool; 253]` | `field`     |
+| `group`   | `[bool; 279]` | `[bool; 253]` | `group`     |
+| `i8`      | `[bool; 34]`  | `[bool; 8]`   | `i8`        |
+| `i16`     | `[bool; 42]`  | `[bool; 16]`  | `i16`       |
+| `i32`     | `[bool; 58]`  | `[bool; 32]`  | `i32`       |
+| `i64`     | `[bool; 90]`  | `[bool; 64]`  | `i64`       |
+| `i128`    | `[bool; 154]` | `[bool; 128]` | `i128`      |
+| `u8`      | `[bool; 34]`  | `[bool; 8]`   | `u8`        |
+| `u16`     | `[bool; 42]`  | `[bool; 16]`  | `u16`       |
+| `u32`     | `[bool; 58]`  | `[bool; 32]`  | `u32`       |
+| `u64`     | `[bool; 90]`  | `[bool; 64]`  | `u64`       |
+| `u128`    | `[bool; 154]` | `[bool; 128]` | `u128`      |
+| `scalar`  | `[bool; 277]` | `[bool; 251]` | `scalar`    |
+
+[返回目录](#目录)
+
+---
+
+## 杂项
+
+### `assert`
+
+```leo
+let a: bool = true;
+let b: bool = false;
+
+assert(a); // 不会停止
+assert(b); // 程序停止
+```
+
+检查表达式是否求值为 `true`，如果求值为 `false` 则停止。
+
+#### 支持的类型
+
+| 表达式     |
+| ---------- |
+| `bool`     |
+
+[返回目录](#目录)
+
+---
+
+### `assert_eq`
+
+```leo
+let a: u8 = 1u8;
+let b: u8 = 2u8;
+
+assert_eq(a, a); // 不会停止
+assert_eq(a, b); // 程序停止
+```
+
+检查 `first` 和 `second` 是否相等，如果不相等则停止。
+
+#### 支持的类型
+
+| 第一操作数   | 第二操作数   |
+| ----------- | ----------- |
+| `address`   | `address`   |
+| `bool`      | `bool`      |
+| `field`     | `field`     |
+| `group`     | `group`     |
+| `i8`        | `i8`        |
+| `i16`       | `i16`       |
+| `i32`       | `i32`       |
+| `i64`       | `i64`       |
+| `i128`      | `i128`      |
+| `u8`        | `u8`        |
+| `u16`       | `u16`       |
+| `u32`       | `u32`       |
+| `u64`       | `u64`       |
+| `u128`      | `u128`      |
+| `scalar`    | `scalar`    |
+| `Signature` | `Signature` |
+| `struct`    | `struct`    |
+| `Record`    | `Record`    |
+
+[返回目录](#目录)
+
+---
+
+### `assert_neq`
+
+```leo
+let a: u8 = 1u8;
+let b: u8 = 2u8;
+
+assert_neq(a, b); // 不会停止
+assert_neq(a, a); // 程序停止
+```
+
+检查 `first` 和 `second` 是否不等，如果相等则停止。
+
+#### 支持的类型
+
+| 第一操作数   | 第二操作数   |
+| ----------- | ----------- |
+| `address`   | `address`   |
+| `bool`      | `bool`      |
+| `field`     | `field`     |
+| `group`     | `group`     |
+| `i8`        | `i8`        |
+| `i16`       | `i16`       |
+| `i32`       | `i32`       |
+| `i64`       | `i64`       |
+| `i128`      | `i128`      |
+| `u8`        | `u8`        |
+| `u16`       | `u16`       |
+| `u32`       | `u32`       |
+| `u64`       | `u64`       |
+| `u128`      | `u128`      |
+| `scalar`    | `scalar`    |
+| `Signature` | `Signature` |
+| `struct`    | `struct`    |
+| `Record`    | `Record`    |
+
+[返回目录](#目录)
+
+---
+
+### `ternary`
+
+```leo
+let a: u8 = true ? 1u8 : 2u8; // 1u8
+```
+
+如果 `condition` 为 true，则选择 `first`；否则选择 `second`，结果存储在 `destination` 中。
+
+#### 支持的类型
+
+| 条件      | 第一操作数   | 第二操作数   | 目标类型    |
+| --------- | ----------- | ----------- | ----------- |
+| `bool`    | `bool`      | `bool`      | `bool`      |
+| `bool`    | `field`     | `field`     | `field`     |
+| `bool`    | `group`     | `group`     | `group`     |
+| `bool`    | `i8`        | `i8`        | `i8`        |
+| `bool`    | `i16`       | `i16`       | `i16`       |
+| `bool`    | `i32`       | `i32`       | `i32`       |
+| `bool`    | `i64`       | `i64`       | `i64`       |
+| `bool`    | `i128`      | `i128`      | `i128`      |
+| `bool`    | `u8`        | `u8`        | `u8`        |
+| `bool`    | `u16`       | `u16`       | `u16`       |
+| `bool`    | `u32`       | `u32`       | `u32`       |
+| `bool`    | `u64`       | `u64`       | `u64`       |
+| `bool`    | `u128`      | `u128`      | `u128`      |
+| `bool`    | `scalar`    | `scalar`    | `scalar`    |
+| `bool`    | `Signature` | `Signature` | `Signature` |
+
+[返回目录](#目录)
+
+---
