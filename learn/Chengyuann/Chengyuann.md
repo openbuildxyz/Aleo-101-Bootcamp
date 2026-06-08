@@ -1,6 +1,0 @@
-- 昵称：Chengyuann
-- GitHub 用户名：Chengyuann
-- 微信：Mchengy02
-- Aleo 钱包地址：aleo1d2sfwzjgtamz72tjjrpjcqq7ca6hr0n2tr8ksdkqvenna0z7m5zssz8ch5
-- 技术栈：前端 / Node.js / 智能合约入门
-- 自我介绍：正在通过 Aleo 101 Bootcamp 学习 Leo 语言、零知识隐私应用和测试网部署流程，希望完成一个能本地运行、可部署到测试网的隐私小应用。

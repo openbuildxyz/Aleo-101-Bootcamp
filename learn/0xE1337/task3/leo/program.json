@@ -1,9 +1,0 @@
-{
-  "program": "private_gate_pass.aleo",
-  "version": "0.1.0",
-  "description": "Anonymous membership credential with ZK selective disclosure + nullifier-gated access",
-  "license": "MIT",
-  "leo": "4.0.2",
-  "dependencies": null,
-  "dev_dependencies": null
-}

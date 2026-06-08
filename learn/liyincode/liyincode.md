@@ -1,6 +1,0 @@
-- 昵称：young
-- GitHub 用户名：liyincode
-- 微信：
-- Aleo 钱包地址：aleo1cglkzwc3qfjrqfkxmngfg93wr35nlh7urrd0cy68m7fmhhlyrqrq6kkmuy
-- 技术栈：前端技术栈
-- 自我介绍：一名全栈工程师

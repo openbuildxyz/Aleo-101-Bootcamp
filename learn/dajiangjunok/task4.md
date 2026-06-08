@@ -1,1 +1,0 @@
-合约地址：https://testnet.explorer.provable.com/program/private_token_1lkp6q.aleo

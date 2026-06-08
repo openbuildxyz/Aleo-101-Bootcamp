@@ -1,9 +1,0 @@
-{
-  "program": "private_score_gate.aleo",
-  "version": "0.1.0",
-  "description": "Private score threshold demo for Aleo 101 Bootcamp task3",
-  "license": "MIT",
-  "leo": "4.1.0",
-  "dependencies": null,
-  "dev_dependencies": null
-}

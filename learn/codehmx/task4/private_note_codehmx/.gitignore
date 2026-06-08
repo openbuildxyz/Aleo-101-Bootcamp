@@ -1,7 +1,0 @@
-build/
-outputs/
-.aleo/
-*.avm
-*.prover
-*.verifier
-.env

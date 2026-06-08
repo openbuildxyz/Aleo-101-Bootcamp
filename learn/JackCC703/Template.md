@@ -1,6 +1,0 @@
-- 昵称：JackCC
-- GitHub 用户名：JackCC703
-- 微信：
-- Aleo 钱包地址：aleo142k0nm4uwt2df06krr4fqkslaecgqz58ggjrnslzxt2xu5lexuxszm93cr
-- 技术栈：Solidity, Rust, React
-- 自我介绍：Web3 开发者，对零知识证明和隐私计算感兴趣

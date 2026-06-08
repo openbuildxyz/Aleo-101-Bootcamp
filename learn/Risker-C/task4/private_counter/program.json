@@ -1,9 +1,0 @@
-{
-  "program": "private_counter.aleo",
-  "version": "0.1.0",
-  "description": "Private counter deployment demo for Aleo 101 Bootcamp task4",
-  "license": "MIT",
-  "leo": "4.1.0",
-  "dependencies": null,
-  "dev_dependencies": null
-}

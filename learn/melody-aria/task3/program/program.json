@@ -1,6 +1,0 @@
-{
-  "program": "age_verify.aleo",
-  "version": "0.0.0",
-  "description": "Private Age Verification - Prove age >= 18 without revealing actual age",
-  "license": "MIT"
-}

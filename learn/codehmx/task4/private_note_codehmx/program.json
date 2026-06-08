@@ -1,8 +1,0 @@
-{
-  "program": "private_note_codehmx.aleo",
-  "version": "0.1.0",
-  "description": "A simple private note/task record on Aleo with encrypted progress and a public aggregate completion counter.",
-  "license": "MIT",
-  "dependencies": null,
-  "dev_dependencies": null
-}

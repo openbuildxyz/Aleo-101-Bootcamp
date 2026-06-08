@@ -1,6 +1,0 @@
-{
-    "program": "treasure_hunt.aleo",
-    "version": "0.0.0",
-    "description": "ZK Treasure Hunt — verifies coordinate guesses without revealing the treasure location",
-    "license": "MIT"
-}

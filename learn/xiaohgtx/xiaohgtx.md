@@ -1,6 +1,0 @@
-- 昵称：   xiaohgtx
-- GitHub 用户名：   xiaohgtx
-- 微信：hzlyk888
-- Aleo 钱包地址：  aleo1xfcu8nyu287mff25rsfjj99zzg5u4quz67y8hzktsvk4ar09zuqs0vc2eh
-- 技术栈：
-- 自我介绍：

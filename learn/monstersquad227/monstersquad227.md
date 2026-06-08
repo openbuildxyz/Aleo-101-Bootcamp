@@ -1,6 +1,0 @@
-- 昵称：   Rip
-- GitHub 用户名：   monstersquad227
-- 微信： monster80227
-- Aleo 钱包地址：  aleo1gswg5r34ya5p8e2kuntr0yts3m9y920uesw2xz709wvtw8hzdqyq3ydvhu
-- 技术栈：  Go Vue3 Solidity Rust Anchor
-- 自我介绍：   热爱技术，想要进入隐私赛道

@@ -1,9 +1,0 @@
-# 不要把私钥 / build 产物 / 临时文件提交到仓库
-.env
-.env.local
-build/
-outputs/
-imports/
-*.prover
-*.verifier
-leo.lock

@@ -1,7 +1,0 @@
-[package]
-name = "private_vote"
-version = "0.1.0"
-description = "A privacy-preserving voting dApp on Aleo"
-license = "MIT"
-
-[dependencies]

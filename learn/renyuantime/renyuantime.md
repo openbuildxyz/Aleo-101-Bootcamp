@@ -1,6 +1,0 @@
-- 昵称：望远
-- GitHub 用户名：renyuantime
-- 微信：ren4365201
-- Aleo 钱包地址： aleo1pq3kcrhfegmn5d9t0p0ur9c98rhf5jnfnw3mdlcrp5xgjtzvjsyq4vvdy8
-- 技术栈： node+python+agent development
-- 自我介绍：ai agent开发+web3新手+希望参与构建agent+Web3的混合项目

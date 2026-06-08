@@ -1,6 +1,0 @@
-{
-  "program": "pii_protocol_v2.aleo",
-  "version": "1.0.0",
-  "description": "Aleo PII Protocol v2 - On-chain personal data storage and authorization",
-  "license": "MIT"
-}

@@ -1,8 +1,0 @@
-{
-  "program": "private_auction_nontracey.aleo",
-  "version": "0.1.0",
-  "description": "A sealed-bid privacy auction on Aleo — bids are stored as private records, amounts are hidden until reveal phase",
-  "license": "MIT",
-  "dependencies": null,
-  "dev_dependencies": null
-}

@@ -1,9 +1,0 @@
-{
-  "program": "compliant_gate_pass.aleo",
-  "version": "0.1.0",
-  "description": "Anonymous credential gate with selective disclosure + non-inclusion (revocation) proof",
-  "license": "MIT",
-  "leo": "4.0.2",
-  "dependencies": null,
-  "dev_dependencies": null
-}

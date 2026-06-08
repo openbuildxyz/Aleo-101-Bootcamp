@@ -1,9 +1,0 @@
-{
-  "program": "yao990x16_age_verifier.aleo",
-  "version": "0.1.0",
-  "description": "ZK Age Verifier - Task 4 Testnet Version",
-  "license": "MIT",
-  "leo": "4.0.2",
-  "dependencies": null,
-  "dev_dependencies": null
-}

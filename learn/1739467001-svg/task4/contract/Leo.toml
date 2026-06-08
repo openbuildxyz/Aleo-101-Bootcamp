@@ -1,7 +1,0 @@
-[package]
-name = "zk_ai_educred_cjy"
-version = "0.1.0"
-description = "Privacy-preserving AI learning credential on Aleo (ZK range proof of AI scores)"
-license = "MIT"
-
-[dependencies]

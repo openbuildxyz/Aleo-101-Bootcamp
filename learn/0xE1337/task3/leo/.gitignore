@@ -1,6 +1,0 @@
-build/
-outputs/
-.env
-*.avm
-*.prover
-*.verifier

@@ -1,7 +1,0 @@
-{
-  "program": "privatevotedapp123.aleo",
-  "version": "0.0.1",
-  "description": "A simple private voting application for Aleo Bootcamp Task 3",
-  "license": "MIT",
-  "dependencies": null
-}

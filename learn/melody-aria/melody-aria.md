@@ -1,6 +1,0 @@
-- 昵称：melody-aria
-- GitHub 用户名：melody-aria
-- 微信：
-- Aleo 钱包地址：aleo173j0mqn4c24lfhdssksjxvd8l4wna9pdfh9z2tytzr3lc5elgcqqdwehu3
-- 技术栈：全栈
-- 自我介绍：对 ZK 和 Aleo 感兴趣的全栈开发者

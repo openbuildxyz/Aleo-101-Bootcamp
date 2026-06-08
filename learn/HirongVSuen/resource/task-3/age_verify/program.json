@@ -1,6 +1,0 @@
-{
-    "program": "age_verify.aleo",
-    "version": "0.0.0",
-    "description": "Age verification ZKP - verify if age >= threshold without revealing exact age",
-    "license": "MIT"
-}

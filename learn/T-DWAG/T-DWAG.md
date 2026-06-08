@@ -1,6 +1,0 @@
-- 昵称：T-DWAG
-- GitHub 用户名：T-DWAG
-- 微信：WalkIt_LikeITalkIt
-- Aleo 钱包地址：aleo106d60g8qm0sxuc0xcwrzuaq6y7tdwg9w42prw70mrptrw40r4qrqf9fwuf
-- 技术栈：Go, Python
-- 自我介绍：Web3 开发者，关注隐私计算与 Aleo 生态，正在学习 ZK 应用开发。

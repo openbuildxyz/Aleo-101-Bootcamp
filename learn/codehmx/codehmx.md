@@ -1,6 +1,0 @@
-- 昵称：codehmx
-- GitHub 用户名：codehmx
-- 微信：x841481668
-- Aleo 钱包地址：aleo1cj5nlfvnyln0pujha244lftkndm7tp4dnqk6tph69er2yshcmvpswep7nw
-- 技术栈：前端
-- 自我介绍：学习中的小前端

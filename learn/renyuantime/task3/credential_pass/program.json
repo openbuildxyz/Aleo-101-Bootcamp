@@ -1,9 +1,0 @@
-{
-  "program": "credential_pass.aleo",
-  "version": "0.1.0",
-  "description": "",
-  "license": "MIT",
-  "leo": "4.1.0",
-  "dependencies": null,
-  "dev_dependencies": null
-}

@@ -1,9 +1,0 @@
-{
-  "program": "private_score_gate_liyincode.aleo",
-  "version": "0.1.0",
-  "description": "Private score gate deployment demo for Aleo 101 Bootcamp task4",
-  "license": "MIT",
-  "leo": "4.2.0",
-  "dependencies": null,
-  "dev_dependencies": null
-}
