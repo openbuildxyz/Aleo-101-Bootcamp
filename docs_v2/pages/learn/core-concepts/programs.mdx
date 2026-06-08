@@ -1,0 +1,125 @@
+---
+title: 程序
+---
+
+# 程序
+
+Aleo 程序是构建在 Aleo 区块链上的去中心化应用的基本单元，使用专为零知识应用设计的 **Leo 编程语言** 编写。
+
+## Leo 语言
+
+Leo 是一种专为零知识（Zero-Knowledge, ZK）应用开发的**领域特定语言（DSL）**，具有以下特点：
+
+- **ZK 原生设计**：从语言层面支持零知识证明的生成和验证
+- **静态类型**：编译时类型检查，减少运行时错误
+- **类 Rust 语法**：借鉴 Rust 的语法设计，易于学习和使用
+- **自动证明生成**：编译器自动生成对应的零知识证明电路
+
+## 程序的核心特性
+
+### 公开与私有功能
+
+Aleo 程序可以同时包含公开和私有功能：
+
+- **公开功能**：操作公开状态（Mappings），数据对所有人可见
+- **私有功能**：操作私有状态（Records），数据加密保护
+- **混合功能**：在同一程序中灵活组合公开和私有操作
+
+### 程序互操作性
+
+Aleo 实现了 **ZK 链中的首创** —— 程序之间的完全互操作性：
+
+- 部署到 Aleo 网络的程序可以被其他程序调用
+- 支持程序间的组合和嵌套调用
+- 开发者可以构建可复用的程序库
+
+这种设计使得 Aleo 生态中的程序可以像乐高积木一样组合，构建更复杂的去中心化应用。
+
+## 程序结构
+
+一个典型的 Aleo 程序包含以下组成部分：
+
+### 函数（Functions）
+
+程序的核心逻辑单元，定义了可执行的操作：
+
+```leo
+transition transfer_private(
+    sender: address,
+    receiver: address,
+    amount: u64
+) -> (credits, credits) {
+    // 函数逻辑
+}
+```
+
+### 输入与输出
+
+- **输入**：函数接收的参数，可以是公开或私有类型
+- **输出**：函数返回的结果，同样支持公开和私有类型
+
+### Finalize 块
+
+用于在函数执行后更新链上公开状态：
+
+```leo
+transition mint_public(
+    public receiver: address,
+    public amount: u64
+) {
+    // 私有计算逻辑
+} finalize {
+    // 更新公开映射状态
+    Mapping::set(account, receiver, current_balance + amount);
+}
+```
+
+Finalize 块确保了公开状态的原子性更新。
+
+## 示例：Token 程序
+
+以下是一个简化的 Token 程序示例，展示了如何构建同时具有公开和私有功能的程序：
+
+```leo
+program token.aleo {
+    // 公开映射：存储公开余额
+    mapping account: address => u64;
+
+    // 私有记录：代表代币所有权
+    record Token {
+        owner: address,
+        amount: u64,
+    }
+
+    // 私有转账功能
+    transition transfer_private(
+        sender_token: Token,
+        receiver: address,
+        amount: u64
+    ) -> (Token, Token) {
+        // 消费旧记录，产生新记录
+    }
+
+    // 公开转账功能
+    transition transfer_public(
+        public sender: address,
+        public receiver: address,
+        public amount: u64
+    ) {
+        // 更新公开映射
+    } finalize {
+        // 修改链上公开状态
+    }
+}
+```
+
+## 程序部署
+
+编写完成的 Leo 程序需要经过以下步骤部署到 Aleo 网络：
+
+1. **编译**：使用 Leo 编译器将源代码编译为 Aleo 指令和零知识证明电路
+2. **部署交易**：创建部署交易并提交到网络
+3. **链上验证**：验证者验证部署交易的有效性
+4. **程序激活**：部署成功后，程序即可被调用
+
+部署后的程序永久存储在链上，任何用户或程序都可以与之交互。
