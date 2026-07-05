@@ -1,0 +1,6 @@
+- 昵称：   litong
+- GitHub 用户名：   litong-2017
+- 微信： LT5421A
+- Aleo 钱包地址：  aleo1m69yephk95yz3f5gsaf25d30h72rg3v62vresgz36xe8vwa7959qpkjwxm
+- 技术栈：  Java / Python / Node.js / 智能合约开发与审计 / LLM Agent 开发
+- 自我介绍：后端应用开发 + AI 方向独立开发者 ，主要在做Java后端应用。对 web3 有一些接触，这次想把 Aleo / Leo 的开发流程系统走通一遍，落到 AI Agent + 隐私计算的实际场景里。
